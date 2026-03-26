@@ -1,0 +1,11 @@
+name: sidebar_nav
+description: Sidebar navigation with drawer, chat list, settings, and workspace switcher for AI chat apps.
+version: 0.1.0
+environment:
+  mason: ">=0.1.0 <1.0.0"
+vars:
+  output_dir:
+    type: string
+    description: Output directory for generated files
+    default: flai
+    prompt: "Where should FlAI files be generated?"
