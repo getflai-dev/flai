@@ -1,6 +1,10 @@
 <p align="center">
   <a href="https://getflai.dev">
-    <img src="brand/png/logo-horizontal-light@2x.png" alt="flai" width="280" />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="brand/png/logo-horizontal-dark@2x.png" />
+      <source media="(prefers-color-scheme: light)" srcset="brand/png/logo-horizontal-light@2x.png" />
+      <img src="brand/png/logo-horizontal-light@2x.png" alt="flai" width="280" />
+    </picture>
   </a>
 </p>
 
