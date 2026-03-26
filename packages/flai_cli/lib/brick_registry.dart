@@ -25,6 +25,7 @@ abstract final class BrickCategory {
   static const String aiWidgets = 'AI Widgets';
   static const String conversation = 'Conversation';
   static const String providers = 'Providers';
+  static const String flows = 'Flows';
 }
 
 /// Static registry of all available FlAI component bricks.
@@ -125,6 +126,14 @@ abstract final class BrickRegistry {
       category: BrickCategory.providers,
       pubDependencies: ['http'],
     ),
+
+    // ── Flows ───────────────────────────────────────────────────────
+    'auth_flow': BrickInfo(
+      name: 'auth_flow',
+      description:
+          'Complete authentication flow with login, register, forgot password, verification, and reset screens.',
+      category: BrickCategory.flows,
+    ),
   };
 
   /// Returns all unique categories in display order.
@@ -133,6 +142,7 @@ abstract final class BrickRegistry {
     BrickCategory.aiWidgets,
     BrickCategory.conversation,
     BrickCategory.providers,
+    BrickCategory.flows,
   ];
 
   /// Returns all bricks belonging to [category].
