@@ -134,6 +134,12 @@ abstract final class BrickRegistry {
           'Complete authentication flow with login, register, forgot password, verification, and reset screens.',
       category: BrickCategory.flows,
     ),
+    'onboarding_flow': BrickInfo(
+      name: 'onboarding_flow',
+      description:
+          'Configurable onboarding flow with splash, naming, multi-select pills, custom steps, and reveal animation.',
+      category: BrickCategory.flows,
+    ),
   };
 
   /// Returns all unique categories in display order.
