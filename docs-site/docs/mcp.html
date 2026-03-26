@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP Server — FlAI Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+  <header id="site-header" class="site-header"></header>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <aside id="toc" class="toc"></aside>
+
+  <main class="main-content">
+    <div class="content-inner">
+
+      <div class="breadcrumb">
+        <a href="../index.html">FlAI</a>
+        <span class="sep">/</span>
+        <a href="index.html">Docs</a>
+        <span class="sep">/</span>
+        <span>MCP Server</span>
+      </div>
+
+      <h1 class="page-title">MCP Server</h1>
+      <p class="page-desc">Let AI assistants install and manage FlAI components in your project. The MCP server exposes FlAI's full component registry and CLI as tools that Claude, Cursor, and other MCP-compatible agents can call directly.</p>
+
+      <h2 id="what-is-mcp">What is MCP?</h2>
+      <p>The <a href="https://modelcontextprotocol.io/" target="_blank">Model Context Protocol (MCP)</a> is an open standard that lets AI assistants interact with external tools and data sources. The FlAI MCP server turns your FlAI CLI into a set of tools that any MCP-compatible AI agent can use.</p>
+      <p>This means you can tell your AI assistant things like:</p>
+      <ul>
+        <li>"Add the chat screen component to my Flutter project"</li>
+        <li>"What components does FlAI have?"</li>
+        <li>"Set up a dark-themed chat app with Anthropic"</li>
+        <li>"Check if my FlAI project is healthy"</li>
+      </ul>
+      <p>The AI agent calls the MCP tools behind the scenes, running the FlAI CLI and returning results — no manual terminal commands needed.</p>
+
+      <h2 id="installation">Installation</h2>
+      <p>Run the MCP server directly with npx — no global install required:</p>
+
+      <div class="install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd-text">npx @getflai/mcp</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">&#9888;</span>
+        <div>The FlAI CLI must also be installed (<code>dart pub global activate flai_cli</code>) for the MCP server to execute commands. The server calls the CLI under the hood.</div>
+      </div>
+
+      <h2 id="claude-code-setup">Claude Code Setup</h2>
+      <p>Add the FlAI MCP server to your Claude Code configuration. Edit your <code>settings.json</code> (or <code>.claude/settings.json</code> in your project):</p>
+
+<pre><code class="language-json">{
+  "mcpServers": {
+    "flai": {
+      "command": "npx",
+      "args": ["@getflai/mcp"]
+    }
+  }
+}</code></pre>
+
+      <p>Once configured, Claude Code can use all FlAI tools automatically when you ask about Flutter chat components.</p>
+
+      <h2 id="cursor-setup">Cursor Setup</h2>
+      <p>In Cursor, open Settings and navigate to the MCP section. Add a new server:</p>
+
+<pre><code class="language-json">{
+  "mcpServers": {
+    "flai": {
+      "command": "npx",
+      "args": ["@getflai/mcp"]
+    }
+  }
+}</code></pre>
+
+      <h2 id="available-tools">Available Tools</h2>
+      <p>The MCP server exposes 8 tools that cover the full FlAI workflow:</p>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Tool</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">list_components</td>
+            <td>Lists all available FlAI components with descriptions, grouped by category: Chat Essentials, AI Widgets, Conversation, and Providers.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">add_component</td>
+            <td>Installs a FlAI component into the project. Validates the component exists, resolves dependencies, and runs <code>flai add &lt;name&gt;</code>.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">get_component_info</td>
+            <td>Gets detailed info about a specific component including props with types, dependencies, pub dependencies, and a usage code example.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">init_project</td>
+            <td>Initializes FlAI in a Flutter project. Runs <code>flai init</code> to set up the core theme system, data models, and provider interface.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">doctor</td>
+            <td>Checks the health of a FlAI project. Verifies initialization, checks installed components, validates dependencies, and identifies issues.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">get_theme_info</td>
+            <td>Returns detailed theming information: the 4 theme presets, all design tokens (colors, typography, radius, spacing), and customization examples.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">scaffold_chat_app</td>
+            <td>Generates a complete <code>main.dart</code> code snippet for a full chat app with the specified AI provider and theme preset. Returns code to copy — does not run commands.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">get_starter_template</td>
+            <td>Returns complete starter code for common patterns: <code>basic_chat</code>, <code>multi_model</code>, <code>tool_calling</code>, or <code>custom_theme</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="tool-details">Tool Details</h2>
+
+      <h3 id="list-components">list_components</h3>
+      <p>No parameters. Returns the full component registry grouped by category.</p>
+<pre><code class="language-text">// Example output:
+## Chat Essentials
+- chat_screen — Full-page chat composition
+- message_bubble — User, assistant, and system messages
+- input_bar — Text input with send button
+- streaming_text — Token-by-token text rendering
+- typing_indicator — Animated loading dots
+
+## AI Widgets
+- tool_call_card — Function call display
+- code_block — Syntax-highlighted code with copy
+- thinking_indicator — Expandable AI reasoning panel
+- citation_card — Source attribution card
+- image_preview — Image thumbnail with zoom
+
+## Conversation
+- conversation_list — Conversation history with search
+- model_selector — AI model picker
+- token_usage — Token count and cost display
+
+## Providers
+- openai_provider — OpenAI API integration
+- anthropic_provider — Anthropic API integration</code></pre>
+
+      <h3 id="add-component">add_component</h3>
+      <table class="props-table">
+        <thead>
+          <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">component_name</td>
+            <td class="prop-type">string</td>
+            <td class="prop-required">required</td>
+            <td>Name of the component (e.g., <code>'message_bubble'</code>, <code>'chat_screen'</code>)</td>
+          </tr>
+          <tr>
+            <td class="prop-name">project_path</td>
+            <td class="prop-type">string</td>
+            <td class="prop-default">optional</td>
+            <td>Absolute path to the Flutter project. Defaults to current working directory.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 id="scaffold-chat-app">scaffold_chat_app</h3>
+      <table class="props-table">
+        <thead>
+          <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">provider</td>
+            <td class="prop-type">"openai" | "anthropic"</td>
+            <td class="prop-required">required</td>
+            <td>AI provider to use in the generated code</td>
+          </tr>
+          <tr>
+            <td class="prop-name">theme</td>
+            <td class="prop-type">"light" | "dark" | "ios" | "premium"</td>
+            <td class="prop-default">"dark"</td>
+            <td>Theme preset to apply</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 id="get-starter-template">get_starter_template</h3>
+      <table class="props-table">
+        <thead>
+          <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">template</td>
+            <td class="prop-type">"basic_chat" | "multi_model" | "tool_calling" | "custom_theme"</td>
+            <td class="prop-required">required</td>
+            <td>Which starter template to generate</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="example-workflow">Example Workflow</h2>
+      <p>Here is what a typical conversation looks like when an AI agent uses the MCP server:</p>
+
+<pre><code class="language-text">User: "Add AI chat to my Flutter app with a dark theme and Anthropic"
+
+Agent calls: init_project()
+→ Creates lib/flai/ with core theme, models, and provider interface
+
+Agent calls: add_component("chat_screen")
+→ Installs chat screen, message bubble, input bar, typing indicator
+
+Agent calls: add_component("anthropic_provider")
+→ Installs the Anthropic provider
+
+Agent calls: scaffold_chat_app(provider: "anthropic", theme: "dark")
+→ Returns complete main.dart code for the user to copy</code></pre>
+
+      <h2 id="requirements">Requirements</h2>
+      <ul>
+        <li><strong>Node.js 18+</strong> — Required to run the MCP server</li>
+        <li><strong>FlAI CLI</strong> — Must be installed (<code>dart pub global activate flai_cli</code>)</li>
+        <li><strong>Flutter project</strong> — The target project must have a <code>pubspec.yaml</code></li>
+      </ul>
+
+      <div class="page-nav">
+        <a href="scaffolds.html">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">&larr; App Scaffolds</span>
+        </a>
+        <a href="skill.html" class="nav-next">
+          <span class="nav-label">Next</span>
+          <span class="nav-title">Claude Code Skill &rarr;</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-dart.min.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>

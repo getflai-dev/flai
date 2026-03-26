@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code Skill — FlAI Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+  <header id="site-header" class="site-header"></header>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <aside id="toc" class="toc"></aside>
+
+  <main class="main-content">
+    <div class="content-inner">
+
+      <div class="breadcrumb">
+        <a href="../index.html">FlAI</a>
+        <span class="sep">/</span>
+        <a href="index.html">Docs</a>
+        <span class="sep">/</span>
+        <span>Claude Code Skill</span>
+      </div>
+
+      <h1 class="page-title">Claude Code Skill</h1>
+      <p class="page-desc">A Claude Code skill that teaches Claude everything about FlAI — component selection, installation, theming, and provider setup — so you can build AI chat interfaces with natural language.</p>
+
+      <h2 id="what-is-a-skill">What is a Skill?</h2>
+      <p>Claude Code skills are markdown files that give Claude specialized knowledge about a tool or framework. When the FlAI skill is installed, Claude understands the full component library, knows the CLI commands, and can generate correct FlAI code without looking anything up.</p>
+      <p>Think of it as a context file that makes Claude an expert on FlAI. Instead of copying documentation into your prompts, the skill loads automatically.</p>
+
+      <h2 id="what-it-enables">What It Enables</h2>
+      <p>With the skill installed, you can use natural language to work with FlAI:</p>
+      <ul>
+        <li><strong>"Add a chat screen to my app"</strong> — Claude runs <code>flai init</code> and <code>flai add chat_screen</code>, then wires it into your code</li>
+        <li><strong>"Set up Anthropic as my AI provider"</strong> — Claude installs the provider, configures the API key, and connects it to the chat controller</li>
+        <li><strong>"Make the theme match my brand colors"</strong> — Claude creates a custom <code>FlaiThemeData</code> with your exact colors, typography, and spacing</li>
+        <li><strong>"Add thinking indicators and tool call cards"</strong> — Claude knows which components to install and how they fit together</li>
+        <li><strong>"Build a complete chat app with auth and settings"</strong> — Claude scaffolds the entire app structure with all screens connected</li>
+      </ul>
+
+      <h2 id="installation">Installation</h2>
+      <p>Add the FlAI skill to your Claude Code configuration. There are two ways:</p>
+
+      <h3 id="install-slash-command">Using the slash command</h3>
+      <p>In Claude Code, run:</p>
+      <div class="install-cmd">
+        <span class="prompt">&gt;</span>
+        <span class="cmd-text">/install-skill https://github.com/getflai-dev/flai/tree/main/packages/flai_skill</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <h3 id="install-manual">Manual installation</h3>
+      <p>Clone the skill files into your Claude Code skills directory:</p>
+      <div class="install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd-text">mkdir -p ~/.claude/skills && cp -r packages/flai_skill ~/.claude/skills/flai</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <h2 id="skill-contents">What the Skill Knows</h2>
+      <p>The skill file teaches Claude about:</p>
+
+      <h3 id="components">Component Library</h3>
+      <ul>
+        <li>All 13 components with their names, descriptions, and categories</li>
+        <li>Component dependencies — which components require other components</li>
+        <li>Props and configuration options for each component</li>
+        <li>Code examples for each component</li>
+      </ul>
+
+      <h3 id="cli-commands">CLI Commands</h3>
+      <ul>
+        <li><code>flai init</code> — Initialize the core foundation</li>
+        <li><code>flai add &lt;component&gt;</code> — Install individual components</li>
+        <li><code>flai doctor</code> — Health check the project</li>
+        <li><code>flai scaffold basic</code> / <code>flai scaffold app</code> — Generate complete app scaffolds</li>
+      </ul>
+
+      <h3 id="theming">Theme System</h3>
+      <ul>
+        <li>The 4 built-in presets: light, dark, iOS, premium</li>
+        <li>All design tokens: colors, typography, spacing, radius</li>
+        <li>How to create custom themes with <code>FlaiThemeData</code></li>
+        <li>Semantic color tokens and chat-specific tokens</li>
+      </ul>
+
+      <h3 id="providers">Provider Interface</h3>
+      <ul>
+        <li>The <code>AiProvider</code> abstract interface and its methods</li>
+        <li>OpenAI provider setup with API key, model, and base URL</li>
+        <li>Anthropic provider setup with thinking and caching support</li>
+        <li>The <code>ChatEvent</code> sealed class and all event subtypes</li>
+      </ul>
+
+      <h3 id="starter-templates">Starter Templates</h3>
+      <ul>
+        <li>Basic chat — Minimal setup with a single provider</li>
+        <li>Multi-model — Model switching between providers</li>
+        <li>Tool calling — Function calling with custom tools</li>
+        <li>Custom theme — Brand theming with light/dark toggle</li>
+      </ul>
+
+      <h2 id="skill-vs-mcp">Skill vs MCP Server</h2>
+      <p>Both the skill and the MCP server help AI assistants work with FlAI, but they work differently:</p>
+
+      <table class="props-table">
+        <thead>
+          <tr><th>Feature</th><th>Skill</th><th>MCP Server</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">How it works</td>
+            <td>Loads knowledge into Claude's context</td>
+            <td>Provides callable tools over a protocol</td>
+          </tr>
+          <tr>
+            <td class="prop-name">Requires Node.js</td>
+            <td>No</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td class="prop-name">Runs CLI commands</td>
+            <td>Claude runs them via terminal</td>
+            <td>Server runs them via tools</td>
+          </tr>
+          <tr>
+            <td class="prop-name">Works with</td>
+            <td>Claude Code only</td>
+            <td>Any MCP-compatible agent</td>
+          </tr>
+          <tr>
+            <td class="prop-name">Setup effort</td>
+            <td>One command</td>
+            <td>Config file edit</td>
+          </tr>
+          <tr>
+            <td class="prop-name">Best for</td>
+            <td>Claude Code users wanting zero-config FlAI expertise</td>
+            <td>Multi-agent workflows or non-Claude editors</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">&#9889;</span>
+        <div>You can use both the skill and the MCP server together. The skill gives Claude deep knowledge, while the MCP server gives it the ability to call tools directly.</div>
+      </div>
+
+      <h2 id="example-session">Example Session</h2>
+      <p>Here is what a Claude Code session looks like with the FlAI skill installed:</p>
+
+<pre><code class="language-text">You: I want to add AI chat to my Flutter app. Use Anthropic
+     with Claude Sonnet 4 and a dark theme.
+
+Claude: I'll set up FlAI with Anthropic for you.
+
+[Runs: flai init]
+✓ Created lib/flai/core/ with theme, models, and provider interface
+
+[Runs: flai add chat_screen]
+✓ Installed chat_screen, message_bubble, input_bar, typing_indicator
+
+[Runs: flai add anthropic_provider]
+✓ Installed Anthropic provider
+
+[Runs: flai add thinking_indicator]
+✓ Installed thinking indicator for Claude's extended thinking
+
+[Updates main.dart with FlaiTheme, provider config, and chat screen]
+
+Done! Your app now has:
+- Dark-themed chat screen with streaming messages
+- Anthropic provider configured for Claude Sonnet 4
+- Thinking indicator for extended reasoning
+- Input bar with send button
+
+Run with: flutter run --dart-define=ANTHROPIC_API_KEY=sk-ant-...</code></pre>
+
+      <div class="page-nav">
+        <a href="mcp.html">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">&larr; MCP Server</span>
+        </a>
+        <div></div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-dart.min.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>

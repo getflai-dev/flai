@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Scaffolds — FlAI Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+  <header id="site-header" class="site-header"></header>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <aside id="toc" class="toc"></aside>
+
+  <main class="main-content">
+    <div class="content-inner">
+
+      <div class="breadcrumb">
+        <a href="../index.html">FlAI</a>
+        <span class="sep">/</span>
+        <a href="index.html">Docs</a>
+        <span class="sep">/</span>
+        <span>App Scaffolds</span>
+      </div>
+
+      <h1 class="page-title">App Scaffolds</h1>
+      <p class="page-desc">Generate complete, ready-to-run Flutter apps with AI chat built in. Choose from a single-screen chat or a full multi-screen app with auth, settings, and conversation history.</p>
+
+      <h2 id="overview">Overview</h2>
+      <p>App scaffolds go beyond individual components. Instead of assembling pieces one by one, scaffolds generate an entire working app structure in one command. They include routing, state management wiring, and all the FlAI components pre-connected.</p>
+      <p>There are two scaffold levels:</p>
+      <table class="props-table">
+        <thead>
+          <tr><th>Level</th><th>Command</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">Basic</td>
+            <td class="prop-type"><code>flai scaffold basic</code></td>
+            <td>Single chat screen with provider, theme, and input bar wired up</td>
+          </tr>
+          <tr>
+            <td class="prop-name">Full App</td>
+            <td class="prop-type"><code>flai scaffold app</code></td>
+            <td>Multi-screen app with auth, chat list, settings, profile, and chat screen</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="basic-scaffold">Level 1: Basic Scaffold</h2>
+      <p>The basic scaffold generates a minimal single-screen chat app. It is the fastest way to get a working AI chat interface running.</p>
+
+      <div class="install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd-text">flai scaffold basic</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <h3 id="basic-whats-included">What's included</h3>
+      <ul>
+        <li><strong>FlaiTheme</strong> wrapper with the dark preset applied</li>
+        <li><strong>FlaiChatScreen</strong> with a <code>ChatScreenController</code> pre-wired</li>
+        <li><strong>FlaiInputBar</strong> connected to send messages</li>
+        <li><strong>MessageBubble</strong> for user and assistant messages</li>
+        <li><strong>TypingIndicator</strong> shown while the AI responds</li>
+        <li>A configurable AI provider placeholder (swap in OpenAI or Anthropic)</li>
+      </ul>
+
+      <h3 id="basic-structure">Generated structure</h3>
+
+<pre><code class="language-text">lib/
+  main.dart                  ← Entry point with FlaiTheme
+  flai/
+    core/                    ← Theme, models, provider interface
+    components/
+      chat_screen/
+      message_bubble/
+      input_bar/
+      typing_indicator/
+    providers/
+      ai_provider.dart
+    flai.dart</code></pre>
+
+      <h3 id="basic-usage">Running it</h3>
+      <p>After scaffolding, run the app with your API key:</p>
+      <div class="install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd-text">flutter run --dart-define=OPENAI_API_KEY=sk-...</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <p>You get a single screen with a chat header, scrolling message list, and input bar at the bottom. The AI responds in real time with streaming text.</p>
+
+      <h2 id="full-app-scaffold">Level 2: Full App Scaffold</h2>
+      <p>The full app scaffold generates a complete multi-screen application with navigation, authentication, and persistent conversation history.</p>
+
+      <div class="install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd-text">flai scaffold app</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <h3 id="app-whats-included">What's included</h3>
+      <ul>
+        <li>Everything from the basic scaffold, plus:</li>
+        <li><strong>Auth screen</strong> — Sign in / sign up flow with email and password fields</li>
+        <li><strong>Conversation list</strong> — Browse and search past conversations, create new ones</li>
+        <li><strong>Chat screen</strong> — Full chat with streaming, tool calls, thinking indicator, and citations</li>
+        <li><strong>Settings screen</strong> — Theme toggle (light/dark), model selection, API key configuration</li>
+        <li><strong>Profile screen</strong> — User info display and sign-out</li>
+        <li><strong>Navigation</strong> — Bottom tab bar or drawer-based routing between screens</li>
+        <li><strong>Model selector</strong> — Switch between AI models at runtime</li>
+        <li><strong>Token usage display</strong> — Track input/output tokens and estimated cost</li>
+      </ul>
+
+      <h3 id="app-structure">Generated structure</h3>
+
+<pre><code class="language-text">lib/
+  main.dart                          ← Entry point with routing
+  app/
+    router.dart                      ← App navigation / routing
+    auth/
+      auth_screen.dart               ← Sign in / sign up
+      auth_controller.dart
+    home/
+      home_screen.dart               ← Tab container
+    settings/
+      settings_screen.dart           ← Theme, model, API key config
+    profile/
+      profile_screen.dart            ← User info, sign out
+  flai/
+    core/                            ← Theme, models, provider interface
+    components/
+      chat_screen/
+      message_bubble/
+      input_bar/
+      streaming_text/
+      typing_indicator/
+      thinking_indicator/
+      tool_call_card/
+      citation_card/
+      code_block/
+      conversation_list/
+      model_selector/
+      token_usage/
+    providers/
+      ai_provider.dart
+      openai_provider.dart
+    flai.dart</code></pre>
+
+      <h3 id="app-screens">Screen by screen</h3>
+
+      <h4>Auth Screen</h4>
+      <p>A clean sign-in/sign-up form styled with FlAI theme tokens. Includes email and password fields, a submit button, and a toggle between sign-in and sign-up modes. Wired to an <code>AuthController</code> you can connect to Firebase, Supabase, or any auth backend.</p>
+
+      <h4>Conversation List</h4>
+      <p>Displays all past conversations with titles, timestamps, and a search bar. Tap to resume a conversation or tap the new-chat button to start fresh. Uses the <code>FlaiConversationList</code> component.</p>
+
+      <h4>Chat Screen</h4>
+      <p>The main chat interface with all the bells and whistles: streaming text, thinking indicator for reasoning models, tool call cards, citation cards, code blocks with syntax highlighting, and the input bar with attachment support.</p>
+
+      <h4>Settings Screen</h4>
+      <p>Lets the user toggle between light and dark themes, select an AI model from the model selector, and configure their API key. All preferences persist locally.</p>
+
+      <h4>Profile Screen</h4>
+      <p>Shows user info (name, email) and provides a sign-out button. Designed to be extended with subscription or usage-tracking features.</p>
+
+      <h2 id="customization">Customization</h2>
+      <p>Since scaffolds generate source code you own, you can customize everything after generation:</p>
+      <ul>
+        <li><strong>Swap the provider</strong> — Change from OpenAI to Anthropic or your own backend</li>
+        <li><strong>Change the theme</strong> — Switch presets or create a fully custom theme</li>
+        <li><strong>Add screens</strong> — The generated routing structure makes it easy to add new screens</li>
+        <li><strong>Remove screens</strong> — Delete the auth or settings screens if you don't need them</li>
+        <li><strong>Edit any component</strong> — All FlAI components are source code in your project</li>
+      </ul>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">&#9889;</span>
+        <div>Scaffolds are a starting point, not a constraint. Think of them as a working template you customize for your specific app.</div>
+      </div>
+
+      <h2 id="comparison">Basic vs Full App</h2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Feature</th><th>Basic</th><th>Full App</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="prop-name">Chat screen</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Streaming text</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Message bubbles</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Input bar</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Typing indicator</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Auth flow</td><td>No</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Conversation list</td><td>No</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Settings screen</td><td>No</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Profile screen</td><td>No</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Model selector</td><td>No</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Token usage</td><td>No</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Thinking indicator</td><td>No</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Tool call cards</td><td>No</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Citation cards</td><td>No</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Navigation / routing</td><td>No</td><td>Yes</td></tr>
+          <tr><td class="prop-name">Components included</td><td>4</td><td>12+</td></tr>
+        </tbody>
+      </table>
+
+      <div class="page-nav">
+        <a href="providers/anthropic.html">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">&larr; Anthropic Provider</span>
+        </a>
+        <a href="mcp.html" class="nav-next">
+          <span class="nav-label">Next</span>
+          <span class="nav-title">MCP Server &rarr;</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-dart.min.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>

@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-03-26
+
+### Added
+- **App scaffold brick** (`app_scaffold`) — full production app template with auth flow (login, register, forgot password), chat list + detail screens, settings page (theme/model/API key), profile page, GoRouter routing with auth redirects
+- **MCP server** updated with `scaffold_chat_app` and `get_starter_template` tools
+- **MCP server** ready for npm publishing as `@getflai/mcp`
+- **Skill** updated with FlaiIconData docs, starter patterns, icon system
+- **Brand asset kit** (13 SVGs, 28 PNGs) — icons, horizontal/stacked/mono logos, social banners, Twitter header, GitHub social preview
+- **GitHub org** (`getflai-dev`) with branding and social preview
+- **Cloudflare Email Routing** for getflai.dev
+- **GitHub Actions secrets** for CI/CD
+
+### Changed
+- Repository moved to `getflai-dev/flai`
+- Domain references updated to `getflai.dev`
+- README redesigned to minimal shadcn-style with social banner hero
+- Homepage header aligned with content container
+- Docs header full-width for sidebar layout alignment
+
+### Fixed
+- README logo dark/light mode via `<picture>` element
+- Unused import in CLI tests failing CI
+- `docs/superpowers/` excluded from version control
+
 ## [0.1.0] - 2026-03-25
 
 ### Added
