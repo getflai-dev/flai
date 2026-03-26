@@ -148,7 +148,7 @@ function injectHeader() {
   right.className = 'header-right';
 
   const ghLink = document.createElement('a');
-  ghLink.href = 'https://github.com/aphaiboon/flutter-ai-chat-components';
+  ghLink.href = 'https://github.com/getflai-dev/flutter-ai-chat-components';
   ghLink.target = '_blank';
   ghLink.className = 'header-gh';
   ghLink.setAttribute('aria-label', 'GitHub');
@@ -391,7 +391,7 @@ function injectFavicon() {
 // Adds canonical, Open Graph, Twitter Card, and meta description
 // to doc pages that don't already have them.
 function injectSEOMeta() {
-  const SITE_URL = 'https://flai.dev';
+  const SITE_URL = 'https://getflai.dev';
   const SITE_NAME = 'FlAI';
   const DEFAULT_IMAGE = SITE_URL + '/og-image.png';
 

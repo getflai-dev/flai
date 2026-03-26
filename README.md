@@ -4,7 +4,7 @@
 
 [![Pub Version](https://img.shields.io/pub/v/flai_cli)](https://pub.dev/packages/flai_cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![CI](https://github.com/getflai/flutter-ai-chat-components/actions/workflows/ci.yml/badge.svg)](https://github.com/getflai/flutter-ai-chat-components/actions/workflows/ci.yml)
+[![CI](https://github.com/getflai-dev/flutter-ai-chat-components/actions/workflows/ci.yml/badge.svg)](https://github.com/getflai-dev/flutter-ai-chat-components/actions/workflows/ci.yml)
 
 FlAI is a [shadcn/ui](https://ui.shadcn.com)-style component library for Flutter, purpose-built for AI chat interfaces. Instead of importing a package, you install component source code directly into your project via a CLI — giving you full ownership and customization.
 

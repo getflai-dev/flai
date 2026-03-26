@@ -1,97 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://flai.dev/</loc>
+    <loc>https://getflai.dev/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/</loc>
+    <loc>https://getflai.dev/docs/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/installation.html</loc>
+    <loc>https://getflai.dev/docs/installation.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/theming.html</loc>
+    <loc>https://getflai.dev/docs/theming.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/chat-screen.html</loc>
+    <loc>https://getflai.dev/docs/components/chat-screen.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/message-bubble.html</loc>
+    <loc>https://getflai.dev/docs/components/message-bubble.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/input-bar.html</loc>
+    <loc>https://getflai.dev/docs/components/input-bar.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/streaming-text.html</loc>
+    <loc>https://getflai.dev/docs/components/streaming-text.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/typing-indicator.html</loc>
+    <loc>https://getflai.dev/docs/components/typing-indicator.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/tool-call-card.html</loc>
+    <loc>https://getflai.dev/docs/components/tool-call-card.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/code-block.html</loc>
+    <loc>https://getflai.dev/docs/components/code-block.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/thinking-indicator.html</loc>
+    <loc>https://getflai.dev/docs/components/thinking-indicator.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/citation-card.html</loc>
+    <loc>https://getflai.dev/docs/components/citation-card.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/image-preview.html</loc>
+    <loc>https://getflai.dev/docs/components/image-preview.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/conversation-list.html</loc>
+    <loc>https://getflai.dev/docs/components/conversation-list.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/model-selector.html</loc>
+    <loc>https://getflai.dev/docs/components/model-selector.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/components/token-usage.html</loc>
+    <loc>https://getflai.dev/docs/components/token-usage.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/providers/openai.html</loc>
+    <loc>https://getflai.dev/docs/providers/openai.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flai.dev/docs/providers/anthropic.html</loc>
+    <loc>https://getflai.dev/docs/providers/anthropic.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
