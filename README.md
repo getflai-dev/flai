@@ -1,15 +1,7 @@
 <p align="center">
   <a href="https://getflai.dev">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="brand/png/logo-horizontal-dark@2x.png" />
-      <source media="(prefers-color-scheme: light)" srcset="brand/png/logo-horizontal-light@2x.png" />
-      <img src="brand/png/logo-horizontal-light@2x.png" alt="flai" width="280" />
-    </picture>
+    <img src="brand/png/github-social-preview.png" alt="flai — Beautiful AI chat components for Flutter" />
   </a>
-</p>
-
-<p align="center">
-  Beautiful AI chat components for Flutter. Own your code, not your dependencies.
 </p>
 
 <p align="center">
@@ -21,8 +13,6 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
   <a href="https://github.com/getflai-dev/flai/actions/workflows/ci.yml"><img src="https://github.com/getflai-dev/flai/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
 </p>
-
-![flai](brand/png/github-social-preview.png)
 
 ## Usage
 
