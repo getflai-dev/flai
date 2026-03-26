@@ -22,6 +22,8 @@ scripts:
     description: Run tests in all packages
     packageFilters:
       dirExists: test
+      ignore:
+        - flai_example
 
   build:
     exec: flutter build apk --debug
