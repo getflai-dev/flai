@@ -535,12 +535,14 @@ abstract class StorageProvider {
 
 ## 7. Implementation Phases
 
-### Phase 1: Provider Interfaces + Auth Flow
-- Define `AuthProvider`, `StorageProvider`, `VoiceProvider` interfaces
-- `MockAuthProvider` and `InMemoryStorageProvider` defaults
-- `AuthController` state machine
-- All 6 auth screens
-- `auth_flow` brick
+### Phase 1: Provider Interfaces + Auth Flow ✅
+- ~~Define `AuthProvider`, `StorageProvider`, `VoiceProvider` interfaces~~
+- ~~`MockAuthProvider` and `InMemoryStorageProvider` defaults~~
+- ~~`AuthController` state machine~~
+- ~~All 6 auth screens~~
+- ~~`auth_flow` brick~~
+
+*Completed 2026-03-26. See CHANGELOG [Unreleased] section.*
 
 ### Phase 2: Onboarding Flow
 - `OnboardingController` with step pipeline

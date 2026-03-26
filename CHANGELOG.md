@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Auth flow brick** (`auth_flow`) — complete authentication flow with 6 screens: login landing (social auth + typing taglines), email entry, password entry (login/signup modes), forgot password, verification code, reset password
+- **AuthProvider interface** — pluggable authentication backend with social auth (Apple, Google, Microsoft), email auth, password reset, verification, session management
+- **StorageProvider interface** — pluggable conversation persistence with `InMemoryStorageProvider` default
+- **VoiceProvider interface** — pluggable voice I/O with push-to-talk and conversation mode support
+- **AuthController** — state machine managing auth flow navigation, loading states, and error handling
+- **MockAuthProvider** — development/testing auth provider with configurable delay and failure simulation
+- **AuthFlowConfig** — configurable button visibility, branding (logo, taglines), legal links, guest mode
+- **Shared auth widgets** — `SocialAuthButton`, `AuthTextField`, `TypingTagline` (letter-by-letter animation)
+- **FlaiTypography TextStyle getters** — `sm`, `base`, `lg`, `xl` now return `TextStyle` for `.copyWith()` support
+
 ## [0.2.0] - 2026-03-26
 
 ### Added

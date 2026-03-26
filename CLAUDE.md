@@ -8,7 +8,8 @@ A shadcn/ui-style component library for Flutter focused on AI chat interfaces. C
 
 ```
 bricks/                          Mason brick templates (one per component)
-  flai_init/                     Core foundation (theme, models, provider interface)
+  flai_init/                     Core foundation (theme, models, provider interfaces)
+  auth_flow/                     Login, register, forgot password, verification, reset
   chat_screen/                   Full chat screen widget
   message_bubble/                Message bubble with markdown, thinking, citations
   input_bar/                     Text input with send button
@@ -52,6 +53,7 @@ docs/                            Additional documentation
 ### State Management
 - Vanilla Flutter: ChangeNotifier + Streams, no external packages
 - `ChatScreenController` extends `ChangeNotifier` for chat state
+- `AuthController` extends `ChangeNotifier` for auth flow state machine
 - `AiProvider` abstract interface returns `Stream<ChatEvent>` for streaming
 
 ### Streaming
@@ -59,18 +61,19 @@ docs/                            Additional documentation
 - Providers parse SSE byte streams from raw HTTP responses
 - Both OpenAI and Anthropic providers use `package:http` directly (no SDK wrappers)
 
-### Provider Interface
-```dart
-abstract class AiProvider {
-  Stream<ChatEvent> streamChat(ChatRequest request);
-  Future<ChatResponse> chat(ChatRequest request);
-  Future<void> cancel();
-  bool get supportsToolUse;
-  bool get supportsVision;
-  bool get supportsStreaming;
-  bool get supportsThinking;
-}
-```
+### Provider Interfaces
+4 pluggable abstract interfaces — developer implements against their backend:
+
+| Interface | Purpose | Default |
+|-----------|---------|---------|
+| `AiProvider` | Chat streaming, tool use, vision | None (install provider brick) |
+| `AuthProvider` | Login, register, reset, verify, session | `MockAuthProvider` |
+| `StorageProvider` | Save, load, delete, star conversations | `InMemoryStorageProvider` |
+| `VoiceProvider` | Transcribe, synthesize, conversation mode | None |
+
+### Flow Bricks
+Flow bricks generate complete multi-screen features into `lib/flai/flows/`:
+- `auth_flow` — 6 screens (login landing, email entry, password entry, forgot password, verification code, reset password) + AuthController state machine + AuthFlowConfig
 
 ## Development
 
