@@ -51,6 +51,7 @@ FlAI generates component source code directly into your project using [Mason](ht
 | `auth_flow` | Complete auth flow (login, register, forgot password, verify, reset) |
 | `onboarding_flow` | Onboarding flow (splash, naming, multi-select pills, custom steps, reveal) |
 | `chat_experience` | Chat experience (composer v2, model selector, voice modes, ghost mode, empty state) |
+| `sidebar_nav` | Sidebar drawer (conversation list, settings sheet, workspace switcher, sub-pages) |
 
 ## Links
 
