@@ -58,6 +58,13 @@ a:hover { color: var(--fg); }
 ::-webkit-scrollbar-thumb:hover { background: var(--fg-subtle); }
 
 /* --- Layout ------------------------------------------------- */
+/*
+ * Layout system: set data-layout on <body> to control page structure.
+ *   "home" — centered narrow content, no sidebar (homepage)
+ *   "docs" — sidebar + toc + content column (documentation)
+ *   "full" — no sidebar, wide centered content (blueprints, etc.)
+ */
+
 .site-header {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -69,6 +76,7 @@ a:hover { color: var(--fg); }
   z-index: 100;
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 0 24px;
 }
 
@@ -76,6 +84,7 @@ a:hover { color: var(--fg); }
   display: flex;
   align-items: center;
   width: 100%;
+  max-width: var(--header-max, none);
 }
 
 .header-logo {
@@ -241,16 +250,43 @@ a:hover { color: var(--fg); }
 }
 
 /* --- Main Content ------------------------------------------- */
+/* Base: no sidebar/toc margins — layouts opt in */
 .main-content {
   margin-top: var(--header-h);
-  margin-left: var(--sidebar-w);
-  margin-right: var(--toc-w);
   min-height: calc(100vh - var(--header-h));
-  padding: 40px 48px 80px;
 }
 
 .content-inner {
   max-width: var(--content-max);
+}
+
+/* Layout: home — centered narrow container, no sidebar */
+[data-layout="home"] { --header-max: 1080px; }
+[data-layout="home"] .main-content {
+  padding: 0;
+}
+[data-layout="home"] .homepage-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* Layout: docs — sidebar + toc + content */
+[data-layout="docs"] .main-content {
+  margin-left: var(--sidebar-w);
+  margin-right: var(--toc-w);
+  padding: 40px 48px 80px;
+}
+
+/* Layout: full — wide centered content, no sidebar */
+[data-layout="full"] { --header-max: 1200px; }
+[data-layout="full"] .main-content {
+  padding: 0;
+}
+[data-layout="full"] .homepage-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
 }
 
 /* --- Typography --------------------------------------------- */
@@ -789,29 +825,12 @@ pre code {
   opacity: 0.3;
 }
 
-/* --- Homepage-specific layout (no sidebar/toc) -------------- */
-.homepage-layout .main-content {
-  margin-left: 0;
-  margin-right: 0;
-  padding: 0;
-}
-
-.homepage-container {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 0 40px;
-}
-
-/* Align header with homepage content width */
-.homepage-layout .header-inner {
-  max-width: 1040px;
-  padding: 0 40px;
-}
+/* (Homepage/layout overrides moved to data-layout system above) */
 
 /* --- Responsive --------------------------------------------- */
 @media (max-width: 1200px) {
   .toc { display: none; }
-  .main-content { margin-right: 0; }
+  [data-layout="docs"] .main-content { margin-right: 0; }
 }
 
 @media (max-width: 860px) {
@@ -834,7 +853,7 @@ pre code {
   .sidebar-overlay.open {
     display: block;
   }
-  .main-content {
+  [data-layout="docs"] .main-content {
     margin-left: 0;
     padding: 28px 20px 60px;
   }

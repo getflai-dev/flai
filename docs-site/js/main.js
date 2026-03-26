@@ -388,13 +388,43 @@ function enhanceCodeBlocks() {
   });
 }
 
-// ---- Inject Favicon -----------------------------------------
-function injectFavicon() {
-  const link = document.createElement('link');
-  link.rel = 'icon';
-  link.type = 'image/svg+xml';
-  link.href = resolvePath('favicon.svg');
-  document.head.appendChild(link);
+// ---- Inject Shared Head Assets ------------------------------
+// Fonts, Prism CSS, and favicon — injected once so HTML files
+// don't need to duplicate these links.
+function injectHeadAssets() {
+  // Favicon
+  const favicon = document.createElement('link');
+  favicon.rel = 'icon';
+  favicon.type = 'image/svg+xml';
+  favicon.href = resolvePath('favicon.svg');
+  document.head.appendChild(favicon);
+
+  // Google Fonts (Inter + JetBrains Mono)
+  if (!document.querySelector('link[href*="fonts.googleapis.com"]')) {
+    const preconnect1 = document.createElement('link');
+    preconnect1.rel = 'preconnect';
+    preconnect1.href = 'https://fonts.googleapis.com';
+    document.head.appendChild(preconnect1);
+
+    const preconnect2 = document.createElement('link');
+    preconnect2.rel = 'preconnect';
+    preconnect2.href = 'https://fonts.gstatic.com';
+    preconnect2.crossOrigin = '';
+    document.head.appendChild(preconnect2);
+
+    const fonts = document.createElement('link');
+    fonts.rel = 'stylesheet';
+    fonts.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap';
+    document.head.appendChild(fonts);
+  }
+
+  // Prism.js theme
+  if (!document.querySelector('link[href*="prismjs"]')) {
+    const prism = document.createElement('link');
+    prism.rel = 'stylesheet';
+    prism.href = 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css';
+    document.head.appendChild(prism);
+  }
 }
 
 // ---- Inject SEO Meta Tags -----------------------------------
@@ -462,7 +492,7 @@ function injectSEOMeta() {
 
 // ---- Init ---------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-  injectFavicon();
+  injectHeadAssets();
   injectSEOMeta();
   injectHeader();
   injectSidebar();
