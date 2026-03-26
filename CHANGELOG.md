@@ -21,6 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **OnboardingController** — step navigation state machine with result collection
 - **OnboardingConfig** — step pipeline with `OnboardingStep` sealed class (naming, multiSelect, custom, reveal)
 - **Shared onboarding widgets** — `PillChip` (animated toggle), `TypingText` (letter-by-letter animation)
+- **Chat experience brick** (`chat_experience`) — AI chat experience with composer v2, model selector, voice modes, ghost mode, and empty chat state
+- **AvatarConfig + FlaiAvatar** — 5-mode avatar rendering (icon+gradient, icon+solid, image, custom widget, default)
+- **FlaiComposerV2** — pill-shaped message composer with text field, sectioned + menu, model chip, animated mic/send toggle
+- **Voice modes** — `VoiceRecorder` (inline push-to-talk waveform), `FlaiVoiceConversationOverlay` (full-screen orb with gradient glow)
+- **ChatExperienceConfig** — configurable assistant name, avatar, greeting, composer sections, model list, voice/ghost toggles
 
 ## [0.2.0] - 2026-03-26
 
