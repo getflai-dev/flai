@@ -3,153 +3,270 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../app_config.dart';
 import '../providers/auth_provider.dart';
+import '../flows/auth/auth_flow.dart';
+import '../flows/onboarding/onboarding_flow.dart';
+import '../flows/sidebar/sidebar_config.dart';
+import '../screens/home_screen.dart';
 
 /// Route name constants for the app scaffold.
 ///
 /// Use these with [GoRouter.goNamed] for type-safe navigation:
 /// ```dart
-/// context.goNamed(AppRoutes.chatList);
-/// context.goNamed(AppRoutes.chatDetail, pathParameters: {'id': chatId});
+/// context.goNamed(AppRoutes.home);
+/// context.goNamed(AppRoutes.auth);
 /// ```
 abstract final class AppRoutes {
-  /// Login screen.
-  static const login = 'login';
+  /// Splash screen.
+  static const splash = 'splash';
 
-  /// Registration screen.
-  static const register = 'register';
+  /// Authentication flow.
+  static const auth = 'auth';
 
-  /// Forgot password screen.
-  static const forgotPassword = 'forgot-password';
+  /// Post-auth onboarding flow.
+  static const onboarding = 'onboarding';
 
-  /// Conversation list (main screen).
-  static const chatList = 'chat-list';
-
-  /// Chat detail screen. Requires `id` path parameter.
-  static const chatDetail = 'chat-detail';
-
-  /// Settings screen.
-  static const settings = 'settings';
-
-  /// Profile screen.
-  static const profile = 'profile';
+  /// Main home screen (sidebar + chat).
+  static const home = 'home';
 }
 
 /// Route path constants.
 abstract final class AppPaths {
-  static const login = '/login';
-  static const register = '/register';
-  static const forgotPassword = '/forgot-password';
-  static const chatList = '/chats';
-  static const chatDetail = '/chats/:id';
-  static const settings = '/settings';
-  static const profile = '/profile';
+  /// Splash screen path.
+  static const splash = '/splash';
+
+  /// Authentication flow path.
+  static const auth = '/auth';
+
+  /// Post-auth onboarding flow path.
+  static const onboarding = '/onboarding';
+
+  /// Main home screen path.
+  static const home = '/';
 }
 
 /// Creates the [GoRouter] for the app scaffold.
 ///
+/// Handles four top-level flows: splash, auth, onboarding, and main home.
 /// Listens to [AuthProvider.authStateChanges] to redirect between auth
-/// screens and the main app. When the user is [Unauthenticated], all
-/// non-auth routes redirect to login. When [Authenticated], auth routes
-/// redirect to the chat list.
-///
-/// The [pageBuilder] callbacks are intentionally left for the consumer to
-/// fill in — this function only provides the routing skeleton and auth
-/// redirect logic.
+/// screens and the main app. When the user is unauthenticated, all non-auth
+/// routes redirect to the auth flow. When authenticated, auth and splash
+/// routes redirect to home (or onboarding if configured).
 ///
 /// ```dart
 /// final router = createAppRouter(
-///   authProvider: myAuthProvider,
-///   loginBuilder: (context, state) => FlaiLoginScreen(...),
-///   chatListBuilder: (context, state) => FlaiChatListScreen(...),
-///   // ...
+///   config: AppScaffoldConfig(authProvider: myAuthProvider),
 /// );
 /// ```
-GoRouter createAppRouter({
-  required AuthProvider authProvider,
-  required Widget Function(BuildContext, GoRouterState) loginBuilder,
-  required Widget Function(BuildContext, GoRouterState) registerBuilder,
-  required Widget Function(BuildContext, GoRouterState) forgotPasswordBuilder,
-  required Widget Function(BuildContext, GoRouterState) chatListBuilder,
-  required Widget Function(BuildContext, GoRouterState) chatDetailBuilder,
-  required Widget Function(BuildContext, GoRouterState) settingsBuilder,
-  required Widget Function(BuildContext, GoRouterState) profileBuilder,
-  String initialLocation = AppPaths.chatList,
-}) {
+GoRouter createAppRouter({required AppScaffoldConfig config}) {
   return GoRouter(
-    initialLocation: initialLocation,
-    refreshListenable: _AuthStateNotifier(authProvider),
+    initialLocation:
+        config.showSplash ? AppPaths.splash : AppPaths.auth,
+    refreshListenable: _AuthStateNotifier(config.authProvider),
     redirect: (context, state) {
-      final authState = authProvider.currentState;
-      final isAuthRoute = state.matchedLocation == AppPaths.login ||
-          state.matchedLocation == AppPaths.register ||
-          state.matchedLocation == AppPaths.forgotPassword;
+      final user = config.authProvider.currentUser;
+      final location = state.matchedLocation;
 
-      // Still loading — don't redirect yet.
-      if (authState is AuthLoading) return null;
+      final isAuthRoute = location == AppPaths.auth;
+      final isSplashRoute = location == AppPaths.splash;
+      final isOnboardingRoute = location == AppPaths.onboarding;
 
-      // Not authenticated and not on an auth route — go to login.
-      if (authState is Unauthenticated && !isAuthRoute) {
-        return AppPaths.login;
+      // Not authenticated and not on auth or splash route — go to auth.
+      if (user == null && !isAuthRoute && !isSplashRoute) {
+        return AppPaths.auth;
       }
 
-      // Authenticated but on an auth route — go to chat list.
-      if (authState is Authenticated && isAuthRoute) {
-        return AppPaths.chatList;
+      // Authenticated but on auth or splash route — move forward.
+      if (user != null && (isAuthRoute || isSplashRoute)) {
+        if (config.onboardingConfig != null && !isOnboardingRoute) {
+          return AppPaths.onboarding;
+        }
+        return AppPaths.home;
       }
 
       return null;
     },
     routes: [
-      // Auth routes
+      // Splash
       GoRoute(
-        path: AppPaths.login,
-        name: AppRoutes.login,
-        builder: loginBuilder,
-      ),
-      GoRoute(
-        path: AppPaths.register,
-        name: AppRoutes.register,
-        builder: registerBuilder,
-      ),
-      GoRoute(
-        path: AppPaths.forgotPassword,
-        name: AppRoutes.forgotPassword,
-        builder: forgotPasswordBuilder,
+        path: AppPaths.splash,
+        name: AppRoutes.splash,
+        builder: (context, state) => FlaiSplashScreen(
+          logo: config.onboardingConfig?.splashLogo,
+          onReady: () => GoRouter.of(context).go(AppPaths.auth),
+        ),
       ),
 
-      // Main app routes
+      // Auth
       GoRoute(
-        path: AppPaths.chatList,
-        name: AppRoutes.chatList,
-        builder: chatListBuilder,
+        path: AppPaths.auth,
+        name: AppRoutes.auth,
+        builder: (context, state) => _AuthFlowPage(config: config),
       ),
+
+      // Onboarding
       GoRoute(
-        path: AppPaths.chatDetail,
-        name: AppRoutes.chatDetail,
-        builder: chatDetailBuilder,
+        path: AppPaths.onboarding,
+        name: AppRoutes.onboarding,
+        builder: (context, state) =>
+            _OnboardingFlowPage(config: config),
       ),
+
+      // Home
       GoRoute(
-        path: AppPaths.settings,
-        name: AppRoutes.settings,
-        builder: settingsBuilder,
-      ),
-      GoRoute(
-        path: AppPaths.profile,
-        name: AppRoutes.profile,
-        builder: profileBuilder,
+        path: AppPaths.home,
+        name: AppRoutes.home,
+        builder: (context, state) => FlaiHomeScreen(
+          sidebarConfig: config.sidebarConfig ??
+              SidebarConfig(appName: config.appTitle),
+          chatExperienceConfig: config.chatExperienceConfig,
+          settingsConfig: config.settingsConfig,
+        ),
       ),
     ],
   );
 }
 
+// ── Auth Flow Page ──────────────────────────────────────────────────────
+
+/// Private page that hosts the auth flow state machine.
+///
+/// Creates an [AuthController] and uses [ListenableBuilder] to switch
+/// between auth screens based on the controller's current screen.
+class _AuthFlowPage extends StatefulWidget {
+  const _AuthFlowPage({required this.config});
+
+  final AppScaffoldConfig config;
+
+  @override
+  State<_AuthFlowPage> createState() => _AuthFlowPageState();
+}
+
+class _AuthFlowPageState extends State<_AuthFlowPage> {
+  late final AuthController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AuthController(
+      provider: widget.config.authProvider,
+      config: widget.config.authFlowConfig,
+      onAuthenticated: (user) {
+        if (widget.config.onboardingConfig != null) {
+          context.go(AppPaths.onboarding);
+        } else {
+          context.go(AppPaths.home);
+        }
+      },
+      onGuestContinue: () => context.go(AppPaths.home),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: _controller,
+      builder: (context, _) {
+        return switch (_controller.currentScreen) {
+          AuthScreen.loginLanding =>
+            FlaiLoginLanding(controller: _controller),
+          AuthScreen.emailEntry =>
+            FlaiEmailEntry(controller: _controller),
+          AuthScreen.passwordEntry =>
+            FlaiPasswordEntry(controller: _controller),
+          AuthScreen.forgotPassword =>
+            FlaiForgotPassword(controller: _controller),
+          AuthScreen.verificationCode =>
+            FlaiVerificationCode(controller: _controller),
+          AuthScreen.resetPassword =>
+            FlaiResetPassword(controller: _controller),
+        };
+      },
+    );
+  }
+}
+
+// ── Onboarding Flow Page ────────────────────────────────────────────────
+
+/// Private page that hosts the onboarding flow state machine.
+///
+/// Creates an [OnboardingController] wrapping the consumer's config and
+/// uses [ListenableBuilder] to switch between onboarding step screens.
+class _OnboardingFlowPage extends StatefulWidget {
+  const _OnboardingFlowPage({required this.config});
+
+  final AppScaffoldConfig config;
+
+  @override
+  State<_OnboardingFlowPage> createState() => _OnboardingFlowPageState();
+}
+
+class _OnboardingFlowPageState extends State<_OnboardingFlowPage> {
+  late final OnboardingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final onboardingConfig = widget.config.onboardingConfig!;
+    _controller = OnboardingController(
+      config: OnboardingConfig(
+        splashLogo: onboardingConfig.splashLogo,
+        steps: onboardingConfig.steps,
+        revealLogo: onboardingConfig.revealLogo,
+        revealGradient: onboardingConfig.revealGradient,
+        onComplete: (result) {
+          onboardingConfig.onComplete(result);
+          if (context.mounted) context.go(AppPaths.home);
+        },
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: _controller,
+      builder: (context, _) {
+        final step = _controller.currentStep;
+        if (step == null) return const SizedBox.shrink();
+
+        return switch (step) {
+          NamingStep() =>
+            FlaiNamingScreen(controller: _controller, step: step),
+          MultiSelectStep() =>
+            FlaiMultiSelectScreen(controller: _controller, step: step),
+          CustomStep() =>
+            FlaiCustomStepScreen(controller: _controller, step: step),
+          RevealStep() =>
+            FlaiRevealScreen(controller: _controller, step: step),
+        };
+      },
+    );
+  }
+}
+
+// ── Auth State Notifier ─────────────────────────────────────────────────
+
 /// Bridges [AuthProvider.authStateChanges] into a [ChangeNotifier] so
 /// [GoRouter] can listen for auth state changes and trigger redirects.
 class _AuthStateNotifier extends ChangeNotifier {
-  late final StreamSubscription<AuthState> _subscription;
+  late final StreamSubscription<AuthUser?> _subscription;
 
   _AuthStateNotifier(AuthProvider authProvider) {
-    _subscription = authProvider.authStateChanges.listen((_) {
+    _subscription = authProvider.authStateChanges().listen((_) {
       notifyListeners();
     });
   }

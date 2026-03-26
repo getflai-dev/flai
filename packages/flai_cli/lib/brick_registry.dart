@@ -152,6 +152,19 @@ abstract final class BrickRegistry {
           'Sidebar navigation flow with drawer, conversation lists, search, and settings sheet.',
       category: BrickCategory.flows,
     ),
+    'app_scaffold': BrickInfo(
+      name: 'app_scaffold',
+      description:
+          'Production-ready app shell wiring auth, onboarding, chat, and sidebar flows with GoRouter.',
+      category: BrickCategory.flows,
+      dependencies: [
+        'auth_flow',
+        'onboarding_flow',
+        'chat_experience',
+        'sidebar_nav',
+      ],
+      pubDependencies: ['go_router'],
+    ),
   };
 
   /// Returns all unique categories in display order.

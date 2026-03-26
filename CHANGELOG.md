@@ -33,6 +33,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **TopNavBar** — hamburger menu + new chat + model display
 - **ChatListItem** — swipe-to-delete, long-press context menu, inline rename
 - **WorkspaceSwitcher** — team/workspace selector with avatar and chevron
+- **App scaffold brick** (`app_scaffold`) — rewritten as thin wiring shell composing all 4 flow bricks with GoRouter
+- **AppScaffoldConfig** — single config object bundling all providers, theme, and flow configurations
+- **FlaiProviders** — InheritedWidget exposing AiProvider, AuthProvider, StorageProvider, VoiceProvider to the widget tree
+- **FlaiHomeScreen** — main screen composing TopNavBar + SidebarDrawer + chat content area
+- **GoRouter routing** — splash → auth → onboarding → main chat with auth state redirects
 
 ## [0.2.0] - 2026-03-26
 
