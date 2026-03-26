@@ -18,3 +18,6 @@ export 'core/models/chat_request.dart';
 
 // Providers
 export 'providers/ai_provider.dart';
+export 'providers/auth_provider.dart';
+export 'providers/storage_provider.dart';
+export 'providers/voice_provider.dart';
