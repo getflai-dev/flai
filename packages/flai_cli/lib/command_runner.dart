@@ -1,6 +1,7 @@
 import 'package:args/command_runner.dart';
 
 import 'commands/add_command.dart';
+import 'commands/connect_command.dart';
 import 'commands/doctor_command.dart';
 import 'commands/init_command.dart';
 import 'commands/list_command.dart';
@@ -16,5 +17,6 @@ class FlaiCommandRunner extends CommandRunner<int> {
     addCommand(AddCommand());
     addCommand(ListCommand());
     addCommand(DoctorCommand());
+    addCommand(ConnectCommand());
   }
 }
