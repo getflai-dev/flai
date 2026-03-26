@@ -387,9 +387,73 @@ function injectFavicon() {
   document.head.appendChild(link);
 }
 
+// ---- Inject SEO Meta Tags -----------------------------------
+// Adds canonical, Open Graph, Twitter Card, and meta description
+// to doc pages that don't already have them.
+function injectSEOMeta() {
+  const SITE_URL = 'https://flai.dev';
+  const SITE_NAME = 'FlAI';
+  const DEFAULT_IMAGE = SITE_URL + '/og-image.png';
+
+  // Skip homepage — it has its own meta tags
+  if (document.body.classList.contains('homepage-layout')) return;
+
+  const title = document.title || SITE_NAME;
+  const pageDesc = document.querySelector('.page-desc');
+  const description = pageDesc
+    ? pageDesc.textContent.trim()
+    : title.replace(' — FlAI Docs', '') + ' component for Flutter AI chat interfaces. Part of the FlAI component library.';
+
+  // Build canonical URL from pathname
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  const canonicalUrl = SITE_URL + path;
+
+  function addMeta(attr, attrVal, content) {
+    if (document.querySelector('meta[' + attr + '="' + attrVal + '"]')) return;
+    const meta = document.createElement('meta');
+    meta.setAttribute(attr, attrVal);
+    meta.content = content;
+    document.head.appendChild(meta);
+  }
+
+  function addLink(rel, href) {
+    if (document.querySelector('link[rel="' + rel + '"]')) return;
+    const link = document.createElement('link');
+    link.rel = rel;
+    link.href = href;
+    document.head.appendChild(link);
+  }
+
+  // Meta description
+  if (!document.querySelector('meta[name="description"]')) {
+    addMeta('name', 'description', description);
+  }
+
+  // Canonical
+  addLink('canonical', canonicalUrl);
+
+  // Robots
+  addMeta('name', 'robots', 'index, follow');
+
+  // Open Graph
+  addMeta('property', 'og:type', 'article');
+  addMeta('property', 'og:title', title);
+  addMeta('property', 'og:description', description);
+  addMeta('property', 'og:url', canonicalUrl);
+  addMeta('property', 'og:site_name', SITE_NAME);
+  addMeta('property', 'og:image', DEFAULT_IMAGE);
+
+  // Twitter Card
+  addMeta('name', 'twitter:card', 'summary_large_image');
+  addMeta('name', 'twitter:title', title);
+  addMeta('name', 'twitter:description', description);
+  addMeta('name', 'twitter:image', DEFAULT_IMAGE);
+}
+
 // ---- Init ---------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   injectFavicon();
+  injectSEOMeta();
   injectHeader();
   injectSidebar();
   injectTOC();

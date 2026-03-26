@@ -34,6 +34,9 @@ pubspec.lock
 node_modules/
 dist/
 
+# Wrangler / Cloudflare
+.wrangler/
+
 # Environment
 .env
 .env.*
