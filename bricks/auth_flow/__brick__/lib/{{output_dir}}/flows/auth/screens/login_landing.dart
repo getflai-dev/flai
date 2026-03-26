@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/flai_theme.dart';
 import '../auth_controller.dart';
-import '../auth_flow_config.dart';
 import '../widgets/social_auth_button.dart';
 import '../widgets/typing_tagline.dart';
 

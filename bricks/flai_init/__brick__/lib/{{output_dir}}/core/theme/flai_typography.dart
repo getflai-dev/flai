@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 class FlaiTypography {
   final String fontFamily;
   final String monoFontFamily;
-  final double sm;
-  final double base;
-  final double lg;
-  final double xl;
-  final double xxl;
+  final double smSize;
+  final double baseSize;
+  final double lgSize;
+  final double xlSize;
+  final double xxlSize;
   final FontWeight regular;
   final FontWeight medium;
   final FontWeight semiBold;
@@ -16,55 +16,94 @@ class FlaiTypography {
   const FlaiTypography({
     this.fontFamily = '.SF Pro Text',
     this.monoFontFamily = 'JetBrains Mono',
-    this.sm = 12.0,
-    this.base = 14.0,
-    this.lg = 16.0,
-    this.xl = 20.0,
-    this.xxl = 24.0,
+    this.smSize = 12.0,
+    this.baseSize = 14.0,
+    this.lgSize = 16.0,
+    this.xlSize = 20.0,
+    this.xxlSize = 24.0,
     this.regular = FontWeight.w400,
     this.medium = FontWeight.w500,
     this.semiBold = FontWeight.w600,
     this.bold = FontWeight.w700,
   });
 
+  // Shadcn-style TextStyle getters (short names for convenience)
+
+  /// Body small text style (12pt).
+  TextStyle get sm => TextStyle(
+        fontFamily: fontFamily,
+        fontSize: smSize,
+        fontWeight: regular,
+      );
+
+  /// Body base text style (14pt).
+  TextStyle get base => TextStyle(
+        fontFamily: fontFamily,
+        fontSize: baseSize,
+        fontWeight: regular,
+      );
+
+  /// Body large text style (16pt).
+  TextStyle get lg => TextStyle(
+        fontFamily: fontFamily,
+        fontSize: lgSize,
+        fontWeight: regular,
+      );
+
+  /// Heading text style (20pt, semi-bold).
+  TextStyle get xl => TextStyle(
+        fontFamily: fontFamily,
+        fontSize: xlSize,
+        fontWeight: semiBold,
+      );
+
+  /// Large heading text style (24pt, bold).
+  TextStyle get xxl => TextStyle(
+        fontFamily: fontFamily,
+        fontSize: xxlSize,
+        fontWeight: bold,
+      );
+
+  // Verbose method aliases (for backward compatibility)
+
   TextStyle bodySmall({Color? color}) => TextStyle(
         fontFamily: fontFamily,
-        fontSize: sm,
+        fontSize: smSize,
         fontWeight: regular,
         color: color,
       );
 
   TextStyle bodyBase({Color? color}) => TextStyle(
         fontFamily: fontFamily,
-        fontSize: base,
+        fontSize: baseSize,
         fontWeight: regular,
         color: color,
       );
 
   TextStyle bodyLarge({Color? color}) => TextStyle(
         fontFamily: fontFamily,
-        fontSize: lg,
+        fontSize: lgSize,
         fontWeight: regular,
         color: color,
       );
 
   TextStyle heading({Color? color}) => TextStyle(
         fontFamily: fontFamily,
-        fontSize: xl,
+        fontSize: xlSize,
         fontWeight: semiBold,
         color: color,
       );
 
   TextStyle headingLarge({Color? color}) => TextStyle(
         fontFamily: fontFamily,
-        fontSize: xxl,
+        fontSize: xxlSize,
         fontWeight: bold,
         color: color,
       );
 
   TextStyle mono({Color? color, double? fontSize}) => TextStyle(
         fontFamily: monoFontFamily,
-        fontSize: fontSize ?? sm,
+        fontSize: fontSize ?? smSize,
         fontWeight: regular,
         color: color,
       );
@@ -72,11 +111,11 @@ class FlaiTypography {
   FlaiTypography copyWith({
     String? fontFamily,
     String? monoFontFamily,
-    double? sm,
-    double? base,
-    double? lg,
-    double? xl,
-    double? xxl,
+    double? smSize,
+    double? baseSize,
+    double? lgSize,
+    double? xlSize,
+    double? xxlSize,
     FontWeight? regular,
     FontWeight? medium,
     FontWeight? semiBold,
@@ -85,11 +124,11 @@ class FlaiTypography {
     return FlaiTypography(
       fontFamily: fontFamily ?? this.fontFamily,
       monoFontFamily: monoFontFamily ?? this.monoFontFamily,
-      sm: sm ?? this.sm,
-      base: base ?? this.base,
-      lg: lg ?? this.lg,
-      xl: xl ?? this.xl,
-      xxl: xxl ?? this.xxl,
+      smSize: smSize ?? this.smSize,
+      baseSize: baseSize ?? this.baseSize,
+      lgSize: lgSize ?? this.lgSize,
+      xlSize: xlSize ?? this.xlSize,
+      xxlSize: xxlSize ?? this.xxlSize,
       regular: regular ?? this.regular,
       medium: medium ?? this.medium,
       semiBold: semiBold ?? this.semiBold,
