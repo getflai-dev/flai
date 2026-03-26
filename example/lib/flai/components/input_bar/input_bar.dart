@@ -99,9 +99,7 @@ class _FlaiInputBarState extends State<FlaiInputBar> {
     return Container(
       decoration: BoxDecoration(
         color: theme.colors.card,
-        border: Border(
-          top: BorderSide(color: theme.colors.border),
-        ),
+        border: Border(top: BorderSide(color: theme.colors.border)),
       ),
       child: SafeArea(
         top: false,
@@ -192,8 +190,7 @@ class _FlaiInputBarState extends State<FlaiInputBar> {
                           ? theme.colors.primary
                           : theme.colors.muted,
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(theme.radius.full),
+                        borderRadius: BorderRadius.circular(theme.radius.full),
                       ),
                     ),
                     padding: EdgeInsets.zero,

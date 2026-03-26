@@ -43,8 +43,11 @@ void main() {
       test('every component belongs to a known category', () {
         final validCategories = BrickRegistry.categories.toSet();
         for (final brick in BrickRegistry.components.values) {
-          expect(validCategories, contains(brick.category),
-              reason: '${brick.name} has unknown category "${brick.category}"');
+          expect(
+            validCategories,
+            contains(brick.category),
+            reason: '${brick.name} has unknown category "${brick.category}"',
+          );
         }
       });
     });
@@ -54,47 +57,49 @@ void main() {
         final bricks = BrickRegistry.byCategory(BrickCategory.chatEssentials);
         expect(bricks, hasLength(5));
         final names = bricks.map((b) => b.name).toSet();
-        expect(names, containsAll([
-          'chat_screen',
-          'message_bubble',
-          'input_bar',
-          'streaming_text',
-          'typing_indicator',
-        ]));
+        expect(
+          names,
+          containsAll([
+            'chat_screen',
+            'message_bubble',
+            'input_bar',
+            'streaming_text',
+            'typing_indicator',
+          ]),
+        );
       });
 
       test('AI Widgets contains 5 components', () {
         final bricks = BrickRegistry.byCategory(BrickCategory.aiWidgets);
         expect(bricks, hasLength(5));
         final names = bricks.map((b) => b.name).toSet();
-        expect(names, containsAll([
-          'tool_call_card',
-          'code_block',
-          'thinking_indicator',
-          'citation_card',
-          'image_preview',
-        ]));
+        expect(
+          names,
+          containsAll([
+            'tool_call_card',
+            'code_block',
+            'thinking_indicator',
+            'citation_card',
+            'image_preview',
+          ]),
+        );
       });
 
       test('Conversation contains 3 components', () {
         final bricks = BrickRegistry.byCategory(BrickCategory.conversation);
         expect(bricks, hasLength(3));
         final names = bricks.map((b) => b.name).toSet();
-        expect(names, containsAll([
-          'conversation_list',
-          'model_selector',
-          'token_usage',
-        ]));
+        expect(
+          names,
+          containsAll(['conversation_list', 'model_selector', 'token_usage']),
+        );
       });
 
       test('Providers contains 2 components', () {
         final bricks = BrickRegistry.byCategory(BrickCategory.providers);
         expect(bricks, hasLength(2));
         final names = bricks.map((b) => b.name).toSet();
-        expect(names, containsAll([
-          'openai_provider',
-          'anthropic_provider',
-        ]));
+        expect(names, containsAll(['openai_provider', 'anthropic_provider']));
       });
 
       test('returns empty list for unknown category', () {
@@ -130,15 +135,16 @@ void main() {
     });
 
     group('component dependencies', () {
-      test('chat_screen depends on message_bubble, input_bar, streaming_text',
-          () {
-        final info = BrickRegistry.lookup('chat_screen')!;
-        expect(info.dependencies, unorderedEquals([
-          'message_bubble',
-          'input_bar',
-          'streaming_text',
-        ]));
-      });
+      test(
+        'chat_screen depends on message_bubble, input_bar, streaming_text',
+        () {
+          final info = BrickRegistry.lookup('chat_screen')!;
+          expect(
+            info.dependencies,
+            unorderedEquals(['message_bubble', 'input_bar', 'streaming_text']),
+          );
+        },
+      );
 
       test('typing_indicator has no component dependencies', () {
         final info = BrickRegistry.lookup('typing_indicator')!;
@@ -154,8 +160,11 @@ void main() {
     group('descriptions', () {
       test('every component has a non-empty description', () {
         for (final brick in BrickRegistry.components.values) {
-          expect(brick.description, isNotEmpty,
-              reason: '${brick.name} has an empty description');
+          expect(
+            brick.description,
+            isNotEmpty,
+            reason: '${brick.name} has an empty description',
+          );
         }
       });
     });

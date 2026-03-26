@@ -28,8 +28,8 @@ class ChatScreenController extends ChangeNotifier {
     required AiProvider provider,
     String? systemPrompt,
     List<Message>? initialMessages,
-  })  : _provider = provider,
-        _systemPrompt = systemPrompt {
+  }) : _provider = provider,
+       _systemPrompt = systemPrompt {
     if (initialMessages != null) {
       _messages.addAll(initialMessages);
     }
@@ -51,7 +51,10 @@ class ChatScreenController extends ChangeNotifier {
   AiProvider get provider => _provider;
 
   /// Send a user message and stream the AI response.
-  Future<void> sendMessage(String content, {List<Attachment>? attachments}) async {
+  Future<void> sendMessage(
+    String content, {
+    List<Attachment>? attachments,
+  }) async {
     if (content.trim().isEmpty) return;
     if (_isStreaming) return;
 
@@ -90,17 +93,19 @@ class ChatScreenController extends ChangeNotifier {
     await _provider.cancel();
 
     if (_streamingText.isNotEmpty) {
-      _messages.add(Message(
-        id: _generateId(),
-        role: MessageRole.assistant,
-        content: _streamingText,
-        timestamp: DateTime.now(),
-        thinkingContent: _thinkingText.isNotEmpty ? _thinkingText : null,
-        toolCalls: _activeToolCalls.isNotEmpty
-            ? List.of(_activeToolCalls)
-            : null,
-        status: MessageStatus.complete,
-      ));
+      _messages.add(
+        Message(
+          id: _generateId(),
+          role: MessageRole.assistant,
+          content: _streamingText,
+          timestamp: DateTime.now(),
+          thinkingContent: _thinkingText.isNotEmpty ? _thinkingText : null,
+          toolCalls: _activeToolCalls.isNotEmpty
+              ? List.of(_activeToolCalls)
+              : null,
+          status: MessageStatus.complete,
+        ),
+      );
     }
 
     _resetStreamingState();
@@ -177,11 +182,7 @@ class ChatScreenController extends ChangeNotifier {
         notifyListeners();
 
       case ToolCallStart(:final id, :final name):
-        _activeToolCalls.add(ToolCall(
-          id: id,
-          name: name,
-          arguments: '',
-        ));
+        _activeToolCalls.add(ToolCall(id: id, name: name, arguments: ''));
         notifyListeners();
 
       case ToolCallDelta(:final id, :final argumentsDelta):
@@ -222,9 +223,7 @@ class ChatScreenController extends ChangeNotifier {
       content: _streamingText,
       timestamp: DateTime.now(),
       thinkingContent: _thinkingText.isNotEmpty ? _thinkingText : null,
-      toolCalls: _activeToolCalls.isNotEmpty
-          ? List.of(_activeToolCalls)
-          : null,
+      toolCalls: _activeToolCalls.isNotEmpty ? List.of(_activeToolCalls) : null,
       status: MessageStatus.complete,
     );
 

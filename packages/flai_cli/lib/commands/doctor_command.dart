@@ -95,8 +95,7 @@ class DoctorCommand extends Command<int> {
         final pubspecYaml = loadYaml(pubspecContent);
         final projectDeps =
             (pubspecYaml is Map && pubspecYaml['dependencies'] is Map)
-                ? (pubspecYaml['dependencies'] as Map)
-                    .keys
+                ? (pubspecYaml['dependencies'] as Map).keys
                     .cast<String>()
                     .toSet()
                 : <String>{};

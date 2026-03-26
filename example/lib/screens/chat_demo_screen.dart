@@ -83,7 +83,8 @@ class _ChatDemoScreenState extends State<ChatDemoScreen> {
       Message(
         id: '4',
         role: MessageRole.user,
-        content: 'That looks great! How do I add middleware for authentication?',
+        content:
+            'That looks great! How do I add middleware for authentication?',
         timestamp: now.subtract(const Duration(minutes: 3)),
       ),
       Message(
@@ -98,12 +99,14 @@ class _ChatDemoScreenState extends State<ChatDemoScreen> {
 
   void _handleSend(String text) {
     setState(() {
-      _messages.add(Message(
-        id: 'u${_messages.length}',
-        role: MessageRole.user,
-        content: text,
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        Message(
+          id: 'u${_messages.length}',
+          role: MessageRole.user,
+          content: text,
+          timestamp: DateTime.now(),
+        ),
+      );
       _isTyping = true;
     });
 
@@ -113,13 +116,15 @@ class _ChatDemoScreenState extends State<ChatDemoScreen> {
       if (mounted) {
         setState(() {
           _isTyping = false;
-          _messages.add(Message(
-            id: 'a${_messages.length}',
-            role: MessageRole.assistant,
-            content:
-                'That\'s a great question! Let me think about the best approach for your use case. In general, I\'d suggest starting with the simplest solution that meets your requirements.',
-            timestamp: DateTime.now(),
-          ));
+          _messages.add(
+            Message(
+              id: 'a${_messages.length}',
+              role: MessageRole.assistant,
+              content:
+                  'That\'s a great question! Let me think about the best approach for your use case. In general, I\'d suggest starting with the simplest solution that meets your requirements.',
+              timestamp: DateTime.now(),
+            ),
+          );
         });
         _scrollToBottom();
       }
@@ -154,9 +159,7 @@ class _ChatDemoScreenState extends State<ChatDemoScreen> {
           ),
           decoration: BoxDecoration(
             color: theme.colors.card,
-            border: Border(
-              bottom: BorderSide(color: theme.colors.border),
-            ),
+            border: Border(bottom: BorderSide(color: theme.colors.border)),
           ),
           child: Column(
             children: [

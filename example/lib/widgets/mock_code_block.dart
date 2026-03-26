@@ -6,11 +6,7 @@ class MockCodeBlock extends StatelessWidget {
   final String code;
   final String language;
 
-  const MockCodeBlock({
-    super.key,
-    required this.code,
-    this.language = 'dart',
-  });
+  const MockCodeBlock({super.key, required this.code, this.language = 'dart'});
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +28,7 @@ class MockCodeBlock extends StatelessWidget {
               vertical: theme.spacing.xs,
             ),
             decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: theme.colors.border),
-              ),
+              border: Border(bottom: BorderSide(color: theme.colors.border)),
             ),
             child: Row(
               children: [

@@ -24,9 +24,10 @@ class _MockTypingIndicatorState extends State<MockTypingIndicator>
     });
 
     _animations = _controllers.map((c) {
-      return Tween<double>(begin: 0, end: -6).animate(
-        CurvedAnimation(parent: c, curve: Curves.easeInOut),
-      );
+      return Tween<double>(
+        begin: 0,
+        end: -6,
+      ).animate(CurvedAnimation(parent: c, curve: Curves.easeInOut));
     }).toList();
 
     for (var i = 0; i < 3; i++) {
@@ -84,7 +85,9 @@ class _MockTypingIndicatorState extends State<MockTypingIndicator>
                     width: 7,
                     height: 7,
                     decoration: BoxDecoration(
-                      color: theme.colors.mutedForeground.withValues(alpha: 0.6),
+                      color: theme.colors.mutedForeground.withValues(
+                        alpha: 0.6,
+                      ),
                       shape: BoxShape.circle,
                     ),
                   ),

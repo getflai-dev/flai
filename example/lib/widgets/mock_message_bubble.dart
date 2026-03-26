@@ -23,14 +23,12 @@ class MockMessageBubble extends StatelessWidget {
           bottom: theme.spacing.sm,
         ),
         child: Column(
-          crossAxisAlignment:
-              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isUser
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             if (message.hasThinking) ...[
-              _ThinkingBlock(
-                content: message.thinkingContent!,
-                theme: theme,
-              ),
+              _ThinkingBlock(content: message.thinkingContent!, theme: theme),
               SizedBox(height: theme.spacing.xs),
             ],
             Container(
@@ -125,9 +123,7 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
         decoration: BoxDecoration(
           color: theme.colors.muted.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(theme.radius.md),
-          border: Border.all(
-            color: theme.colors.border.withValues(alpha: 0.5),
-          ),
+          border: Border.all(color: theme.colors.border.withValues(alpha: 0.5)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,11 +230,7 @@ class _CitationChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.link,
-            size: 12,
-            color: theme.colors.accentForeground,
-          ),
+          Icon(Icons.link, size: 12, color: theme.colors.accentForeground),
           SizedBox(width: theme.spacing.xs),
           Flexible(
             child: Text(

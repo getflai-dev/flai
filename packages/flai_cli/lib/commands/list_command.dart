@@ -35,9 +35,10 @@ class ListCommand extends Command<int> {
       stdout.writeln('\x1B[1;4m$category\x1B[0m');
       final bricks = BrickRegistry.byCategory(category);
       for (final brick in bricks) {
-        final status = installed.contains(brick.name)
-            ? '\x1B[32m[installed]\x1B[0m'
-            : '\x1B[90m[not installed]\x1B[0m';
+        final status =
+            installed.contains(brick.name)
+                ? '\x1B[32m[installed]\x1B[0m'
+                : '\x1B[90m[not installed]\x1B[0m';
         stdout.writeln(
           '  \x1B[36m${brick.name.padRight(22)}\x1B[0m '
           '${brick.description.padRight(55)} $status',

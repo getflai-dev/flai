@@ -40,9 +40,7 @@ class _MockInputBarState extends State<MockInputBar> {
       ),
       decoration: BoxDecoration(
         color: theme.colors.card,
-        border: Border(
-          top: BorderSide(color: theme.colors.border),
-        ),
+        border: Border(top: BorderSide(color: theme.colors.border)),
       ),
       child: SafeArea(
         top: false,
@@ -57,10 +55,7 @@ class _MockInputBarState extends State<MockInputBar> {
               ),
               onPressed: () {},
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(
-                minWidth: 36,
-                minHeight: 36,
-              ),
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
             ),
             SizedBox(width: theme.spacing.xs),
             Expanded(
@@ -74,7 +69,8 @@ class _MockInputBarState extends State<MockInputBar> {
                 child: TextField(
                   controller: _controller,
                   maxLines: null,
-                  onChanged: (t) => setState(() => _hasText = t.trim().isNotEmpty),
+                  onChanged: (t) =>
+                      setState(() => _hasText = t.trim().isNotEmpty),
                   onSubmitted: (_) => _send(),
                   style: theme.typography.bodyBase(
                     color: theme.colors.foreground,
@@ -114,10 +110,7 @@ class _MockInputBarState extends State<MockInputBar> {
                   ),
                 ),
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(
-                  minWidth: 36,
-                  minHeight: 36,
-                ),
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
               ),
             ),
           ],

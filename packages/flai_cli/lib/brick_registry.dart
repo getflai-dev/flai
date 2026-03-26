@@ -33,7 +33,8 @@ abstract final class BrickRegistry {
     // ── Chat Essentials ──────────────────────────────────────────────
     'chat_screen': BrickInfo(
       name: 'chat_screen',
-      description: 'Full-featured chat screen with messages, input, and streaming.',
+      description:
+          'Full-featured chat screen with messages, input, and streaming.',
       category: BrickCategory.chatEssentials,
       dependencies: ['message_bubble', 'input_bar', 'streaming_text'],
     ),
@@ -62,7 +63,8 @@ abstract final class BrickRegistry {
     // ── AI Widgets ───────────────────────────────────────────────────
     'tool_call_card': BrickInfo(
       name: 'tool_call_card',
-      description: 'Card that displays an AI tool/function call and its result.',
+      description:
+          'Card that displays an AI tool/function call and its result.',
       category: BrickCategory.aiWidgets,
     ),
     'code_block': BrickInfo(
@@ -73,7 +75,8 @@ abstract final class BrickRegistry {
     ),
     'thinking_indicator': BrickInfo(
       name: 'thinking_indicator',
-      description: 'Expandable panel showing the AI reasoning/thinking process.',
+      description:
+          'Expandable panel showing the AI reasoning/thinking process.',
       category: BrickCategory.aiWidgets,
     ),
     'citation_card': BrickInfo(
@@ -121,11 +124,11 @@ abstract final class BrickRegistry {
 
   /// Returns all unique categories in display order.
   static List<String> get categories => const [
-        BrickCategory.chatEssentials,
-        BrickCategory.aiWidgets,
-        BrickCategory.conversation,
-        BrickCategory.providers,
-      ];
+    BrickCategory.chatEssentials,
+    BrickCategory.aiWidgets,
+    BrickCategory.conversation,
+    BrickCategory.providers,
+  ];
 
   /// Returns all bricks belonging to [category].
   static List<BrickInfo> byCategory(String category) {

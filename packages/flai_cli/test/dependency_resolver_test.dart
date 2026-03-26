@@ -56,35 +56,41 @@ void main() {
       });
 
       test(
-          'returns empty list when component and all deps already installed',
-          () {
-        final result = resolver.resolve(
-          'chat_screen',
-          alreadyInstalled: {
+        'returns empty list when component and all deps already installed',
+        () {
+          final result = resolver.resolve(
             'chat_screen',
-            'message_bubble',
-            'input_bar',
-            'streaming_text',
-          },
-        );
-        expect(result, isEmpty);
-      });
+            alreadyInstalled: {
+              'chat_screen',
+              'message_bubble',
+              'input_bar',
+              'streaming_text',
+            },
+          );
+          expect(result, isEmpty);
+        },
+      );
 
       test('throws ArgumentError for unknown component', () {
         expect(
           () => resolver.resolve('nonexistent_widget'),
-          throwsA(isA<ArgumentError>().having(
-            (e) => e.message,
-            'message',
-            contains('Unknown component'),
-          )),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              'message',
+              contains('Unknown component'),
+            ),
+          ),
         );
       });
 
       test('does not duplicate components in the result', () {
         final result = resolver.resolve('chat_screen');
-        expect(result.toSet().length, equals(result.length),
-            reason: 'Result should not contain duplicate entries');
+        expect(
+          result.toSet().length,
+          equals(result.length),
+          reason: 'Result should not contain duplicate entries',
+        );
       });
     });
 
@@ -100,11 +106,10 @@ void main() {
           'code_block',
           'openai_provider',
         ]);
-        expect(deps, containsAll([
-          'flutter_markdown',
-          'flutter_highlight',
-          'http',
-        ]));
+        expect(
+          deps,
+          containsAll(['flutter_markdown', 'flutter_highlight', 'http']),
+        );
       });
 
       test('deduplicates pub dependencies', () {
@@ -136,8 +141,7 @@ void main() {
       test('ignores unknown component names gracefully', () {
         // collectPubDependencies checks BrickRegistry.lookup which returns null
         // for unknown names; the method skips nulls.
-        final deps =
-            resolver.collectPubDependencies(['nonexistent_widget']);
+        final deps = resolver.collectPubDependencies(['nonexistent_widget']);
         expect(deps, isEmpty);
       });
 

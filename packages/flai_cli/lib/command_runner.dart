@@ -8,10 +8,10 @@ import 'commands/list_command.dart';
 /// Top-level command runner for the FlAI CLI.
 class FlaiCommandRunner extends CommandRunner<int> {
   FlaiCommandRunner()
-      : super(
-          'flai',
-          'CLI tool for installing FlAI AI chat components into Flutter projects.',
-        ) {
+    : super(
+        'flai',
+        'CLI tool for installing FlAI AI chat components into Flutter projects.',
+      ) {
     addCommand(InitCommand());
     addCommand(AddCommand());
     addCommand(ListCommand());

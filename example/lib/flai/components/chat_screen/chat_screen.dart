@@ -164,9 +164,7 @@ class _FlaiChatScreenState extends State<FlaiChatScreen> {
       ),
       decoration: BoxDecoration(
         color: theme.colors.card,
-        border: Border(
-          bottom: BorderSide(color: theme.colors.border),
-        ),
+        border: Border(bottom: BorderSide(color: theme.colors.border)),
       ),
       child: Row(
         children: [
@@ -232,11 +230,17 @@ class _FlaiChatScreenState extends State<FlaiChatScreen> {
     );
   }
 
-  Widget _buildMessageList(FlaiThemeData theme, ChatScreenController controller) {
+  Widget _buildMessageList(
+    FlaiThemeData theme,
+    ChatScreenController controller,
+  ) {
     final messages = controller.messages;
-    final itemCount = messages.length +
+    final itemCount =
+        messages.length +
         (controller.isStreaming ? 1 : 0) + // streaming message
-        (controller.isStreaming && controller.streamingText.isEmpty ? 1 : 0); // typing indicator
+        (controller.isStreaming && controller.streamingText.isEmpty
+            ? 1
+            : 0); // typing indicator
 
     return ListView.builder(
       controller: _scrollController,

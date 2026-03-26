@@ -32,9 +32,7 @@ class ComponentGalleryScreen extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               color: theme.colors.card,
-              border: Border(
-                bottom: BorderSide(color: theme.colors.border),
-              ),
+              border: Border(bottom: BorderSide(color: theme.colors.border)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,35 +278,15 @@ void main() {
       child: Row(
         children: [
           Expanded(
-            child: _TokenStat(
-              label: 'Input',
-              value: '1,245',
-              theme: theme,
-            ),
+            child: _TokenStat(label: 'Input', value: '1,245', theme: theme),
           ),
-          Container(
-            width: 1,
-            height: 40,
-            color: theme.colors.border,
-          ),
+          Container(width: 1, height: 40, color: theme.colors.border),
           Expanded(
-            child: _TokenStat(
-              label: 'Output',
-              value: '832',
-              theme: theme,
-            ),
+            child: _TokenStat(label: 'Output', value: '832', theme: theme),
           ),
-          Container(
-            width: 1,
-            height: 40,
-            color: theme.colors.border,
-          ),
+          Container(width: 1, height: 40, color: theme.colors.border),
           Expanded(
-            child: _TokenStat(
-              label: 'Cost',
-              value: '\$0.003',
-              theme: theme,
-            ),
+            child: _TokenStat(label: 'Cost', value: '\$0.003', theme: theme),
           ),
         ],
       ),
@@ -337,9 +315,7 @@ void main() {
             padding: EdgeInsets.all(theme.spacing.sm + 2),
             decoration: BoxDecoration(
               border: i < conversations.length - 1
-                  ? Border(
-                      bottom: BorderSide(color: theme.colors.border),
-                    )
+                  ? Border(bottom: BorderSide(color: theme.colors.border))
                   : null,
             ),
             child: Row(
@@ -455,7 +431,9 @@ void main() {
         SizedBox(height: theme.spacing.sm),
         Text(
           'Body Small — The quick brown fox jumps over the lazy dog.',
-          style: theme.typography.bodySmall(color: theme.colors.mutedForeground),
+          style: theme.typography.bodySmall(
+            color: theme.colors.mutedForeground,
+          ),
         ),
         SizedBox(height: theme.spacing.sm),
         Text(
@@ -533,7 +511,9 @@ class _ModelOption extends StatelessWidget {
           Icon(
             isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
             size: 18,
-            color: isSelected ? theme.colors.primary : theme.colors.mutedForeground,
+            color: isSelected
+                ? theme.colors.primary
+                : theme.colors.mutedForeground,
           ),
           SizedBox(width: theme.spacing.sm),
           Column(

@@ -28,46 +28,46 @@ class FlaiTypography {
   });
 
   TextStyle bodySmall({Color? color}) => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: sm,
-        fontWeight: regular,
-        color: color,
-      );
+    fontFamily: fontFamily,
+    fontSize: sm,
+    fontWeight: regular,
+    color: color,
+  );
 
   TextStyle bodyBase({Color? color}) => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: base,
-        fontWeight: regular,
-        color: color,
-      );
+    fontFamily: fontFamily,
+    fontSize: base,
+    fontWeight: regular,
+    color: color,
+  );
 
   TextStyle bodyLarge({Color? color}) => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: lg,
-        fontWeight: regular,
-        color: color,
-      );
+    fontFamily: fontFamily,
+    fontSize: lg,
+    fontWeight: regular,
+    color: color,
+  );
 
   TextStyle heading({Color? color}) => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: xl,
-        fontWeight: semiBold,
-        color: color,
-      );
+    fontFamily: fontFamily,
+    fontSize: xl,
+    fontWeight: semiBold,
+    color: color,
+  );
 
   TextStyle headingLarge({Color? color}) => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: xxl,
-        fontWeight: bold,
-        color: color,
-      );
+    fontFamily: fontFamily,
+    fontSize: xxl,
+    fontWeight: bold,
+    color: color,
+  );
 
   TextStyle mono({Color? color, double? fontSize}) => TextStyle(
-        fontFamily: monoFontFamily,
-        fontSize: fontSize ?? sm,
-        fontWeight: regular,
-        color: color,
-      );
+    fontFamily: monoFontFamily,
+    fontSize: fontSize ?? sm,
+    fontWeight: regular,
+    color: color,
+  );
 
   FlaiTypography copyWith({
     String? fontFamily,

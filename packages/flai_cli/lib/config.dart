@@ -29,9 +29,10 @@ class FlaiConfig {
     return FlaiConfig(
       outputDir: yaml['output_dir'] as String? ?? 'lib/flai',
       theme: yaml['theme'] as String? ?? 'dark',
-      installed: (yaml['installed'] as YamlList?)
-              ?.cast<String>()
-              .toList(growable: true) ??
+      installed:
+          (yaml['installed'] as YamlList?)?.cast<String>().toList(
+            growable: true,
+          ) ??
           <String>[],
     );
   }
@@ -39,14 +40,11 @@ class FlaiConfig {
   /// Serialises this config to a YAML string.
   String toYamlString() {
     final editor = YamlEditor('');
-    editor.update(
-      [],
-      {
-        'output_dir': outputDir,
-        'theme': theme,
-        'installed': installed,
-      },
-    );
+    editor.update([], {
+      'output_dir': outputDir,
+      'theme': theme,
+      'installed': installed,
+    });
     return editor.toString();
   }
 }
@@ -100,11 +98,13 @@ class FlaiConfigManager {
   void markInstalled(List<String> componentNames) {
     final config = read();
     final updated = {...config.installed, ...componentNames}.toList()..sort();
-    write(FlaiConfig(
-      outputDir: config.outputDir,
-      theme: config.theme,
-      installed: updated,
-    ));
+    write(
+      FlaiConfig(
+        outputDir: config.outputDir,
+        theme: config.theme,
+        installed: updated,
+      ),
+    );
   }
 }
 

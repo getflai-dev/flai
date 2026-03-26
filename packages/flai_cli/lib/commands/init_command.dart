@@ -40,8 +40,10 @@ class InitCommand extends Command<int> {
       stderr.writeln(
         '\x1B[31mError:\x1B[0m The current directory is not a Flutter project.',
       );
-      stderr.writeln('Make sure you are in a directory with a pubspec.yaml '
-          'that declares a Flutter dependency.');
+      stderr.writeln(
+        'Make sure you are in a directory with a pubspec.yaml '
+        'that declares a Flutter dependency.',
+      );
       return 1;
     }
 
@@ -80,12 +82,18 @@ class InitCommand extends Command<int> {
     stdout.writeln('\x1B[32m\u2713 FlAI initialised successfully!\x1B[0m');
     stdout.writeln('');
     stdout.writeln('Next steps:');
-    stdout.writeln('  \x1B[36mflai add chat_screen\x1B[0m   '
-        '— install the full chat screen');
-    stdout.writeln('  \x1B[36mflai list\x1B[0m              '
-        '— see all available components');
-    stdout.writeln('  \x1B[36mflai doctor\x1B[0m            '
-        '— check project health');
+    stdout.writeln(
+      '  \x1B[36mflai add chat_screen\x1B[0m   '
+      '— install the full chat screen',
+    );
+    stdout.writeln(
+      '  \x1B[36mflai list\x1B[0m              '
+      '— see all available components',
+    );
+    stdout.writeln(
+      '  \x1B[36mflai doctor\x1B[0m            '
+      '— check project health',
+    );
     stdout.writeln('');
 
     return 0;
@@ -95,7 +103,9 @@ class InitCommand extends Command<int> {
     final dir = Directory(path);
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
-      stdout.writeln('\x1B[32m\u2713\x1B[0m Created directory ${p.relative(path)}');
+      stdout.writeln(
+        '\x1B[32m\u2713\x1B[0m Created directory ${p.relative(path)}',
+      );
     }
   }
 
@@ -170,8 +180,7 @@ class ChatMessage {
     }
 
     // ── chat_provider.dart ─────────────────────────────────────────
-    final providerFile =
-        File(p.join(outputPath, 'core', 'chat_provider.dart'));
+    final providerFile = File(p.join(outputPath, 'core', 'chat_provider.dart'));
     if (!providerFile.existsSync()) {
       providerFile.writeAsStringSync('''
 import 'chat_message.dart';
@@ -187,8 +196,7 @@ abstract class ChatProvider {
   Stream<String> streamMessage(List<ChatMessage> messages);
 }
 ''');
-      stdout.writeln(
-          '\x1B[32m\u2713\x1B[0m Generated core/chat_provider.dart');
+      stdout.writeln('\x1B[32m\u2713\x1B[0m Generated core/chat_provider.dart');
     }
   }
 }

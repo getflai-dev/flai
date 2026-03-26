@@ -93,9 +93,7 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       bottomNavigationBar: Theme(
-        data: Theme.of(context).copyWith(
-          canvasColor: theme.colors.card,
-        ),
+        data: Theme.of(context).copyWith(canvasColor: theme.colors.card),
         child: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: (i) => setState(() => _selectedIndex = i),
