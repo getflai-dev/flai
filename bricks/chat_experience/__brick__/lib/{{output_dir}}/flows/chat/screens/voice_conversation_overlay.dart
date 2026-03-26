@@ -116,7 +116,7 @@ class _FlaiVoiceConversationOverlayState
     final orbColors = widget.gradientColors ??
         [
           theme.colors.primary,
-          theme.colors.primary.withOpacity(0.6),
+          theme.colors.primary.withValues(alpha: 0.6),
         ];
 
     return GestureDetector(
@@ -152,12 +152,12 @@ class _FlaiVoiceConversationOverlayState
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: orbColors.first.withOpacity(0.45),
+                            color: orbColors.first.withValues(alpha: 0.45),
                             blurRadius: 36,
                             spreadRadius: 8,
                           ),
                           BoxShadow(
-                            color: orbColors.first.withOpacity(0.20),
+                            color: orbColors.first.withValues(alpha: 0.20),
                             blurRadius: 60,
                             spreadRadius: 16,
                           ),
