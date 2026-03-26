@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blueprints — FlAI</title>
+  <meta name="description" content="Production-ready app templates for Flutter AI chat. Login, chat, settings, profile screens. One command to install, fully yours to customize.">
+  <link rel="canonical" href="https://getflai.dev/blueprints.html">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Blueprints — FlAI">
+  <meta property="og:description" content="Production-ready app templates for Flutter AI chat. One command to install, fully yours to customize.">
+  <meta property="og:url" content="https://getflai.dev/blueprints.html">
+  <meta property="og:site_name" content="FlAI">
+  <meta property="og:image" content="https://getflai.dev/og-image.png">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Blueprints — FlAI">
+  <meta name="twitter:description" content="Production-ready app templates for Flutter AI chat. One command to install, fully yours to customize.">
+  <meta name="twitter:image" content="https://getflai.dev/og-image.png">
+  <meta name="robots" content="index, follow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/homepage.css">
+  <link rel="stylesheet" href="css/blueprints.css">
+</head>
+<body class="homepage-layout">
+
+  <header id="site-header" class="site-header"></header>
+
+  <main class="main-content">
+    <div class="homepage-container">
+
+      <!-- ============================================ -->
+      <!-- HERO -->
+      <!-- ============================================ -->
+      <section class="bp-hero">
+        <h1 class="bp-hero-title">Blueprints</h1>
+        <p class="bp-hero-sub">Production-ready app templates. One command to install, fully yours to customize.</p>
+
+        <div class="bp-filters">
+          <button class="bp-filter active" data-filter="all">All</button>
+          <button class="bp-filter" data-filter="auth">Auth</button>
+          <button class="bp-filter" data-filter="chat">Chat</button>
+          <button class="bp-filter" data-filter="settings">Settings</button>
+          <button class="bp-filter" data-filter="profile">Profile</button>
+        </div>
+      </section>
+
+      <!-- ============================================ -->
+      <!-- BLUEPRINT GRID -->
+      <!-- ============================================ -->
+      <section class="bp-grid">
+
+        <!-- (a) Login Screen -->
+        <div class="bp-card bp-login" data-category="auth">
+          <div class="bp-phone">
+            <div class="bp-phone-notch"></div>
+            <div class="bp-phone-screen">
+              <div class="bp-screen">
+                <div class="bp-screen-heading">Welcome back</div>
+                <div class="bp-screen-subheading">Sign in to continue</div>
+
+                <div class="bp-input">
+                  <svg class="bp-input-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  <span>email@example.com</span>
+                </div>
+
+                <div class="bp-input">
+                  <svg class="bp-input-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <span style="flex:1;">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+
+                <div class="bp-btn-primary">Sign In</div>
+
+                <div class="bp-link">Forgot password?</div>
+                <div class="bp-link">Don't have an account? <span class="bp-link-accent">Register</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="bp-label">
+            <div class="bp-label-name">Login Screen</div>
+            <div class="bp-label-desc">Email/password authentication with forgot password flow</div>
+            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add login_screen</div>
+          </div>
+        </div>
+
+        <!-- (b) Register Screen -->
+        <div class="bp-card bp-register" data-category="auth">
+          <div class="bp-phone">
+            <div class="bp-phone-notch"></div>
+            <div class="bp-phone-screen">
+              <div class="bp-screen">
+                <div class="bp-screen-heading">Create account</div>
+                <div class="bp-screen-subheading">Get started for free</div>
+
+                <div class="bp-input">
+                  <svg class="bp-input-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <span>Full name</span>
+                </div>
+
+                <div class="bp-input">
+                  <svg class="bp-input-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  <span>Email address</span>
+                </div>
+
+                <div class="bp-input">
+                  <svg class="bp-input-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <span>Password</span>
+                </div>
+
+                <div class="bp-input">
+                  <svg class="bp-input-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <span>Confirm password</span>
+                </div>
+
+                <div class="bp-btn-primary">Create Account</div>
+
+                <div class="bp-link">Already have an account? <span class="bp-link-accent">Sign in</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="bp-label">
+            <div class="bp-label-name">Register Screen</div>
+            <div class="bp-label-desc">New user registration with password confirmation</div>
+            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add register_screen</div>
+          </div>
+        </div>
+
+        <!-- (c) Chat List Screen -->
+        <div class="bp-card bp-chatlist" data-category="chat">
+          <div class="bp-phone">
+            <div class="bp-phone-notch"></div>
+            <div class="bp-phone-screen">
+              <div class="bp-appbar">
+                <div class="bp-appbar-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </div>
+                <div class="bp-appbar-title">Conversations</div>
+              </div>
+              <div class="bp-screen" style="padding:0;">
+                <div class="bp-chatlist-body">
+                  <div class="bp-conv-item bp-conv-item-selected">
+                    <div class="bp-conv-avatar">AI</div>
+                    <div class="bp-conv-content">
+                      <div class="bp-conv-title">Flutter state management</div>
+                      <div class="bp-conv-preview">Riverpod vs Bloc for large apps...</div>
+                    </div>
+                    <div class="bp-conv-meta">
+                      <div class="bp-conv-time">2m</div>
+                      <div class="bp-conv-badge">2</div>
+                    </div>
+                  </div>
+
+                  <div class="bp-conv-item">
+                    <div class="bp-conv-avatar">AI</div>
+                    <div class="bp-conv-content">
+                      <div class="bp-conv-title">REST API integration</div>
+                      <div class="bp-conv-preview">How to handle auth tokens with...</div>
+                    </div>
+                    <div class="bp-conv-meta">
+                      <div class="bp-conv-time">1h</div>
+                    </div>
+                  </div>
+
+                  <div class="bp-conv-item">
+                    <div class="bp-conv-avatar">AI</div>
+                    <div class="bp-conv-content">
+                      <div class="bp-conv-title">Database design patterns</div>
+                      <div class="bp-conv-preview">Normalizing user data for Drift...</div>
+                    </div>
+                    <div class="bp-conv-meta">
+                      <div class="bp-conv-time">3h</div>
+                    </div>
+                  </div>
+
+                  <div class="bp-conv-item">
+                    <div class="bp-conv-avatar">AI</div>
+                    <div class="bp-conv-content">
+                      <div class="bp-conv-title">Custom animations</div>
+                      <div class="bp-conv-preview">Staggered fade-in for list items...</div>
+                    </div>
+                    <div class="bp-conv-meta">
+                      <div class="bp-conv-time">1d</div>
+                    </div>
+                  </div>
+
+                  <div class="bp-conv-item">
+                    <div class="bp-conv-avatar">AI</div>
+                    <div class="bp-conv-content">
+                      <div class="bp-conv-title">Testing strategies</div>
+                      <div class="bp-conv-preview">Widget tests vs integration tests...</div>
+                    </div>
+                    <div class="bp-conv-meta">
+                      <div class="bp-conv-time">2d</div>
+                    </div>
+                  </div>
+
+                  <div class="bp-fab">+</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bp-label">
+            <div class="bp-label-name">Chat List Screen</div>
+            <div class="bp-label-desc">Conversation history with search, unread badges, and FAB</div>
+            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add conversation_list</div>
+          </div>
+        </div>
+
+        <!-- (d) Chat Detail Screen -->
+        <div class="bp-card bp-chatdetail" data-category="chat">
+          <div class="bp-phone">
+            <div class="bp-phone-notch"></div>
+            <div class="bp-phone-screen">
+              <div class="bp-appbar">
+                <div class="bp-appbar-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg>
+                </div>
+                <div>
+                  <div class="bp-appbar-title">AI Assistant</div>
+                  <div class="bp-appbar-sub">Online</div>
+                </div>
+                <div class="bp-appbar-badge">Claude Sonnet 4</div>
+              </div>
+              <div class="bp-chat-body">
+                <div class="bp-bubble bp-bubble-user">Can you explain how async/await works in Dart?</div>
+                <div class="bp-bubble bp-bubble-ai">In Dart, async/await is built on top of Futures. When you mark a function as <strong>async</strong>, it returns a Future. The <strong>await</strong> keyword pauses execution until the Future completes.<span class="bp-cursor"></span></div>
+                <div class="bp-bubble bp-bubble-user">Show me an example?</div>
+              </div>
+              <div class="bp-chat-input">
+                <span class="bp-chat-plus">+</span>
+                <span class="bp-chat-placeholder">Message...</span>
+                <div class="bp-chat-send">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bp-label">
+            <div class="bp-label-name">Chat Detail Screen</div>
+            <div class="bp-label-desc">Full chat interface with streaming, model badge, and input bar</div>
+            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add chat_screen</div>
+          </div>
+        </div>
+
+        <!-- (e) Settings Screen -->
+        <div class="bp-card bp-settings" data-category="settings">
+          <div class="bp-phone">
+            <div class="bp-phone-notch"></div>
+            <div class="bp-phone-screen">
+              <div class="bp-appbar">
+                <div class="bp-appbar-title">Settings</div>
+              </div>
+              <div class="bp-screen">
+                <div class="bp-settings-section">
+                  <div class="bp-settings-label">Theme</div>
+                  <div class="bp-theme-swatches">
+                    <div class="bp-swatch bp-swatch-light"></div>
+                    <div class="bp-swatch bp-swatch-dark bp-swatch-active"></div>
+                    <div class="bp-swatch bp-swatch-ios"></div>
+                    <div class="bp-swatch bp-swatch-premium"></div>
+                  </div>
+                </div>
+
+                <div class="bp-settings-section">
+                  <div class="bp-settings-label">Model</div>
+                  <div class="bp-model-chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Claude Sonnet 4
+                    <span style="color:#52525B;">&#9662;</span>
+                  </div>
+                </div>
+
+                <div class="bp-settings-section">
+                  <div class="bp-settings-label">API Key</div>
+                  <div class="bp-api-field">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                    sk-&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;vK3m
+                  </div>
+                </div>
+
+                <div class="bp-settings-section">
+                  <div class="bp-settings-label">About</div>
+                  <div class="bp-about-row">
+                    <span>Version</span>
+                    <span class="bp-about-val">1.0.0</span>
+                  </div>
+                  <div class="bp-about-row">
+                    <span>Build</span>
+                    <span class="bp-about-val">2026.03.26</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bp-label">
+            <div class="bp-label-name">Settings Screen</div>
+            <div class="bp-label-desc">Theme picker, model selector, API key management</div>
+            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add settings_screen</div>
+          </div>
+        </div>
+
+        <!-- (f) Profile Screen -->
+        <div class="bp-card bp-profile" data-category="profile">
+          <div class="bp-phone">
+            <div class="bp-phone-notch"></div>
+            <div class="bp-phone-screen">
+              <div class="bp-appbar">
+                <div class="bp-appbar-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg>
+                </div>
+                <div class="bp-appbar-title">Profile</div>
+              </div>
+              <div class="bp-screen">
+                <div class="bp-avatar">JD</div>
+                <div class="bp-profile-name">Jane Doe</div>
+                <div class="bp-profile-email">jane@example.com</div>
+                <div class="bp-profile-since">Member since Mar 2026</div>
+                <div class="bp-btn-outline">Edit Profile</div>
+                <div class="bp-btn-destructive">Sign Out</div>
+              </div>
+            </div>
+          </div>
+          <div class="bp-label">
+            <div class="bp-label-name">Profile Screen</div>
+            <div class="bp-label-desc">User avatar, info display, and account actions</div>
+            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add profile_screen</div>
+          </div>
+        </div>
+
+        <!-- (g) Full App Blueprint (wide) -->
+        <div class="bp-card bp-card-wide bp-fullapp" data-category="all">
+          <div class="bp-split-frame">
+            <!-- Left: Chat list -->
+            <div class="bp-split-left">
+              <div class="bp-appbar">
+                <div class="bp-appbar-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </div>
+                <div class="bp-appbar-title">Chats</div>
+              </div>
+              <div class="bp-conv-item bp-conv-item-selected">
+                <div class="bp-conv-avatar">AI</div>
+                <div class="bp-conv-content">
+                  <div class="bp-conv-title">Flutter async</div>
+                  <div class="bp-conv-preview">Explain async/await...</div>
+                </div>
+                <div class="bp-conv-meta">
+                  <div class="bp-conv-time">2m</div>
+                </div>
+              </div>
+              <div class="bp-conv-item">
+                <div class="bp-conv-avatar">AI</div>
+                <div class="bp-conv-content">
+                  <div class="bp-conv-title">REST API</div>
+                  <div class="bp-conv-preview">Auth tokens...</div>
+                </div>
+                <div class="bp-conv-meta">
+                  <div class="bp-conv-time">1h</div>
+                </div>
+              </div>
+              <div class="bp-conv-item">
+                <div class="bp-conv-avatar">AI</div>
+                <div class="bp-conv-content">
+                  <div class="bp-conv-title">DB design</div>
+                  <div class="bp-conv-preview">Normalizing data...</div>
+                </div>
+                <div class="bp-conv-meta">
+                  <div class="bp-conv-time">3h</div>
+                </div>
+              </div>
+              <div class="bp-conv-item">
+                <div class="bp-conv-avatar">AI</div>
+                <div class="bp-conv-content">
+                  <div class="bp-conv-title">Animations</div>
+                  <div class="bp-conv-preview">Staggered fade-in...</div>
+                </div>
+                <div class="bp-conv-meta">
+                  <div class="bp-conv-time">1d</div>
+                </div>
+              </div>
+              <div class="bp-conv-item">
+                <div class="bp-conv-avatar">AI</div>
+                <div class="bp-conv-content">
+                  <div class="bp-conv-title">Testing</div>
+                  <div class="bp-conv-preview">Widget vs integration...</div>
+                </div>
+                <div class="bp-conv-meta">
+                  <div class="bp-conv-time">2d</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Chat detail -->
+            <div class="bp-split-right">
+              <div class="bp-appbar">
+                <div>
+                  <div class="bp-appbar-title">AI Assistant</div>
+                  <div class="bp-appbar-sub">Online</div>
+                </div>
+                <div class="bp-appbar-badge">Claude Sonnet 4</div>
+              </div>
+              <div class="bp-chat-body">
+                <div class="bp-bubble bp-bubble-user">Can you explain async/await in Dart?</div>
+                <div class="bp-bubble bp-bubble-ai">In Dart, <strong>async/await</strong> is syntactic sugar for working with Futures. An async function returns a Future, and await pauses until it resolves.<span class="bp-cursor"></span></div>
+                <div class="bp-bubble bp-bubble-user">Show me an example?</div>
+                <div class="bp-bubble bp-bubble-ai">Sure! Here's a simple example that fetches data from an API and processes it step by step.</div>
+              </div>
+              <div class="bp-chat-input">
+                <span class="bp-chat-plus">+</span>
+                <span class="bp-chat-placeholder">Message...</span>
+                <div class="bp-chat-send">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bp-label">
+            <div class="bp-label-name">Complete App — Login, Chat, Settings, Profile</div>
+            <div class="bp-label-desc">Full app scaffold with navigation, conversation list, chat detail, settings, and profile screens</div>
+            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add app_scaffold</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================ -->
+      <!-- BOTTOM CTA -->
+      <!-- ============================================ -->
+      <section class="bp-cta">
+        <h2 class="bp-cta-title" style="border:none;margin:0 0 8px;padding:0;">Get started with Blueprints</h2>
+        <p class="bp-cta-desc">Install the full app scaffold with a single command.</p>
+        <div class="bp-cta-cmd">
+          <span class="bp-prompt">$</span> flai add app_scaffold
+        </div>
+        <a href="docs/index.html" class="bp-cta-link">Read the docs &rarr;</a>
+      </section>
+
+      <!-- ============================================ -->
+      <!-- FOOTER -->
+      <!-- ============================================ -->
+      <footer class="hp-footer">
+        <div class="footer-left">
+          <span class="footer-logo">FlAI</span>
+          <span class="footer-copy">MIT License</span>
+        </div>
+        <div class="footer-links">
+          <a href="docs/index.html">Docs</a>
+          <a href="docs/components/chat-screen.html">Components</a>
+          <a href="https://github.com/getflai-dev/flai" target="_blank">GitHub</a>
+        </div>
+      </footer>
+
+    </div>
+  </main>
+
+  <script src="js/main.js"></script>
+  <script>
+    // --- Blueprint Filter Logic ---
+    (function() {
+      const filters = document.querySelectorAll('.bp-filter');
+      const cards = document.querySelectorAll('.bp-card');
+
+      filters.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          // Update active state
+          filters.forEach(function(f) { f.classList.remove('active'); });
+          btn.classList.add('active');
+
+          var filter = btn.getAttribute('data-filter');
+
+          cards.forEach(function(card) {
+            var category = card.getAttribute('data-category');
+            if (filter === 'all') {
+              card.style.display = '';
+            } else if (category === filter || category === 'all') {
+              card.style.display = '';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

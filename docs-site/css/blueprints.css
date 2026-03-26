@@ -1,0 +1,806 @@
+/* ============================================================
+   FlAI Blueprints Page Styles
+   ============================================================ */
+
+/* --- Hero Section ------------------------------------------ */
+.bp-hero {
+  padding: 100px 0 48px;
+  text-align: center;
+}
+
+.bp-hero-title {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  color: var(--fg);
+  margin-bottom: 12px;
+}
+
+.bp-hero-sub {
+  font-size: 16px;
+  color: var(--fg-muted);
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 auto 32px;
+}
+
+/* --- Filter Tabs ------------------------------------------- */
+.bp-filters {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bp-filter {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.bp-filter:hover {
+  color: var(--fg);
+  border-color: #3F3F46;
+  background: var(--accent-hover);
+}
+
+.bp-filter.active {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+
+/* --- Blueprint Grid ---------------------------------------- */
+.bp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 48px 0 80px;
+}
+
+.bp-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.bp-card:hover {
+  border-color: #3F3F46;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.bp-card-wide {
+  grid-column: span 2;
+}
+
+/* --- Phone Frame ------------------------------------------- */
+.bp-phone {
+  margin: 20px auto;
+  width: 260px;
+  background: #0D0D0F;
+  border: 1px solid #27272A;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+.bp-phone-notch {
+  width: 80px;
+  height: 20px;
+  background: #09090B;
+  margin: 0 auto;
+  border-radius: 0 0 12px 12px;
+}
+
+.bp-phone-screen {
+  padding: 0;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Wide card uses a split layout (no phone frame) */
+.bp-split-frame {
+  margin: 20px;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  border: 1px solid #27272A;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0D0D0F;
+  min-height: 360px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+/* --- Card Label -------------------------------------------- */
+.bp-label {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+}
+
+.bp-label-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 2px;
+}
+
+.bp-label-desc {
+  font-size: 12px;
+  color: var(--fg-subtle);
+  margin-bottom: 8px;
+}
+
+.bp-label-cmd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #d4d4d8;
+  background: #0A0A0C;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+}
+
+.bp-label-cmd .bp-prompt {
+  color: var(--accent);
+  user-select: none;
+}
+
+/* --- Screen Component Styles ------------------------------- */
+/* Shared */
+.bp-screen {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
+}
+
+/* App bar */
+.bp-appbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #1F1F23;
+  background: #111113;
+}
+
+.bp-appbar-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.bp-appbar-sub {
+  font-size: 10px;
+  color: var(--fg-subtle);
+}
+
+.bp-appbar-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-muted);
+}
+
+.bp-appbar-badge {
+  font-size: 9px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--accent-muted);
+  color: var(--accent);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  margin-left: auto;
+}
+
+.bp-appbar-spacer {
+  flex: 1;
+}
+
+/* --- Login Screen ------------------------------------------ */
+.bp-login .bp-screen {
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 20px;
+}
+
+.bp-screen-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+
+.bp-screen-subheading {
+  font-size: 11px;
+  color: var(--fg-subtle);
+  margin-bottom: 8px;
+}
+
+.bp-input {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #18181B;
+  border: 1px solid #27272A;
+  border-radius: 8px;
+  font-size: 11px;
+  color: #52525B;
+}
+
+.bp-input-icon {
+  color: #52525B;
+  flex-shrink: 0;
+}
+
+.bp-btn-primary {
+  width: 100%;
+  padding: 9px 0;
+  background: #6366F1;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.bp-link {
+  font-size: 10px;
+  color: var(--fg-subtle);
+  text-align: center;
+}
+
+.bp-link-accent {
+  color: var(--accent);
+}
+
+/* --- Register Screen --------------------------------------- */
+.bp-register .bp-screen {
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+/* --- Chat List Screen -------------------------------------- */
+.bp-chatlist .bp-screen {
+  padding: 0;
+}
+
+.bp-chatlist-body {
+  flex: 1;
+  position: relative;
+}
+
+.bp-conv-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #1F1F23;
+  transition: background 0.1s;
+}
+
+.bp-conv-item-selected {
+  background: rgba(129, 140, 248, 0.06);
+  border-left: 2px solid var(--accent);
+}
+
+.bp-conv-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--accent-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.bp-conv-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.bp-conv-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bp-conv-preview {
+  font-size: 10px;
+  color: var(--fg-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bp-conv-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.bp-conv-time {
+  font-size: 9px;
+  color: var(--fg-subtle);
+}
+
+.bp-conv-badge {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bp-fab {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: #6366F1;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+}
+
+/* --- Chat Detail Screen ------------------------------------ */
+.bp-chatdetail .bp-phone-screen {
+  display: flex;
+  flex-direction: column;
+}
+
+.bp-chat-body {
+  flex: 1;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bp-bubble {
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 11px;
+  line-height: 1.45;
+  max-width: 82%;
+}
+
+.bp-bubble-user {
+  align-self: flex-end;
+  background: #6366F1;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.bp-bubble-ai {
+  align-self: flex-start;
+  background: #1A1A1E;
+  color: #d4d4d8;
+  border-bottom-left-radius: 4px;
+}
+
+.bp-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 12px;
+  background: var(--accent);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: hb-blink 1s infinite;
+}
+
+.bp-chat-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  margin: 0 10px 10px;
+  background: #18181B;
+  border: 1px solid #27272A;
+  border-radius: 10px;
+}
+
+.bp-chat-plus {
+  color: var(--fg-subtle);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.bp-chat-placeholder {
+  flex: 1;
+  color: #52525B;
+  font-size: 11px;
+}
+
+.bp-chat-send {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #6366F1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Settings Screen --------------------------------------- */
+.bp-settings .bp-screen {
+  padding: 16px 14px;
+  gap: 12px;
+}
+
+.bp-settings-section {
+  margin-bottom: 2px;
+}
+
+.bp-settings-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--fg-subtle);
+  margin-bottom: 6px;
+}
+
+.bp-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+
+.bp-settings-value {
+  font-size: 11px;
+  color: var(--fg-subtle);
+}
+
+.bp-theme-swatches {
+  display: flex;
+  gap: 6px;
+}
+
+.bp-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #27272A;
+  position: relative;
+}
+
+.bp-swatch-light { background: linear-gradient(135deg, #FAFAFA 50%, #E4E4E7 50%); }
+.bp-swatch-dark { background: linear-gradient(135deg, #18181B 50%, #27272A 50%); }
+.bp-swatch-ios { background: linear-gradient(135deg, #F2F2F7 50%, #007AFF 50%); }
+.bp-swatch-premium { background: linear-gradient(135deg, #0C0A1A 50%, #6366F1 50%); }
+
+.bp-swatch-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.bp-model-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: #18181B;
+  border: 1px solid #27272A;
+  border-radius: 6px;
+  font-size: 10px;
+  color: var(--fg);
+}
+
+.bp-api-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #18181B;
+  border: 1px solid #27272A;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--fg-subtle);
+}
+
+.bp-about-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+
+.bp-about-val {
+  color: var(--fg-subtle);
+}
+
+/* --- Profile Screen ---------------------------------------- */
+.bp-profile .bp-screen {
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 20px;
+}
+
+.bp-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.bp-profile-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.bp-profile-email {
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+
+.bp-profile-since {
+  font-size: 10px;
+  color: var(--fg-subtle);
+  margin-bottom: 8px;
+}
+
+.bp-btn-outline {
+  width: 100%;
+  max-width: 180px;
+  padding: 7px 0;
+  background: transparent;
+  color: var(--fg-muted);
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.bp-btn-destructive {
+  width: 100%;
+  max-width: 180px;
+  padding: 7px 0;
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* --- Split Frame (Full App) -------------------------------- */
+.bp-split-left {
+  background: #0E0E10;
+  border-right: 1px solid #1F1F23;
+  display: flex;
+  flex-direction: column;
+}
+
+.bp-split-left .bp-appbar {
+  padding: 8px 12px;
+}
+
+.bp-split-left .bp-appbar-title {
+  font-size: 12px;
+}
+
+.bp-split-left .bp-conv-item {
+  padding: 8px 12px;
+  gap: 8px;
+}
+
+.bp-split-left .bp-conv-avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+
+.bp-split-left .bp-conv-title {
+  font-size: 11px;
+}
+
+.bp-split-left .bp-conv-preview {
+  font-size: 9px;
+}
+
+.bp-split-left .bp-conv-time {
+  font-size: 8px;
+}
+
+.bp-split-right {
+  display: flex;
+  flex-direction: column;
+  background: #111113;
+}
+
+.bp-split-right .bp-appbar {
+  padding: 8px 14px;
+}
+
+.bp-split-right .bp-chat-body {
+  flex: 1;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bp-split-right .bp-bubble {
+  font-size: 10px;
+  padding: 6px 10px;
+  border-radius: 12px;
+}
+
+.bp-split-right .bp-chat-input {
+  margin: 0 10px 10px;
+  padding: 6px 8px;
+}
+
+.bp-split-right .bp-chat-placeholder {
+  font-size: 10px;
+}
+
+/* --- Bottom CTA -------------------------------------------- */
+.bp-cta {
+  padding: 64px 0 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.bp-cta-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+
+.bp-cta-desc {
+  font-size: 14px;
+  color: var(--fg-muted);
+  margin-bottom: 20px;
+}
+
+.bp-cta-cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: #d4d4d8;
+  background: #0A0A0C;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 18px;
+  margin-bottom: 16px;
+}
+
+.bp-cta-cmd .bp-prompt {
+  color: var(--accent);
+  user-select: none;
+}
+
+.bp-cta-link {
+  display: block;
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.bp-cta-link:hover {
+  color: #a5b4fc;
+}
+
+/* --- Responsive -------------------------------------------- */
+@media (max-width: 1024px) {
+  .bp-grid {
+    gap: 16px;
+  }
+
+  .bp-split-frame {
+    grid-template-columns: 160px 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .bp-hero-title {
+    font-size: 32px;
+  }
+
+  .bp-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bp-card-wide {
+    grid-column: span 1;
+  }
+
+  .bp-split-frame {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .bp-split-left {
+    border-right: none;
+    border-bottom: 1px solid #1F1F23;
+    max-height: 160px;
+    overflow: hidden;
+  }
+
+  .bp-phone {
+    width: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bp-hero {
+    padding: 80px 0 32px;
+  }
+
+  .bp-hero-title {
+    font-size: 28px;
+  }
+
+  .bp-phone {
+    width: 220px;
+  }
+}

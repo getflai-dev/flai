@@ -137,10 +137,12 @@ function injectHeader() {
   // Nav
   const nav = document.createElement('nav');
   nav.className = 'header-nav';
+  const isBlueprints = currentPath.includes('blueprints');
   const navItems = [
     { label: 'Docs', href: 'docs/index.html', active: isDocs },
     { label: 'Components', href: 'docs/components/chat-screen.html', active: false },
     { label: 'Theming', href: 'docs/theming.html', active: false },
+    { label: 'Blueprints', href: 'blueprints.html', active: isBlueprints },
   ];
   navItems.forEach(item => {
     const a = document.createElement('a');
