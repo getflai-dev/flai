@@ -90,7 +90,7 @@ class _VoiceRecorderState extends State<VoiceRecorder>
           // Animated waveform bars
           AnimatedBuilder(
             animation: _animationController,
-            builder: (_, __) {
+            builder: (_, _) {
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
