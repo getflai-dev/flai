@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/flai_theme.dart';
-import '../settings_config.dart';
 import '../sidebar_config.dart';
 import '../widgets/chat_list_item.dart';
 import 'settings_drawer.dart';

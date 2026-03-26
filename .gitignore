@@ -38,6 +38,9 @@ dist/
 # Wrangler / Cloudflare
 .wrangler/
 
+# Temporary test output
+_test_output/
+
 # Environment
 .env
 .env.*

@@ -249,11 +249,8 @@ class _RootSettingsPage extends StatelessWidget {
                     row: row,
                     onNavigate: row is NavigationRow
                         ? () {
-                            // If the NavigationRow has a custom onTap that
-                            // pushes its own sub-page, it handles navigation.
-                            // Otherwise the drawer calls onTap directly.
-                            if ((row as NavigationRow).onTap != null) {
-                              (row as NavigationRow).onTap!();
+                            if (row.onTap != null) {
+                              row.onTap!();
                             }
                           }
                         : null,

@@ -45,7 +45,7 @@ class SettingsRowWidget extends StatelessWidget {
           ),
           onTap: onTap ?? onNavigate,
         ),
-      DropdownRow(:final icon, :final label, :final value, :final items, :final onChanged) =>
+      DropdownRow(:final icon, :final label, :final value, :final options, :final onChanged) =>
         Padding(
           padding: EdgeInsets.symmetric(
             horizontal: theme.spacing.md,
@@ -64,10 +64,19 @@ class SettingsRowWidget extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              DropdownButton(
+              DropdownButton<String>(
                 value: value,
-                items: items,
-                onChanged: onChanged,
+                items: options
+                    .map((o) => DropdownMenuItem<String>(
+                          value: o,
+                          child: Text(o),
+                        ))
+                    .toList(),
+                onChanged: onChanged != null
+                    ? (v) {
+                        if (v != null) onChanged(v);
+                      }
+                    : null,
                 underline: const SizedBox.shrink(),
                 style: theme.typography.base.copyWith(
                   color: theme.colors.foreground,
@@ -104,7 +113,7 @@ class SettingsRowWidget extends StatelessWidget {
               Switch.adaptive(
                 value: value,
                 onChanged: onChanged,
-                activeColor: theme.colors.primary,
+                activeTrackColor: theme.colors.primary,
               ),
             ],
           ),

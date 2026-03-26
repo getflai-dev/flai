@@ -115,7 +115,7 @@ class _ToggleRow extends StatelessWidget {
         Switch.adaptive(
           value: value,
           onChanged: onChanged,
-          activeColor: theme.colors.primary,
+          activeTrackColor: theme.colors.primary,
         ),
       ],
     );

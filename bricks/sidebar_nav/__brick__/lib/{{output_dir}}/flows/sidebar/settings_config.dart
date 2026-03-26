@@ -50,23 +50,23 @@ class NavigationRow extends SettingsRow {
   });
 }
 
-/// A row with a [DropdownButton] for selecting from a list of options.
-class DropdownRow<T> extends SettingsRow {
+/// A row with a dropdown selector for choosing from a list of string options.
+class DropdownRow extends SettingsRow {
   /// The currently selected value.
-  final T value;
+  final String value;
 
-  /// The available options.
-  final List<DropdownMenuItem<T>> items;
+  /// The available options to choose from.
+  final List<String> options;
 
   /// Called when the user selects a new value.
-  final ValueChanged<T?>? onChanged;
+  final void Function(String)? onChanged;
 
   /// Creates a [DropdownRow].
   const DropdownRow({
     super.icon,
     required super.label,
     required this.value,
-    required this.items,
+    required this.options,
     this.onChanged,
   });
 }

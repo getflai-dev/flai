@@ -89,7 +89,7 @@ class _FlaiPrivacyPageState extends State<FlaiPrivacyPage> {
                     Switch.adaptive(
                       value: _shareUsageData,
                       onChanged: (v) => setState(() => _shareUsageData = v),
-                      activeColor: theme.colors.primary,
+                      activeTrackColor: theme.colors.primary,
                     ),
                   ],
                 ),
@@ -111,7 +111,7 @@ class _FlaiPrivacyPageState extends State<FlaiPrivacyPage> {
                       value: _personalizedSuggestions,
                       onChanged: (v) =>
                           setState(() => _personalizedSuggestions = v),
-                      activeColor: theme.colors.primary,
+                      activeTrackColor: theme.colors.primary,
                     ),
                   ],
                 ),

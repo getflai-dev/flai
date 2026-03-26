@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **FlaiComposerV2** — pill-shaped message composer with text field, sectioned + menu, model chip, animated mic/send toggle
 - **Voice modes** — `VoiceRecorder` (inline push-to-talk waveform), `FlaiVoiceConversationOverlay` (full-screen orb with gradient glow)
 - **ChatExperienceConfig** — configurable assistant name, avatar, greeting, composer sections, model list, voice/ghost toggles
+- **Sidebar nav brick** (`sidebar_nav`) — slide-out drawer with conversation list, settings sheet, and workspace switcher
+- **SidebarConfig** — nav items, user profile, conversation list, new-chat callback
+- **SettingsConfig** — sealed `SettingsRow` class (navigation, dropdown, toggle, info, custom), sections, info items, app version
+- **Settings sub-pages** — profile, billing, usage, connectors, notifications, privacy
+- **TopNavBar** — hamburger menu + new chat + model display
+- **ChatListItem** — swipe-to-delete, long-press context menu, inline rename
+- **WorkspaceSwitcher** — team/workspace selector with avatar and chevron
 
 ## [0.2.0] - 2026-03-26
 
