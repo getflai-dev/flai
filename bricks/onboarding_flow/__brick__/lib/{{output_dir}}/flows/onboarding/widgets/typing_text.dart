@@ -40,6 +40,16 @@ class _TypingTextState extends State<TypingText> {
   }
 
   @override
+  void didUpdateWidget(covariant TypingText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.text != widget.text) {
+      _timer?.cancel();
+      _charCount = 0;
+      _startTyping();
+    }
+  }
+
+  @override
   void dispose() {
     _timer?.cancel();
     super.dispose();

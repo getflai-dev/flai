@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../core/theme/flai_theme.dart';
 import '../onboarding_config.dart';
@@ -35,6 +36,7 @@ class _FlaiRevealScreenState extends State<FlaiRevealScreen>
 
   bool _showName = false;
   bool _nameComplete = false;
+  Timer? _holdTimer;
 
   @override
   void initState() {
@@ -60,6 +62,7 @@ class _FlaiRevealScreenState extends State<FlaiRevealScreen>
 
   @override
   void dispose() {
+    _holdTimer?.cancel();
     _animController.dispose();
     super.dispose();
   }
@@ -67,7 +70,7 @@ class _FlaiRevealScreenState extends State<FlaiRevealScreen>
   void _onNameComplete() {
     if (!mounted) return;
     setState(() => _nameComplete = true);
-    Future.delayed(widget.step.holdDuration, () {
+    _holdTimer = Timer(widget.step.holdDuration, () {
       if (mounted) widget.controller.next();
     });
   }
@@ -175,6 +178,7 @@ class _DefaultRevealLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = FlaiTheme.of(context);
     final colors = gradient.length >= 2
         ? gradient
         : [const Color(0xFF818CF8), const Color(0xFF34D399)];
@@ -190,9 +194,9 @@ class _DefaultRevealLogo extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Icon(
+      child: Icon(
         Icons.auto_awesome_rounded,
-        color: Colors.white,
+        color: theme.colors.primaryForeground,
         size: 48,
       ),
     );

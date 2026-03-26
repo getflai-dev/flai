@@ -70,11 +70,13 @@ class OnboardingController extends ChangeNotifier {
   /// Set the assistant name from the naming step.
   void setAssistantName(String name) {
     _assistantName = name.trim();
+    notifyListeners();
   }
 
   /// Set the selected options from the multi-select step.
   void setSelectedOptions(List<String> options) {
     _selectedOptions = options;
+    notifyListeners();
   }
 
   // ── Private ──────────────────────────────────────────────────────
