@@ -49,6 +49,7 @@ FlAI generates component source code directly into your project using [Mason](ht
 | `openai_provider` | OpenAI API integration |
 | `anthropic_provider` | Anthropic API integration |
 | `auth_flow` | Complete auth flow (login, register, forgot password, verify, reset) |
+| `onboarding_flow` | Onboarding flow (splash, naming, multi-select pills, custom steps, reveal) |
 
 ## Links
 

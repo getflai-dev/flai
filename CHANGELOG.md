@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **AuthFlowConfig** — configurable button visibility, branding (logo, taglines), legal links, guest mode
 - **Shared auth widgets** — `SocialAuthButton`, `AuthTextField`, `TypingTagline` (letter-by-letter animation)
 - **FlaiTypography TextStyle getters** — `sm`, `base`, `lg`, `xl` now return `TextStyle` for `.copyWith()` support
+- **Onboarding flow brick** (`onboarding_flow`) — configurable onboarding with 5 screens: splash (pulse animation), name-your-assistant (suggestion pills), multi-select pills (staggered animation), custom steps, reveal (gradient glow + typing name)
+- **OnboardingController** — step navigation state machine with result collection
+- **OnboardingConfig** — step pipeline with `OnboardingStep` sealed class (naming, multiSelect, custom, reveal)
+- **Shared onboarding widgets** — `PillChip` (animated toggle), `TypingText` (letter-by-letter animation)
 
 ## [0.2.0] - 2026-03-26
 
