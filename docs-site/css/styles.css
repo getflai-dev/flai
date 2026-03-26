@@ -804,6 +804,12 @@ pre code {
   padding: 0 40px;
 }
 
+/* Align header with homepage content width */
+.homepage-layout .header-inner {
+  max-width: 1040px;
+  padding: 0 40px;
+}
+
 /* --- Responsive --------------------------------------------- */
 @media (max-width: 1200px) {
   .toc { display: none; }
