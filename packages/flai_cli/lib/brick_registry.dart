@@ -140,6 +140,12 @@ abstract final class BrickRegistry {
           'Configurable onboarding flow with splash, naming, multi-select pills, custom steps, and reveal animation.',
       category: BrickCategory.flows,
     ),
+    'chat_experience': BrickInfo(
+      name: 'chat_experience',
+      description:
+          'AI chat experience with composer v2, model selector, voice modes, ghost mode, and empty state.',
+      category: BrickCategory.flows,
+    ),
   };
 
   /// Returns all unique categories in display order.
