@@ -18,6 +18,7 @@ class FlaiChatContent extends StatefulWidget {
   final ChatExperienceConfig config;
   final ValueChanged<String> onSend;
   final bool isStreaming;
+  final void Function(Message)? onRetry;
 
   const FlaiChatContent({
     super.key,
@@ -25,6 +26,7 @@ class FlaiChatContent extends StatefulWidget {
     required this.config,
     required this.onSend,
     this.isStreaming = false,
+    this.onRetry,
   });
 
   @override
@@ -126,7 +128,10 @@ class _FlaiChatContentState extends State<FlaiChatContent> {
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: MessageBubble(message: msg),
+                child: MessageBubble(
+                  message: msg,
+                  onRetry: widget.onRetry,
+                ),
               );
             },
           ),

@@ -377,8 +377,11 @@ class _WiredHomePageState extends State<_WiredHomePage> {
               return NavigationRow(
                 icon: row.icon,
                 label: row.label,
-                onTap: () async {
-                  await widget.config.authProvider.signOut();
+                onTap: () {
+                  // Close settings + drawer immediately for visual feedback,
+                  // then sign out in background. GoRouter redirect handles
+                  // navigation to login screen.
+                  widget.config.authProvider.signOut();
                 },
               );
             }
@@ -461,6 +464,7 @@ class _WiredHomePageState extends State<_WiredHomePage> {
               config: chatConfig,
               onSend: (text) => ctrl.sendMessage(text),
               isStreaming: ctrl.isStreaming,
+              onRetry: (msg) => ctrl.sendMessage(msg.content),
             )
           : null,
     );
