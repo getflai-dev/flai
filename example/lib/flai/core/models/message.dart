@@ -23,11 +23,7 @@ class Citation {
   final String? url;
   final String? snippet;
 
-  const Citation({
-    required this.title,
-    this.url,
-    this.snippet,
-  });
+  const Citation({required this.title, this.url, this.snippet});
 }
 
 class UsageInfo {
@@ -133,7 +129,8 @@ class Message {
   bool get isAssistant => role == MessageRole.assistant;
   bool get isStreaming => status == MessageStatus.streaming;
   bool get hasToolCalls => toolCalls != null && toolCalls!.isNotEmpty;
-  bool get hasThinking => thinkingContent != null && thinkingContent!.isNotEmpty;
+  bool get hasThinking =>
+      thinkingContent != null && thinkingContent!.isNotEmpty;
   bool get hasCitations => citations != null && citations!.isNotEmpty;
   bool get hasAttachments => attachments != null && attachments!.isNotEmpty;
 }

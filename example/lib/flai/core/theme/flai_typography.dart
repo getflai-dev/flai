@@ -30,83 +30,71 @@ class FlaiTypography {
   // Shadcn-style TextStyle getters (short names for convenience)
 
   /// Body small text style (13pt — iOS Footnote).
-  TextStyle get sm => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: smSize,
-        fontWeight: regular,
-      );
+  TextStyle get sm =>
+      TextStyle(fontFamily: fontFamily, fontSize: smSize, fontWeight: regular);
 
   /// Body base text style (16pt — iOS Callout).
   TextStyle get base => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: baseSize,
-        fontWeight: regular,
-      );
+    fontFamily: fontFamily,
+    fontSize: baseSize,
+    fontWeight: regular,
+  );
 
   /// Body large text style (17pt — iOS Body).
-  TextStyle get lg => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: lgSize,
-        fontWeight: regular,
-      );
+  TextStyle get lg =>
+      TextStyle(fontFamily: fontFamily, fontSize: lgSize, fontWeight: regular);
 
   /// Heading text style (20pt, semi-bold).
-  TextStyle get xl => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: xlSize,
-        fontWeight: semiBold,
-      );
+  TextStyle get xl =>
+      TextStyle(fontFamily: fontFamily, fontSize: xlSize, fontWeight: semiBold);
 
   /// Large heading text style (24pt, bold).
-  TextStyle get xxl => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: xxlSize,
-        fontWeight: bold,
-      );
+  TextStyle get xxl =>
+      TextStyle(fontFamily: fontFamily, fontSize: xxlSize, fontWeight: bold);
 
   // Verbose method aliases (for backward compatibility)
 
   TextStyle bodySmall({Color? color}) => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: smSize,
-        fontWeight: regular,
-        color: color,
-      );
+    fontFamily: fontFamily,
+    fontSize: smSize,
+    fontWeight: regular,
+    color: color,
+  );
 
   TextStyle bodyBase({Color? color}) => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: baseSize,
-        fontWeight: regular,
-        color: color,
-      );
+    fontFamily: fontFamily,
+    fontSize: baseSize,
+    fontWeight: regular,
+    color: color,
+  );
 
   TextStyle bodyLarge({Color? color}) => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: lgSize,
-        fontWeight: regular,
-        color: color,
-      );
+    fontFamily: fontFamily,
+    fontSize: lgSize,
+    fontWeight: regular,
+    color: color,
+  );
 
   TextStyle heading({Color? color}) => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: xlSize,
-        fontWeight: semiBold,
-        color: color,
-      );
+    fontFamily: fontFamily,
+    fontSize: xlSize,
+    fontWeight: semiBold,
+    color: color,
+  );
 
   TextStyle headingLarge({Color? color}) => TextStyle(
-        fontFamily: fontFamily,
-        fontSize: xxlSize,
-        fontWeight: bold,
-        color: color,
-      );
+    fontFamily: fontFamily,
+    fontSize: xxlSize,
+    fontWeight: bold,
+    color: color,
+  );
 
   TextStyle mono({Color? color, double? fontSize}) => TextStyle(
-        fontFamily: monoFontFamily,
-        fontSize: fontSize ?? smSize,
-        fontWeight: regular,
-        color: color,
-      );
+    fontFamily: monoFontFamily,
+    fontSize: fontSize ?? smSize,
+    fontWeight: regular,
+    color: color,
+  );
 
   FlaiTypography copyWith({
     String? fontFamily,

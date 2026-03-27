@@ -36,10 +36,10 @@ class MockAuthProvider implements AuthProvider {
   }
 
   AuthUser _mockUser(String email) => AuthUser(
-        id: 'mock_${email.hashCode}',
-        email: email,
-        displayName: email.split('@').first,
-      );
+    id: 'mock_${email.hashCode}',
+    email: email,
+    displayName: email.split('@').first,
+  );
 
   @override
   Future<AuthResult> signInWithApple() =>
@@ -110,8 +110,7 @@ class MockAuthProvider implements AuthProvider {
   Future<bool> tryRestoreSession(
     String accessToken,
     String? refreshToken,
-  ) async =>
-      false;
+  ) async => false;
 
   @override
   Stream<({String? accessToken, String? refreshToken})> get tokenChanges =>

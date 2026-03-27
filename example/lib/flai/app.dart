@@ -35,10 +35,7 @@ class FlaiApp extends StatefulWidget {
   final AppScaffoldConfig config;
 
   /// Creates a [FlaiApp].
-  const FlaiApp({
-    super.key,
-    required this.config,
-  });
+  const FlaiApp({super.key, required this.config});
 
   @override
   State<FlaiApp> createState() => _FlaiAppState();
@@ -50,8 +47,7 @@ class _FlaiAppState extends State<FlaiApp> {
   late final SecureAuthStorage _authStorage;
 
   bool _isRestoringSession = true;
-  StreamSubscription<({String? accessToken, String? refreshToken})>?
-      _tokenSub;
+  StreamSubscription<({String? accessToken, String? refreshToken})>? _tokenSub;
 
   @override
   void initState() {
@@ -121,8 +117,8 @@ class _FlaiAppState extends State<FlaiApp> {
   /// bar icon color.
   Brightness get _brightness =>
       _resolvedTheme.colors.background.computeLuminance() > 0.5
-          ? Brightness.light
-          : Brightness.dark;
+      ? Brightness.light
+      : Brightness.dark;
 
   FlaiThemeData get _resolvedTheme =>
       widget.config.theme ?? FlaiThemeData.dark();
@@ -136,9 +132,7 @@ class _FlaiAppState extends State<FlaiApp> {
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           backgroundColor: theme.colors.background,
-          body: const Center(
-            child: CircularProgressIndicator(),
-          ),
+          body: const Center(child: CircularProgressIndicator()),
         ),
       );
     }

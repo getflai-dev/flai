@@ -117,9 +117,7 @@ class _FlaiNamingScreenState extends State<FlaiNamingScreen> {
                         color: theme.colors.mutedForeground,
                       ),
                       enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: theme.colors.border,
-                        ),
+                        borderSide: BorderSide(color: theme.colors.border),
                       ),
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
@@ -148,11 +146,10 @@ class _FlaiNamingScreenState extends State<FlaiNamingScreen> {
                               vertical: theme.spacing.xs,
                             ),
                             decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.circular(theme.radius.full),
-                              border: Border.all(
-                                color: theme.colors.border,
+                              borderRadius: BorderRadius.circular(
+                                theme.radius.full,
                               ),
+                              border: Border.all(color: theme.colors.border),
                             ),
                             child: Text(
                               name,
@@ -179,10 +176,7 @@ class _FlaiNamingScreenState extends State<FlaiNamingScreen> {
                             minimumSize: const Size(0, 48),
                             foregroundColor: theme.colors.mutedForeground,
                           ),
-                          child: Text(
-                            'Skip',
-                            style: theme.typography.sm,
-                          ),
+                          child: Text('Skip', style: theme.typography.sm),
                         ),
 
                         const Spacer(),

@@ -68,16 +68,19 @@ class _FlaiChatContentState extends State<FlaiChatContent> {
     if (!widget.config.enableVoice) return;
     final vp = FlaiProviders.of(context).voiceProvider;
     if (vp == null) return;
-    _voiceController = FlaiVoiceController(
-      provider: vp,
-      onError: (msg) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-        }
-      },
-    )..addListener(() {
-        if (mounted) setState(() {});
-      });
+    _voiceController =
+        FlaiVoiceController(
+          provider: vp,
+          onError: (msg) {
+            if (mounted) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(msg)));
+            }
+          },
+        )..addListener(() {
+          if (mounted) setState(() {});
+        });
   }
 
   @override
@@ -138,7 +141,8 @@ class _FlaiChatContentState extends State<FlaiChatContent> {
                   horizontal: theme.spacing.md,
                   vertical: theme.spacing.sm,
                 ),
-                itemCount: widget.messages.length +
+                itemCount:
+                    widget.messages.length +
                     (widget.isStreaming && _isWaitingForFirstToken ? 1 : 0),
                 itemBuilder: (context, index) {
                   // Show typing indicator as the last item while waiting for first token.
@@ -200,8 +204,7 @@ class _FlaiChatContentState extends State<FlaiChatContent> {
                             Padding(
                               padding: const EdgeInsets.only(left: 32, top: 2),
                               child: GestureDetector(
-                                onTap: () =>
-                                    widget.onRegenerate!(previousUser),
+                                onTap: () => widget.onRegenerate!(previousUser),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -228,10 +231,7 @@ class _FlaiChatContentState extends State<FlaiChatContent> {
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: MessageBubble(
-                      message: msg,
-                      onRetry: widget.onRetry,
-                    ),
+                    child: MessageBubble(message: msg, onRetry: widget.onRetry),
                   );
                 },
               ),
@@ -257,9 +257,7 @@ class _FlaiChatContentState extends State<FlaiChatContent> {
                           decoration: BoxDecoration(
                             color: theme.colors.card,
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: theme.colors.border,
-                            ),
+                            border: Border.all(color: theme.colors.border),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: 0.1),

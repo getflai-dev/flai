@@ -75,7 +75,8 @@ class CmmdAiProvider implements AiProvider {
       httpRequest.headers.addAll(_headers);
       httpRequest.body = jsonEncode(body);
 
-      final response = await client.send(httpRequest)
+      final response = await client
+          .send(httpRequest)
           .timeout(const Duration(seconds: 30));
 
       if (response.statusCode != 200) {
@@ -83,7 +84,8 @@ class CmmdAiProvider implements AiProvider {
         yield ChatError(
           CmmdApiException(
             statusCode: response.statusCode,
-            message: CmmdClientBase.extractErrorMessage(errorBody) ??
+            message:
+                CmmdClientBase.extractErrorMessage(errorBody) ??
                 'Request failed (${response.statusCode})',
           ),
         );
@@ -190,7 +192,8 @@ class CmmdAiProvider implements AiProvider {
             return;
 
           case 'error':
-            final errorMsg = data['message'] as String? ??
+            final errorMsg =
+                data['message'] as String? ??
                 data['error'] as String? ??
                 'Unknown CMMD error';
             yield ChatError(CmmdApiException(message: errorMsg));
@@ -229,7 +232,8 @@ class CmmdAiProvider implements AiProvider {
       if (response.statusCode != 200) {
         throw CmmdApiException(
           statusCode: response.statusCode,
-          message: CmmdClientBase.extractErrorMessage(response.body) ??
+          message:
+              CmmdClientBase.extractErrorMessage(response.body) ??
               response.body,
         );
       }
@@ -240,7 +244,8 @@ class CmmdAiProvider implements AiProvider {
 
       return ChatResponse(
         message: Message(
-          id: (json['messageId'] ?? json['chatId'])?.toString() ??
+          id:
+              (json['messageId'] ?? json['chatId'])?.toString() ??
               DateTime.now().millisecondsSinceEpoch.toString(),
           role: MessageRole.assistant,
           content: content,
@@ -277,13 +282,12 @@ class CmmdAiProvider implements AiProvider {
       'ghostMode': request.metadata?['ghostMode'] ?? false,
       if (request.metadata?['knowledgeScope'] != null)
         'knowledgeScope': request.metadata!['knowledgeScope'],
-      if (request.metadata?['mode'] != null)
-        'mode': request.metadata!['mode'],
+      if (request.metadata?['mode'] != null) 'mode': request.metadata!['mode'],
     };
 
     // CMMD accepts both chatId and conversationId.
-    final chatId = request.metadata?['chatId'] ??
-        request.metadata?['conversationId'];
+    final chatId =
+        request.metadata?['chatId'] ?? request.metadata?['conversationId'];
     if (chatId != null) {
       body['conversationId'] = chatId;
     }

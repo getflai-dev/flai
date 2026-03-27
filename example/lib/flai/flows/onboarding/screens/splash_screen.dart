@@ -7,11 +7,7 @@ import '../../../core/theme/flai_theme.dart';
 /// Use [onReady] to signal when the app has finished loading and is ready
 /// to transition (e.g., to auth or onboarding).
 class FlaiSplashScreen extends StatefulWidget {
-  const FlaiSplashScreen({
-    super.key,
-    this.logo,
-    this.onReady,
-  });
+  const FlaiSplashScreen({super.key, this.logo, this.onReady});
 
   /// Logo widget displayed at center. If null, shows app name text.
   final Widget? logo;
@@ -64,7 +60,8 @@ class _FlaiSplashScreenState extends State<FlaiSplashScreen>
       body: Center(
         child: ScaleTransition(
           scale: _pulseAnimation,
-          child: widget.logo ??
+          child:
+              widget.logo ??
               Text(
                 'FlAI',
                 style: theme.typography.xxl.copyWith(

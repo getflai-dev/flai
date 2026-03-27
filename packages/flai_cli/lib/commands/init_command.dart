@@ -38,14 +38,8 @@ class InitCommand extends Command<int> {
         help: 'Theme preset.',
         allowed: ['dark', 'light', 'ios', 'premium'],
       )
-      ..addOption(
-        'app-name',
-        help: 'Application display name.',
-      )
-      ..addOption(
-        'assistant-name',
-        help: 'AI assistant display name.',
-      )
+      ..addOption('app-name', help: 'Application display name.')
+      ..addOption('assistant-name', help: 'AI assistant display name.')
       ..addFlag(
         'no-interactive',
         negatable: false,
@@ -98,13 +92,16 @@ class InitCommand extends Command<int> {
       );
       stdout.writeln('');
 
-      appName = (argResults!['app-name'] as String?) ??
+      appName =
+          (argResults!['app-name'] as String?) ??
           _prompt('  App name', defaultValue: 'FlAI Chat');
 
-      assistantName = (argResults!['assistant-name'] as String?) ??
+      assistantName =
+          (argResults!['assistant-name'] as String?) ??
           _prompt('  Assistant name', defaultValue: 'Assistant');
 
-      theme = (argResults!['theme'] as String?) ??
+      theme =
+          (argResults!['theme'] as String?) ??
           _promptChoice(
             '  Theme',
             choices: ['dark', 'light', 'ios', 'premium'],
@@ -201,9 +198,11 @@ class InitCommand extends Command<int> {
     required List<String> choices,
     required String defaultValue,
   }) {
-    final choiceStr = choices.map((c) {
-      return c == defaultValue ? '\x1B[1m$c\x1B[0m' : c;
-    }).join(' / ');
+    final choiceStr = choices
+        .map((c) {
+          return c == defaultValue ? '\x1B[1m$c\x1B[0m' : c;
+        })
+        .join(' / ');
     stdout.write('$label [$choiceStr]: ');
     final input = stdin.readLineSync()?.trim().toLowerCase() ?? '';
     if (input.isEmpty) return defaultValue;

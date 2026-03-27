@@ -62,9 +62,10 @@ class ConnectCommand extends Command<int> {
       outputDir = 'flai';
     } else {
       flaiConfig = configManager.read();
-      outputDir = flaiConfig.outputDir.startsWith('lib/')
-          ? flaiConfig.outputDir.substring(4)
-          : flaiConfig.outputDir;
+      outputDir =
+          flaiConfig.outputDir.startsWith('lib/')
+              ? flaiConfig.outputDir.substring(4)
+              : flaiConfig.outputDir;
     }
 
     stdout.writeln('\u{1f4e6} Generating CMMD provider implementations...');
@@ -109,21 +110,27 @@ class ConnectCommand extends Command<int> {
     stdout.writeln('');
     stdout.writeln('\u{2705} CMMD backend connected!');
     stdout.writeln('');
+    stdout.writeln('Your app is now wired to \x1B[36mcmmd.ai\x1B[0m with:');
     stdout.writeln(
-      'Your app is now wired to \x1B[36mcmmd.ai\x1B[0m with:',
+      '  \x1B[32m\u2713\x1B[0m Authentication (email, Apple, Google)',
     );
-    stdout.writeln('  \x1B[32m\u2713\x1B[0m Authentication (email, Apple, Google)');
     stdout.writeln('  \x1B[32m\u2713\x1B[0m AI chat streaming');
     stdout.writeln('  \x1B[32m\u2713\x1B[0m Conversation persistence');
     stdout.writeln('  \x1B[32m\u2713\x1B[0m Voice (on-device STT + CMMD TTS)');
     stdout.writeln('');
-    stdout.writeln('Run \x1B[36mflutter pub get\x1B[0m then \x1B[36mflutter run\x1B[0m.');
+    stdout.writeln(
+      'Run \x1B[36mflutter pub get\x1B[0m then \x1B[36mflutter run\x1B[0m.',
+    );
 
     return 0;
   }
 
   /// Rewrites main.dart to use CMMD providers instead of MockAuthProvider.
-  void _rewriteMainDart(String projectRoot, String outputDir, FlaiConfig config) {
+  void _rewriteMainDart(
+    String projectRoot,
+    String outputDir,
+    FlaiConfig config,
+  ) {
     final mainPath = p.join(projectRoot, 'lib', 'main.dart');
     final themeConstructor = switch (config.theme) {
       'light' => 'FlaiThemeData.light()',

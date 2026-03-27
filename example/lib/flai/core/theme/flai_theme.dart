@@ -26,15 +26,13 @@ class FlaiThemeData {
   factory FlaiThemeData.dark() => FlaiThemeData(colors: FlaiColors.dark());
 
   factory FlaiThemeData.ios() => FlaiThemeData(
-        colors: FlaiColors.ios(),
-        icons: FlaiIconData.cupertino(),
-        radius: const FlaiRadius(sm: 8, md: 12, lg: 18, xl: 22, full: 9999),
-      );
+    colors: FlaiColors.ios(),
+    icons: FlaiIconData.cupertino(),
+    radius: const FlaiRadius(sm: 8, md: 12, lg: 18, xl: 22, full: 9999),
+  );
 
-  factory FlaiThemeData.premium() => FlaiThemeData(
-        colors: FlaiColors.premium(),
-        icons: FlaiIconData.sharp(),
-      );
+  factory FlaiThemeData.premium() =>
+      FlaiThemeData(colors: FlaiColors.premium(), icons: FlaiIconData.sharp());
 
   FlaiThemeData copyWith({
     FlaiColors? colors,
@@ -56,11 +54,7 @@ class FlaiThemeData {
 class FlaiTheme extends InheritedWidget {
   final FlaiThemeData data;
 
-  const FlaiTheme({
-    super.key,
-    required this.data,
-    required super.child,
-  });
+  const FlaiTheme({super.key, required this.data, required super.child});
 
   static FlaiThemeData of(BuildContext context) {
     final widget = context.dependOnInheritedWidgetOfExactType<FlaiTheme>();

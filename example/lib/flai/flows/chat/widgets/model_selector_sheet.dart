@@ -16,10 +16,8 @@ Future<ModelOption?> showModelSelector({
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
-    builder: (_) => _ModelSelectorSheet(
-      models: models,
-      currentModelId: currentModelId,
-    ),
+    builder: (_) =>
+        _ModelSelectorSheet(models: models, currentModelId: currentModelId),
   );
 }
 
@@ -27,10 +25,7 @@ class _ModelSelectorSheet extends StatelessWidget {
   final List<ModelOption> models;
   final String? currentModelId;
 
-  const _ModelSelectorSheet({
-    required this.models,
-    this.currentModelId,
-  });
+  const _ModelSelectorSheet({required this.models, this.currentModelId});
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +73,7 @@ class _ModelSelectorSheet extends StatelessWidget {
               title: Text(
                 model.name,
                 style: theme.typography.base.copyWith(
-                  fontWeight:
-                      isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   color: theme.colors.foreground,
                 ),
               ),

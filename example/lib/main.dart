@@ -34,62 +34,59 @@ void main() {
   String? orgFn() => authProvider.organizationId;
   Map<String, String> csrfFn() => authProvider.csrfHeaders;
 
-  runApp(FlaiApp(
-    config: AppScaffoldConfig(
-      authProvider: authProvider,
-      aiProvider: CmmdAiProvider(
-        config: config,
-        accessTokenProvider: tokenFn,
-        organizationIdProvider: orgFn,
-        csrfHeadersProvider: csrfFn,
-      ),
-      storageProvider: CmmdStorageProvider(
-        config: config,
-        accessTokenProvider: tokenFn,
-        organizationIdProvider: orgFn,
-        csrfHeadersProvider: csrfFn,
-      ),
-      voiceProvider: CmmdVoiceProvider(
-        config: config,
-        accessTokenProvider: tokenFn,
-        organizationIdProvider: orgFn,
-        csrfHeadersProvider: csrfFn,
-      ),
-      chatExperienceConfig: ChatExperienceConfig(
-        availableModels: [
-          ModelOption(
-            id: 'claude-sonnet-4-20250514',
-            name: 'Claude Sonnet',
-            description: 'Fast and intelligent',
-            icon: Icons.bolt_rounded,
-          ),
-          ModelOption(
-            id: 'claude-opus-4-20250514',
-            name: 'Claude Opus',
-            description: 'Most capable',
-            icon: Icons.auto_awesome,
-          ),
-          ModelOption(
-            id: 'gpt-4o',
-            name: 'GPT-4o',
-            description: 'OpenAI multimodal',
-            icon: Icons.circle_outlined,
-          ),
-        ],
-      ),
-      settingsConfig: SettingsConfig(
-        sections: [
-          SettingsSection(
-            title: 'Account',
-            rows: [
-              NavigationRow(
-                icon: Icons.logout,
-                label: 'Sign Out',
-              ),
-            ],
-          ),
-        ],
+  runApp(
+    FlaiApp(
+      config: AppScaffoldConfig(
+        authProvider: authProvider,
+        aiProvider: CmmdAiProvider(
+          config: config,
+          accessTokenProvider: tokenFn,
+          organizationIdProvider: orgFn,
+          csrfHeadersProvider: csrfFn,
+        ),
+        storageProvider: CmmdStorageProvider(
+          config: config,
+          accessTokenProvider: tokenFn,
+          organizationIdProvider: orgFn,
+          csrfHeadersProvider: csrfFn,
+        ),
+        voiceProvider: CmmdVoiceProvider(
+          config: config,
+          accessTokenProvider: tokenFn,
+          organizationIdProvider: orgFn,
+          csrfHeadersProvider: csrfFn,
+        ),
+        chatExperienceConfig: ChatExperienceConfig(
+          availableModels: [
+            ModelOption(
+              id: 'claude-sonnet-4-20250514',
+              name: 'Claude Sonnet',
+              description: 'Fast and intelligent',
+              icon: Icons.bolt_rounded,
+            ),
+            ModelOption(
+              id: 'claude-opus-4-20250514',
+              name: 'Claude Opus',
+              description: 'Most capable',
+              icon: Icons.auto_awesome,
+            ),
+            ModelOption(
+              id: 'gpt-4o',
+              name: 'GPT-4o',
+              description: 'OpenAI multimodal',
+              icon: Icons.circle_outlined,
+            ),
+          ],
+        ),
+        settingsConfig: SettingsConfig(
+          sections: [
+            SettingsSection(
+              title: 'Account',
+              rows: [NavigationRow(icon: Icons.logout, label: 'Sign Out')],
+            ),
+          ],
+        ),
       ),
     ),
-  ));
+  );
 }

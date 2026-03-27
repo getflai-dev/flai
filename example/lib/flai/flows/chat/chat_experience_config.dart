@@ -14,26 +14,22 @@ class AttachItem {
   final VoidCallback? onTap;
 
   /// Creates an [AttachItem].
-  const AttachItem({
-    required this.icon,
-    required this.label,
-    this.onTap,
-  });
+  const AttachItem({required this.icon, required this.label, this.onTap});
 
   /// Preset for opening the device camera.
   const AttachItem.camera({this.onTap})
-      : icon = Icons.camera_alt_rounded,
-        label = 'Camera';
+    : icon = Icons.camera_alt_rounded,
+      label = 'Camera';
 
   /// Preset for opening the photo library.
   const AttachItem.photos({this.onTap})
-      : icon = Icons.photo_library_rounded,
-        label = 'Photos';
+    : icon = Icons.photo_library_rounded,
+      label = 'Photos';
 
   /// Preset for attaching a file.
   const AttachItem.files({this.onTap})
-      : icon = Icons.upload_file_rounded,
-        label = 'Files';
+    : icon = Icons.upload_file_rounded,
+      label = 'Files';
 }
 
 /// A suggestion chip shown to the user.
@@ -48,11 +44,7 @@ class ChipItem {
   final bool isDefault;
 
   /// Creates a [ChipItem].
-  const ChipItem({
-    required this.label,
-    this.icon,
-    this.isDefault = false,
-  });
+  const ChipItem({required this.label, this.icon, this.isDefault = false});
 }
 
 /// A section of items shown in the attachment picker.
@@ -125,20 +117,16 @@ class ComposerConfig {
   final List<AttachmentSection> attachmentSections;
 
   /// Creates a [ComposerConfig].
-  const ComposerConfig({
-    this.attachmentSections = defaultAttachmentSections,
-  });
+  const ComposerConfig({this.attachmentSections = defaultAttachmentSections});
 
   /// The standard iOS attachment options: Camera, Photos, Files.
   ///
   /// Shown as rounded-rectangle cards at the top of the attachment sheet.
   /// Developers can replace or extend these with additional sections.
   static const defaultAttachmentSections = <AttachmentSection>[
-    AttachSection(items: [
-      AttachItem.camera(),
-      AttachItem.photos(),
-      AttachItem.files(),
-    ]),
+    AttachSection(
+      items: [AttachItem.camera(), AttachItem.photos(), AttachItem.files()],
+    ),
   ];
 }
 

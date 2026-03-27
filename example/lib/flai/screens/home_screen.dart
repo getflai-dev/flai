@@ -101,9 +101,9 @@ class _FlaiHomeScreenState extends State<FlaiHomeScreen> {
       provider: voiceProvider,
       onError: (message) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
       },
     )..addListener(_onVoiceStateChanged);
   }
@@ -168,9 +168,7 @@ class _FlaiHomeScreenState extends State<FlaiHomeScreen> {
             Expanded(
               child: hasActiveChat
                   ? widget.chatContent!
-                  : FlaiEmptyChatState(
-                      config: widget.chatExperienceConfig,
-                    ),
+                  : FlaiEmptyChatState(config: widget.chatExperienceConfig),
             ),
             // Show composer when on the empty "new chat" state.
             // When chatContent is provided, the consumer's widget
@@ -191,12 +189,8 @@ class _FlaiHomeScreenState extends State<FlaiHomeScreen> {
                     isRecording: vc?.isRecording ?? false,
                     isTranscribing: vc?.isTranscribing ?? false,
                     voiceTranscript: vc?.lastTranscript,
-                    onVoiceStart: vc != null
-                        ? () => vc.startRecording()
-                        : null,
-                    onVoiceStop: vc != null
-                        ? () => vc.stopRecording()
-                        : null,
+                    onVoiceStart: vc != null ? () => vc.startRecording() : null,
+                    onVoiceStop: vc != null ? () => vc.stopRecording() : null,
                   ),
                 ),
               ),

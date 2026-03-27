@@ -70,7 +70,9 @@ class ChatListItem extends StatelessWidget {
             children: [
               ListTile(
                 leading: Icon(
-                  item.isStarred ? Icons.star_rounded : Icons.star_border_rounded,
+                  item.isStarred
+                      ? Icons.star_rounded
+                      : Icons.star_border_rounded,
                 ),
                 title: Text(item.isStarred ? 'Unstar' : 'Star'),
                 onTap: () => Navigator.of(ctx).pop('star'),
@@ -87,7 +89,10 @@ class ChatListItem extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.delete_rounded, color: Colors.red),
-                title: const Text('Delete', style: TextStyle(color: Colors.red)),
+                title: const Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.red),
+                ),
                 onTap: () => Navigator.of(ctx).pop('delete'),
               ),
             ],
@@ -148,9 +153,7 @@ class ChatListItem extends StatelessWidget {
         onLongPress: () => _showContextMenu(context),
         behavior: HitTestBehavior.opaque,
         child: Container(
-          color: isSelected
-              ? theme.colors.muted
-              : Colors.transparent,
+          color: isSelected ? theme.colors.muted : Colors.transparent,
           padding: EdgeInsets.symmetric(
             horizontal: theme.spacing.md,
             vertical: theme.spacing.sm,

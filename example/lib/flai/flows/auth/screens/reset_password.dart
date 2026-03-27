@@ -6,10 +6,7 @@ import '../widgets/auth_text_field.dart';
 
 /// Reset password screen — set a new password after code verification.
 class FlaiResetPassword extends StatefulWidget {
-  const FlaiResetPassword({
-    super.key,
-    required this.controller,
-  });
+  const FlaiResetPassword({super.key, required this.controller});
 
   final AuthController controller;
 
@@ -82,9 +79,8 @@ class _FlaiResetPasswordState extends State<FlaiResetPassword> {
                         else
                           const SizedBox(width: 24),
                         IconButton(
-                          onPressed: () => widget.controller.goTo(
-                            AuthScreen.loginLanding,
-                          ),
+                          onPressed: () =>
+                              widget.controller.goTo(AuthScreen.loginLanding),
                           icon: Icon(
                             Icons.close,
                             color: theme.colors.mutedForeground,
@@ -157,8 +153,7 @@ class _FlaiResetPasswordState extends State<FlaiResetPassword> {
                     width: double.infinity,
                     height: 48,
                     child: TextButton(
-                      onPressed:
-                          widget.controller.isLoading ? null : _submit,
+                      onPressed: widget.controller.isLoading ? null : _submit,
                       style: TextButton.styleFrom(
                         backgroundColor: theme.colors.foreground,
                         foregroundColor: theme.colors.background,

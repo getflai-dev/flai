@@ -106,8 +106,7 @@ abstract class AuthProvider {
   Future<bool> tryRestoreSession(
     String accessToken,
     String? refreshToken,
-  ) async =>
-      false;
+  ) async => false;
 
   /// Override to emit token pairs whenever they change, enabling persistence.
   ///

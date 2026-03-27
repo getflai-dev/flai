@@ -12,11 +12,7 @@ class InfoItem {
   final VoidCallback? onTap;
 
   /// Creates an [InfoItem].
-  const InfoItem({
-    required this.label,
-    this.url,
-    this.onTap,
-  });
+  const InfoItem({required this.label, this.url, this.onTap});
 }
 
 /// A row displayed inside a [SettingsSection].
@@ -43,11 +39,7 @@ class NavigationRow extends SettingsRow {
   final VoidCallback? onTap;
 
   /// Creates a [NavigationRow].
-  const NavigationRow({
-    super.icon,
-    required super.label,
-    this.onTap,
-  });
+  const NavigationRow({super.icon, required super.label, this.onTap});
 }
 
 /// A row with a dropdown selector for choosing from a list of string options.
@@ -94,11 +86,7 @@ class InfoRow extends SettingsRow {
   final String value;
 
   /// Creates an [InfoRow].
-  const InfoRow({
-    super.icon,
-    required super.label,
-    required this.value,
-  });
+  const InfoRow({super.icon, required super.label, required this.value});
 }
 
 /// A row with a fully custom widget built by [builder].
@@ -107,11 +95,7 @@ class CustomRow extends SettingsRow {
   final WidgetBuilder builder;
 
   /// Creates a [CustomRow].
-  const CustomRow({
-    super.icon,
-    required super.label,
-    required this.builder,
-  });
+  const CustomRow({super.icon, required super.label, required this.builder});
 }
 
 /// A titled group of [SettingsRow] items.
@@ -123,10 +107,7 @@ class SettingsSection {
   final List<SettingsRow> rows;
 
   /// Creates a [SettingsSection].
-  const SettingsSection({
-    required this.title,
-    required this.rows,
-  });
+  const SettingsSection({required this.title, required this.rows});
 }
 
 /// Top-level configuration for the settings sheet or screen.

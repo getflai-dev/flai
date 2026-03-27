@@ -10,10 +10,7 @@ import '../widgets/typing_tagline.dart';
 /// First screen in the auth flow. Displays animated taglines and
 /// buttons for social auth, sign up, and log in.
 class FlaiLoginLanding extends StatelessWidget {
-  const FlaiLoginLanding({
-    super.key,
-    required this.controller,
-  });
+  const FlaiLoginLanding({super.key, required this.controller});
 
   final AuthController controller;
 
@@ -34,10 +31,7 @@ class FlaiLoginLanding extends StatelessWidget {
                 right: theme.spacing.md,
                 child: IconButton(
                   onPressed: controller.onGuestContinue,
-                  icon: Icon(
-                    Icons.close,
-                    color: theme.colors.mutedForeground,
-                  ),
+                  icon: Icon(Icons.close, color: theme.colors.mutedForeground),
                 ),
               ),
 
@@ -56,9 +50,7 @@ class FlaiLoginLanding extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: theme.spacing.lg,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: theme.spacing.lg),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

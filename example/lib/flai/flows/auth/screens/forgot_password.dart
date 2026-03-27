@@ -7,10 +7,7 @@ import '../auth_controller.dart';
 ///
 /// Shows the user's email and a Continue button to send the reset email.
 class FlaiForgotPassword extends StatelessWidget {
-  const FlaiForgotPassword({
-    super.key,
-    required this.controller,
-  });
+  const FlaiForgotPassword({super.key, required this.controller});
 
   final AuthController controller;
 
@@ -47,9 +44,8 @@ class FlaiForgotPassword extends StatelessWidget {
                         else
                           const SizedBox(width: 24),
                         IconButton(
-                          onPressed: () => controller.goTo(
-                            AuthScreen.loginLanding,
-                          ),
+                          onPressed: () =>
+                              controller.goTo(AuthScreen.loginLanding),
                           icon: Icon(
                             Icons.close,
                             color: theme.colors.mutedForeground,
@@ -96,7 +92,9 @@ class FlaiForgotPassword extends StatelessWidget {
                         foregroundColor: theme.colors.background,
                         disabledBackgroundColor: theme.colors.muted,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(theme.radius.full),
+                          borderRadius: BorderRadius.circular(
+                            theme.radius.full,
+                          ),
                         ),
                       ),
                       child: controller.isLoading

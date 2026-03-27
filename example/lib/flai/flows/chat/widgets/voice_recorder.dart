@@ -15,11 +15,7 @@ class VoiceRecorder extends StatefulWidget {
   final VoidCallback? onCancel;
 
   /// Creates a [VoiceRecorder].
-  const VoiceRecorder({
-    super.key,
-    this.onStop,
-    this.onCancel,
-  });
+  const VoiceRecorder({super.key, this.onStop, this.onCancel});
 
   @override
   State<VoiceRecorder> createState() => _VoiceRecorderState();
@@ -35,7 +31,18 @@ class _VoiceRecorderState extends State<VoiceRecorder>
 
   // Heights vary by bar index to produce a natural-looking waveform shape.
   static const List<double> _barBaseHeights = [
-    6, 10, 14, 18, 22, 20, 24, 18, 14, 10, 8, 6,
+    6,
+    10,
+    14,
+    18,
+    22,
+    20,
+    24,
+    18,
+    14,
+    10,
+    8,
+    6,
   ];
 
   @override
@@ -102,8 +109,7 @@ class _VoiceRecorderState extends State<VoiceRecorder>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: List.generate(_barCount, (index) {
                   final phase = (index / _barCount);
-                  final animValue =
-                      (_animationController.value + phase) % 1.0;
+                  final animValue = (_animationController.value + phase) % 1.0;
                   final base = _barBaseHeights[index];
                   final height = base + (animValue * base * 0.6);
                   return Container(
@@ -148,11 +154,7 @@ class _VoiceRecorderState extends State<VoiceRecorder>
                     color: Colors.red,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.stop,
-                    color: Colors.white,
-                    size: 18,
-                  ),
+                  child: const Icon(Icons.stop, color: Colors.white, size: 18),
                 ),
               ),
             ),

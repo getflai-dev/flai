@@ -28,11 +28,7 @@ class GhostModeBanner extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.visibility_off,
-            size: 14,
-            color: theme.colors.accent,
-          ),
+          Icon(Icons.visibility_off, size: 14, color: theme.colors.accent),
           SizedBox(width: theme.spacing.xs),
           Text(
             'Temporary Chat \u2014 not saved',

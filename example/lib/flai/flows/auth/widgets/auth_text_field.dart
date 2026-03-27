@@ -82,7 +82,9 @@ class AuthTextField extends StatelessWidget {
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: theme.spacing.md,
-                    vertical: label != null ? theme.spacing.xs : theme.spacing.sm,
+                    vertical: label != null
+                        ? theme.spacing.xs
+                        : theme.spacing.sm,
                   ),
                   suffixIcon: suffix,
                   isDense: label != null,
@@ -93,7 +95,10 @@ class AuthTextField extends StatelessWidget {
         ),
         if (hasError)
           Padding(
-            padding: EdgeInsets.only(top: theme.spacing.xs, left: theme.spacing.sm),
+            padding: EdgeInsets.only(
+              top: theme.spacing.xs,
+              left: theme.spacing.sm,
+            ),
             child: Text(
               errorText!,
               style: theme.typography.sm.copyWith(

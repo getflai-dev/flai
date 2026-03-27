@@ -7,10 +7,7 @@ import '../widgets/social_auth_button.dart';
 
 /// Email entry screen for login or sign up.
 class FlaiEmailEntry extends StatefulWidget {
-  const FlaiEmailEntry({
-    super.key,
-    required this.controller,
-  });
+  const FlaiEmailEntry({super.key, required this.controller});
 
   final AuthController controller;
 
@@ -51,9 +48,8 @@ class _FlaiEmailEntryState extends State<FlaiEmailEntry> {
                 child: Padding(
                   padding: EdgeInsets.only(top: theme.spacing.md),
                   child: IconButton(
-                    onPressed: () => widget.controller.goTo(
-                      AuthScreen.loginLanding,
-                    ),
+                    onPressed: () =>
+                        widget.controller.goTo(AuthScreen.loginLanding),
                     icon: Icon(
                       Icons.close,
                       color: theme.colors.mutedForeground,

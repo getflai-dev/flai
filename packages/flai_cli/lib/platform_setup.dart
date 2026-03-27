@@ -47,7 +47,8 @@ class PlatformSetup {
     for (final entry in _iosPermissions.entries) {
       if (!content.contains(entry.key)) {
         // Insert before the closing </dict> tag.
-        final insertion = '\t<key>${entry.key}</key>\n'
+        final insertion =
+            '\t<key>${entry.key}</key>\n'
             '\t<string>${entry.value}</string>\n';
         content = content.replaceFirst(
           '</dict>\n</plist>',
@@ -99,10 +100,7 @@ class PlatformSetup {
         final alreadyPresent = manifest.children
             .whereType<XmlElement>()
             .where((e) => e.name.local == 'uses-permission')
-            .any(
-              (e) =>
-                  e.getAttribute('android:name') == fullName,
-            );
+            .any((e) => e.getAttribute('android:name') == fullName);
 
         if (!alreadyPresent) {
           // Insert before the first <application> element.
@@ -110,18 +108,14 @@ class PlatformSetup {
             (n) => n is XmlElement && n.name.local == 'application',
           );
 
-          final element = XmlElement(
-            XmlName('uses-permission'),
-            [XmlAttribute(XmlName('android:name'), fullName)],
-          );
+          final element = XmlElement(XmlName('uses-permission'), [
+            XmlAttribute(XmlName('android:name'), fullName),
+          ]);
 
           if (applicationIndex >= 0) {
             manifest.children.insert(applicationIndex, element);
             // Add newline for formatting.
-            manifest.children.insert(
-              applicationIndex + 1,
-              XmlText('\n    '),
-            );
+            manifest.children.insert(applicationIndex + 1, XmlText('\n    '));
           } else {
             manifest.children.add(element);
           }

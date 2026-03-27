@@ -35,10 +35,7 @@ class _AttachmentMenuSheet extends StatefulWidget {
   final ComposerConfig config;
   final ValueChanged<PickedAttachment>? onAttachmentPicked;
 
-  const _AttachmentMenuSheet({
-    required this.config,
-    this.onAttachmentPicked,
-  });
+  const _AttachmentMenuSheet({required this.config, this.onAttachmentPicked});
 
   @override
   State<_AttachmentMenuSheet> createState() => _AttachmentMenuSheetState();
@@ -197,9 +194,7 @@ class _AttachmentMenuSheetState extends State<_AttachmentMenuSheet> {
           return Expanded(
             child: Padding(
               padding: EdgeInsets.only(
-                right: index < section.items.length - 1
-                    ? theme.spacing.sm
-                    : 0,
+                right: index < section.items.length - 1 ? theme.spacing.sm : 0,
               ),
               child: GestureDetector(
                 onTap: () => _handleAttachTap(item),
@@ -212,11 +207,7 @@ class _AttachmentMenuSheetState extends State<_AttachmentMenuSheet> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        item.icon,
-                        size: 28,
-                        color: theme.colors.foreground,
-                      ),
+                      Icon(item.icon, size: 28, color: theme.colors.foreground),
                       SizedBox(height: theme.spacing.sm),
                       Text(
                         item.label,

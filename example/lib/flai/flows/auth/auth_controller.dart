@@ -28,8 +28,8 @@ class AuthController extends ChangeNotifier {
     required AuthFlowConfig config,
     this.onAuthenticated,
     this.onGuestContinue,
-  })  : _provider = provider,
-        _config = config;
+  }) : _provider = provider,
+       _config = config;
 
   final AuthProvider _provider;
   final AuthFlowConfig _config;
@@ -127,8 +127,9 @@ class AuthController extends ChangeNotifier {
         SocialAuthType.apple => await _provider.signInWithApple(),
         SocialAuthType.google => await _provider.signInWithGoogle(),
         SocialAuthType.microsoft => await _provider.signInWithMicrosoft(),
-        SocialAuthType.phone =>
-          throw UnimplementedError('Phone auth not yet supported'),
+        SocialAuthType.phone => throw UnimplementedError(
+          'Phone auth not yet supported',
+        ),
       };
       _handleResult(result);
     });

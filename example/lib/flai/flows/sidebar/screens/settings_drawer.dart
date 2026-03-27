@@ -30,10 +30,8 @@ void showSettingsDrawer({
     isScrollControlled: true,
     useRootNavigator: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => _SettingsDrawerSheet(
-      config: config,
-      userProfile: userProfile,
-    ),
+    builder: (_) =>
+        _SettingsDrawerSheet(config: config, userProfile: userProfile),
   );
 }
 
@@ -41,10 +39,7 @@ class _SettingsDrawerSheet extends StatefulWidget {
   final SettingsConfig config;
   final UserProfile? userProfile;
 
-  const _SettingsDrawerSheet({
-    required this.config,
-    required this.userProfile,
-  });
+  const _SettingsDrawerSheet({required this.config, required this.userProfile});
 
   @override
   State<_SettingsDrawerSheet> createState() => _SettingsDrawerSheetState();
