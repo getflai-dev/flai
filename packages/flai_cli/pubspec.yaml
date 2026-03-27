@@ -2,7 +2,7 @@ name: flai_cli
 description: >-
   CLI tool for installing FlAI AI chat components into Flutter projects.
   A shadcn/ui-style distribution model — own your component source code.
-version: 0.2.0
+version: 0.3.0
 repository: https://github.com/getflai-dev/flai
 homepage: https://getflai.dev
 topics:

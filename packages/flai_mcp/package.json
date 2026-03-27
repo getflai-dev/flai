@@ -1,6 +1,6 @@
 {
   "name": "@getflai/mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "MCP server for FlAI - AI chat components for Flutter",
   "main": "dist/index.js",
   "type": "module",

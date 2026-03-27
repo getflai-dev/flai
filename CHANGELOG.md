@@ -7,7 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-03-27
+
 ### Added
+- **Zero-config CLI** — interactive `flai init` prompts for app name, assistant name, and theme preset (dark/light/ios/premium)
+- **Auto-generated main.dart** — `flai add app_scaffold` now generates a ready-to-run `main.dart` with your branding and theme
+- **Connect auto-wiring** — `flai connect cmmd` rewrites `main.dart` to swap mock providers with production CMMD providers (auth, AI, storage, voice)
+- **Share conversation** — system share sheet integration via `share_plus`
+- **Animated send button** — smooth mic/arrow icon morph with `AnimatedSwitcher` as user types
+- **Attachment preview row** — picked files shown as thumbnails in the composer with remove button
+- **Conversation grouping** — sidebar groups conversations by Today, Yesterday, Previous 7 Days, Older
+- **Markdown rendering** — `MessageBubble` renders markdown with `flutter_markdown`, code blocks with copy-to-clipboard
+- **Thinking/reasoning panel** — collapsible thinking content in assistant messages
+- **Code block copy** — one-tap copy for code blocks with haptic feedback
+- **Copy message** — long-press to copy message content
+- **Scroll-to-bottom FAB** — appears when scrolled up, smooth scroll with haptic feedback
+- **Regenerate response** — button below assistant messages to retry with the previous user message
+- **Assistant avatar** — configurable avatar in message bubbles
+- **Model selector** — bottom sheet to switch AI models per-conversation
+- **Haptic feedback** — on send, star, delete, copy, scroll-to-bottom actions
+- **3 new Maestro E2E tests** — share_test, send_button_test, attachment_test
+- **`flai.yaml` branding** — stores app_name, assistant_name, theme for downstream code generation
+- **`--no-interactive` flag** — CI/scripting mode for `flai init` with `--app-name`, `--assistant-name`, `--theme` flags
+
+### Changed
+- **Brick templates synced** — 15 files across 6 bricks (app_scaffold, chat_experience, message_bubble, sidebar_nav, flai_init, cmmd_providers) synced with example app
+- **CLI dependency chain** — `app_scaffold` now properly declares `message_bubble` and `typing_indicator` as dependencies
+- **`message_bubble` brick** — added `markdown` to pub dependencies
+- **MCP server** — updated all tools for new DX, added Flows category with 5 flow bricks
+- **Claude Code skill** — complete rewrite documenting zero-config pipeline
+- **README** — rewritten with 3-command quick start and feature table
+- **Landing page** — new hero headline, interactive terminal mockup, updated 3-step section
+- **Getting started docs** — complete rewrite with new pipeline, connect backend, feature list
+
+### Fixed
+- **`cmmd_client_base.dart`** — added to `cmmd_providers` brick (was in example only)
+- **Connect command** — now lists `cmmd_client_base.dart` in output
+- **Second-brain plugin** — fixed relative path in PreCompact hook (resolved from CWD, not plugin dir)
+
 - **Auth flow brick** (`auth_flow`) — complete authentication flow with 6 screens: login landing (social auth + typing taglines), email entry, password entry (login/signup modes), forgot password, verification code, reset password
 - **AuthProvider interface** — pluggable authentication backend with social auth (Apple, Google, Microsoft), email auth, password reset, verification, session management
 - **StorageProvider interface** — pluggable conversation persistence with `InMemoryStorageProvider` default
