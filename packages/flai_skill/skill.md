@@ -1,11 +1,11 @@
 ---
 name: flai
-description: Install and use FlAI AI chat components in Flutter projects. Guides component selection, installation, theming, and provider setup.
+description: Install and use FlAI AI chat components in Flutter projects. Guides installation, theming, provider setup, and customization of the full app scaffold.
 ---
 
 # FlAI -- AI Chat Components for Flutter
 
-FlAI is a shadcn/ui-style component library for Flutter that gives you production-ready AI chat UI as source code you own. Components are distributed via a Mason-powered CLI -- you install exactly what you need, and the code lives in your project.
+FlAI is a shadcn/ui-style component library for Flutter that gives you a production-ready AI chat app as source code you own. Components are distributed via a Mason-powered CLI -- you install exactly what you need, and the code lives in your project, not behind a package abstraction.
 
 Docs: https://getflai.dev
 
@@ -14,8 +14,9 @@ Docs: https://getflai.dev
 - User wants to add AI chat UI to a Flutter app
 - User asks about FlAI components (message bubbles, input bars, streaming text, etc.)
 - User needs help with FlAI theming (colors, typography, spacing, radius, icons)
-- User wants to connect to OpenAI or Anthropic APIs
+- User wants to connect to a backend (CMMD, OpenAI, Anthropic)
 - User asks about building a chat screen, conversation list, or model selector
+- User wants to understand what `flai init`, `flai add`, or `flai connect` does
 
 ## Installation
 
@@ -30,42 +31,129 @@ Docs: https://getflai.dev
 dart pub global activate flai_cli
 ```
 
-### Initialize FlAI in Your Project
+### Quick 3-Command Setup
+
+This is the fastest path to a fully working AI chat app:
 
 ```bash
-flai init
+flai init                          # Interactive: app name, assistant name, theme
+flai add app_scaffold              # Installs 83+ files + auto-generates main.dart
+flutter pub get && flutter run     # Run the app
 ```
 
-This runs the `flai_init` brick, generating the core foundation into your `lib/` directory:
+That is it. You have a complete AI chat app with mock providers. No code to write.
 
-- `core/theme/` -- FlaiTheme, FlaiColors, FlaiTypography, FlaiRadius, FlaiSpacing, FlaiIconData
-- `core/models/` -- Message, Conversation, ChatEvent (sealed class), ChatRequest
-- `providers/ai_provider.dart` -- Abstract AiProvider interface
-- `flai.dart` -- Barrel export file
+### What `flai init` Does
 
-### Add Components
+Runs an interactive setup that asks for:
+
+1. **App name** -- your application's display name (default: "FlAI Chat")
+2. **Assistant name** -- the AI assistant's display name (default: "Assistant")
+3. **Theme preset** -- one of 4 presets: `dark`, `light`, `ios`, `premium` (default: "dark")
+
+It then generates:
+
+- `flai.yaml` -- stores branding values (app name, assistant name, theme) that flow into all generated code
+- `lib/flai/core/theme/` -- FlaiTheme, FlaiColors, FlaiTypography, FlaiRadius, FlaiSpacing, FlaiIconData
+- `lib/flai/core/models/` -- Message, Conversation, ChatEvent (sealed class), ChatRequest
+- `lib/flai/providers/ai_provider.dart` -- Abstract AiProvider interface
+- `lib/flai/flai.dart` -- Barrel export file
+- Platform permissions for iOS (camera, photo library, microphone, speech recognition) and Android
+
+For CI or scripted use, skip prompts with `--no-interactive` and pass values as flags:
 
 ```bash
-flai add chat_screen
-flai add message_bubble
-flai add input_bar
-flai add openai_provider
+flai init --no-interactive --app-name "My App" --assistant-name "Aria" --theme ios
 ```
 
-You can add multiple components at once:
+### What `flai add app_scaffold` Does
+
+Installs the full app shell along with all its dependencies. The CLI resolves the dependency graph automatically:
+
+```
+app_scaffold
+  auth_flow          -- 6-screen auth flow
+  onboarding_flow    -- splash, naming, multi-select, reveal animation
+  chat_experience    -- composer, voice, model selector, attachments
+  sidebar_nav        -- drawer, conversation list, settings
+  message_bubble     -- markdown message rendering
+  typing_indicator   -- animated loading dots
+```
+
+It also:
+
+- Adds pub dependencies to `pubspec.yaml` (go_router, flutter_secure_storage, share_plus, flutter_markdown, markdown, image_picker, file_picker)
+- Configures platform permissions (camera, photo library, microphone)
+- **Auto-generates `lib/main.dart`** using values from `flai.yaml` -- the developer does not need to write any wiring code
+
+The generated `main.dart` creates a `FlaiApp` with `MockAuthProvider` (auto-login) so the app runs immediately without any backend.
+
+### What You Get Out of the Box
+
+The `app_scaffold` provides a complete ChatGPT/Claude-style chat app with:
+
+- **Auth flow** -- 6 screens: login landing, email entry, password, forgot password, verification code, reset password. Branded OAuth buttons (Apple, Google).
+- **Onboarding flow** -- splash screen, name entry, interest pills, custom steps, reveal animation
+- **Chat with rich content** -- markdown rendering, code blocks with copy, thinking/reasoning blocks, tool call cards, citation cards, image previews
+- **Sidebar** -- conversation list with temporal grouping (Today, Yesterday, Previous 7 Days), search, rename, delete, star
+- **Share conversation** -- share chat content via the system share sheet
+- **Animated send button** -- morphs between send, stop (cancel streaming), and microphone states
+- **Attachment menu** -- camera, photo library, file picker
+- **Voice input** -- hold-to-record or tap-to-toggle voice modes via VoiceController
+- **Model selector** -- bottom sheet picker for switching AI models
+- **Session persistence** -- secure token storage with automatic session restore on app launch
+- **Scroll-to-bottom FAB** -- floating action button appears when scrolled up in a long conversation
+- **Regenerate response** -- retry button on the last assistant message to re-run a failed or unsatisfying response
+- **Empty state** -- branded landing screen with assistant name when no conversation is active
+- **GoRouter navigation** -- declarative routing with auth redirects and deep link support
+
+## Connect a Backend
+
+The default `main.dart` uses `MockAuthProvider` (no real authentication) and no AI provider (responses are simulated). To connect to a real backend:
+
+### CMMD Backend
 
 ```bash
-flai add chat_screen message_bubble input_bar streaming_text typing_indicator
+flai connect cmmd                  # Rewrites main.dart with CMMD production providers
+flutter pub get && flutter run
 ```
+
+This is a hidden command that:
+
+- Generates CMMD provider implementations (`CmmdAiProvider`, `CmmdAuthProvider`, `CmmdStorageProvider`, `CmmdVoiceProvider`)
+- Adds dependencies: `http`, `sign_in_with_apple`, `google_sign_in`, `url_launcher`, `speech_to_text`
+- Rewrites `main.dart` to wire all 4 CMMD providers using values from `flai.yaml`
+
+After connecting, the app is wired to cmmd.ai with real authentication (email, Apple, Google), AI chat streaming, conversation persistence, and voice (on-device STT + CMMD TTS).
+
+### Direct API Providers
+
+For connecting directly to OpenAI or Anthropic without a backend server:
+
+```bash
+flai add openai_provider           # or: flai add anthropic_provider
+```
+
+Then manually update `main.dart` to use the provider (see the Provider Setup section below).
 
 ## Available Components
+
+### Flows (Multi-Screen Features)
+
+| Component | Command | Description |
+|---|---|---|
+| `app_scaffold` | `flai add app_scaffold` | Production-ready app shell with GoRouter. Depends on: auth_flow, onboarding_flow, chat_experience, sidebar_nav, message_bubble, typing_indicator. Adds: go_router, flutter_secure_storage, share_plus |
+| `auth_flow` | `flai add auth_flow` | 6-screen auth flow: login landing, email entry, password, forgot password, verification code, reset password. AuthController state machine + AuthFlowConfig |
+| `onboarding_flow` | `flai add onboarding_flow` | Splash, naming, multi-select pills, custom steps, reveal animation. OnboardingController state machine |
+| `chat_experience` | `flai add chat_experience` | Composer v2, voice recorder, model selector sheet, ghost mode banner, attachment menu, empty state. Adds: image_picker, file_picker |
+| `sidebar_nav` | `flai add sidebar_nav` | Sidebar drawer, conversation list with temporal grouping, search, settings drawer (6 sub-pages), workspace switcher |
 
 ### Chat Essentials
 
 | Component | Command | Description |
 |---|---|---|
 | `chat_screen` | `flai add chat_screen` | Full chat screen with header, message list, and input bar. Depends on: message_bubble, input_bar, streaming_text, typing_indicator |
-| `message_bubble` | `flai add message_bubble` | Message bubble with user/assistant styling, thinking blocks, tool call chips, citations, streaming cursor, and error retry |
+| `message_bubble` | `flai add message_bubble` | Message bubble with user/assistant styling, markdown, thinking blocks, tool call chips, citations, streaming cursor, error retry. Adds: flutter_markdown, markdown |
 | `input_bar` | `flai add input_bar` | Text input with send button, attachment support, Enter-to-send on desktop, multi-line growth |
 | `streaming_text` | `flai add streaming_text` | Token-by-token text rendering with blinking cursor. Two modes: stream-driven or text-driven |
 | `typing_indicator` | `flai add typing_indicator` | Animated three-dot bouncing indicator styled as an assistant bubble |
@@ -75,7 +163,7 @@ flai add chat_screen message_bubble input_bar streaming_text typing_indicator
 | Component | Command | Description |
 |---|---|---|
 | `tool_call_card` | `flai add tool_call_card` | Function/tool call display card with status and arguments |
-| `code_block` | `flai add code_block` | Syntax-highlighted code display with copy-to-clipboard |
+| `code_block` | `flai add code_block` | Syntax-highlighted code display with copy-to-clipboard. Adds: flutter_highlight |
 | `thinking_indicator` | `flai add thinking_indicator` | AI reasoning/thinking panel (collapsible) |
 | `citation_card` | `flai add citation_card` | Source attribution card with title, URL, and snippet |
 | `image_preview` | `flai add image_preview` | Image thumbnail with tap-to-zoom |
@@ -95,19 +183,103 @@ flai add chat_screen message_bubble input_bar streaming_text typing_indicator
 | `openai_provider` | `flai add openai_provider` | OpenAI Chat Completions API with streaming, tool use, and vision. Uses raw HTTP (package:http) |
 | `anthropic_provider` | `flai add anthropic_provider` | Anthropic Messages API with streaming, tool use, extended thinking, and vision. Uses raw HTTP (package:http) |
 
-## Quick Start -- Complete Chat App
+## CLI Commands Reference
 
-Here is the minimal code to get a working AI chat screen:
+| Command | Description |
+|---|---|
+| `flai init` | Initialize FlAI in a Flutter project (interactive setup, creates flai.yaml + core files) |
+| `flai add <component>` | Install a component and all its dependencies. Supports `--dry-run` |
+| `flai list` | List all available components grouped by category, with install status |
+| `flai doctor` | Check project health: validates flai.yaml, core files, installed components, pub dependencies |
+| `flai connect cmmd` | (Hidden) Connect to CMMD backend -- rewrites main.dart with production providers |
 
-### 1. Install and add components
+## Quick Start -- Full App (Recommended)
+
+The fastest path to a working AI chat app. No code to write -- everything is generated.
+
+### 1. Create a Flutter project and initialize FlAI
 
 ```bash
+flutter create my_chat_app && cd my_chat_app
 dart pub global activate flai_cli
+flai init
+```
+
+Follow the interactive prompts to set your app name, assistant name, and theme.
+
+### 2. Install the app scaffold
+
+```bash
+flai add app_scaffold
+```
+
+This installs 83+ files including auth, onboarding, chat, and sidebar flows. It also generates `lib/main.dart` automatically.
+
+### 3. Run the app
+
+```bash
+flutter pub get && flutter run
+```
+
+The app launches with `MockAuthProvider` (auto-login, no real backend needed). To connect a real backend, see the "Connect a Backend" section.
+
+### Generated main.dart
+
+You do not need to write `main.dart`. The CLI generates it from your `flai.yaml` values:
+
+```dart
+import 'package:flutter/material.dart';
+
+import 'flai/app_scaffold.dart';
+import 'flai/core/theme/flai_theme.dart';
+import 'flai/flows/auth/mock_auth_provider.dart';
+import 'flai/flows/chat/chat_experience_config.dart';
+import 'flai/flows/sidebar/settings_config.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    FlaiApp(
+      config: AppScaffoldConfig(
+        appTitle: 'My Chat App',          // from flai.yaml app_name
+        authProvider: MockAuthProvider(),
+        theme: FlaiThemeData.dark(),       // from flai.yaml theme
+        chatExperienceConfig: ChatExperienceConfig(
+          assistantName: 'Assistant',      // from flai.yaml assistant_name
+        ),
+        settingsConfig: SettingsConfig(
+          sections: [
+            SettingsSection(
+              title: 'Account',
+              rows: [
+                NavigationRow(
+                  icon: Icons.logout,
+                  label: 'Sign Out',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+```
+
+To customize, edit `main.dart` directly. The developer owns all generated code.
+
+## Quick Start -- Single Chat Screen
+
+For a minimal chat screen without the full app scaffold (no auth, no sidebar, no routing):
+
+### 1. Install components
+
+```bash
 flai init
 flai add chat_screen openai_provider
 ```
 
-### 2. Set up the app
+### 2. Wire the chat screen
 
 ```dart
 import 'package:flutter/material.dart';
@@ -183,6 +355,82 @@ class _ChatPageState extends State<ChatPage> {
 flutter run --dart-define=OPENAI_API_KEY=sk-your-key-here
 ```
 
+## Architecture
+
+### Provider Interfaces
+
+FlAI defines 4 pluggable abstract interfaces. The developer implements these against their backend:
+
+| Interface | Purpose | Default |
+|---|---|---|
+| `AiProvider` | Chat streaming, tool use, vision | None (install a provider brick) |
+| `AuthProvider` | Login, register, reset, verify, session | `MockAuthProvider` (auto-login) |
+| `StorageProvider` | Save, load, delete, star conversations | `InMemoryStorageProvider` |
+| `VoiceProvider` | Transcribe, synthesize, conversation mode | None |
+
+`AppScaffoldConfig` accepts all 4 providers. Only `authProvider` is required -- the others are optional and the scaffold gracefully degrades when they are absent.
+
+### App Scaffold Wiring
+
+The `app_scaffold` ships fully wired. The key classes:
+
+- **`FlaiApp`** -- root widget, accepts `AppScaffoldConfig` with providers + flow configs
+- **`FlaiProviders`** -- InheritedWidget that distributes providers down the tree
+- **`HomeController`** -- bridges providers to the home screen (conversations, messages, streaming)
+- **`FlaiHomeScreen`** -- sidebar drawer + top nav + chat area (empty state or active chat)
+- **`FlaiChatContent`** -- message list + composer, uses `MessageBubble` + `FlaiTypingIndicator`
+
+The scaffold transitions from empty state to active chat automatically when the user sends a message.
+
+### State Management
+
+Vanilla Flutter only -- no external packages:
+
+- `ChangeNotifier` for controllers (HomeController, AuthController, OnboardingController)
+- `Stream<ChatEvent>` for AI streaming
+- `InheritedWidget` for provider distribution
+
+### Streaming
+
+`ChatEvent` is a sealed Dart class with subtypes for type-safe pattern matching:
+
+- `TextDelta(text)` -- Incremental text chunk
+- `TextDone(fullText)` -- Text complete with full content
+- `ThinkingStart()` -- AI began reasoning
+- `ThinkingDelta(text)` -- Thinking text chunk
+- `ThinkingEnd()` -- Reasoning complete
+- `ToolCallStart(id, name)` -- Tool call initiated
+- `ToolCallDelta(id, argumentsDelta)` -- Tool call argument chunk
+- `ToolCallEnd(id)` -- Tool call complete
+- `CitationsReceived(citations)` -- Source citations
+- `UsageUpdate(inputTokens, outputTokens, ...)` -- Token usage report
+- `ChatDone()` -- Stream finished
+- `ChatError(error, stackTrace?)` -- Error occurred
+
+Providers parse SSE byte streams from raw HTTP responses. HTTP send has 30s timeout; SSE stream has 60s per-event timeout.
+
+### flai.yaml
+
+The config file stores project-level settings that flow into generated code:
+
+```yaml
+output_dir: lib/flai
+theme: dark
+app_name: My Chat App
+assistant_name: Aria
+installed:
+  - flai_init
+  - app_scaffold
+  - auth_flow
+  - onboarding_flow
+  - chat_experience
+  - sidebar_nav
+  - message_bubble
+  - typing_indicator
+```
+
+`flai add` updates the `installed` list automatically. `flai connect cmmd` reads `app_name`, `assistant_name`, and `theme` when rewriting `main.dart`.
+
 ## Theming
 
 FlAI uses an InheritedWidget-based theme system with semantic color tokens modeled after shadcn/ui.
@@ -245,6 +493,8 @@ FlaiTheme(
 
 All FlAI widgets read their styling via `FlaiTheme.of(context)`.
 
+When using the `app_scaffold`, the theme is passed via `AppScaffoldConfig.theme` and the scaffold wraps the widget tree with `FlaiTheme` automatically.
+
 ### Custom Theme
 
 Create a fully custom theme by constructing `FlaiThemeData` directly:
@@ -299,7 +549,7 @@ final customDark = FlaiThemeData.dark().copyWith(
     userBubbleForeground: Color(0xFFFFFFFF),
   ),
   icons: FlaiIconData.cupertino(),     // swap to Cupertino icons
-  typography: FlaiTypography(fontFamily: 'Inter'),
+  typography: FlaiTypography(fontFamily: 'Inter', monoFontFamily: 'Fira Code'),
 );
 ```
 
@@ -459,61 +709,49 @@ Message(
 
 ### ChatEvent (sealed class)
 
-The streaming system uses a sealed `ChatEvent` class for type-safe event handling:
+See the Streaming section above for the full list of event subtypes.
 
-- `TextDelta(text)` -- Incremental text chunk
-- `TextDone(fullText)` -- Text complete with full content
-- `ThinkingStart()` -- AI began reasoning
-- `ThinkingDelta(text)` -- Thinking text chunk
-- `ThinkingEnd()` -- Reasoning complete
-- `ToolCallStart(id, name)` -- Tool call initiated
-- `ToolCallDelta(id, argumentsDelta)` -- Tool call argument chunk
-- `ToolCallEnd(id)` -- Tool call complete
-- `UsageUpdate(inputTokens, outputTokens, ...)` -- Token usage report
-- `ChatDone()` -- Stream finished
-- `ChatError(error, stackTrace?)` -- Error occurred
+## Customization Patterns
 
-## Architecture Notes
-
-- All widgets use `FlaiTheme.of(context)` to read styling -- no hardcoded colors or icons
-- Components access icons via `theme.icons.send`, `theme.icons.copy`, etc.
-- Components use the Widget + Controller + State pattern for complex state
-- The `AiProvider` abstract class defines the interface; implementations use raw HTTP via `package:http`
-- No external state management dependency -- vanilla Flutter (`ChangeNotifier`, `Stream`)
-- Components are Mason bricks; the `{{output_dir}}` variable controls output location
-- Zero external dependencies in core; provider bricks add `package:http`
-
-## Starter Patterns
-
-### Basic Chat
-
-```bash
-dart pub global activate flai_cli
-flai init
-flai add chat_screen openai_provider
-```
+### Swapping the Theme in AppScaffoldConfig
 
 ```dart
-FlaiTheme(
-  data: FlaiThemeData.dark(),
-  child: MaterialApp(
-    home: Scaffold(
-      body: FlaiChatScreen(
-        controller: ChatScreenController(
-          provider: OpenAiProvider(
-            apiKey: const String.fromEnvironment('OPENAI_API_KEY'),
-            model: 'gpt-4o',
-          ),
-          systemPrompt: 'You are a helpful assistant.',
-        ),
-        title: 'AI Chat',
-      ),
+FlaiApp(
+  config: AppScaffoldConfig(
+    appTitle: 'My App',
+    authProvider: MockAuthProvider(),
+    theme: FlaiThemeData.ios(),    // change to any preset or custom theme
+    chatExperienceConfig: ChatExperienceConfig(
+      assistantName: 'Siri',
     ),
+    settingsConfig: SettingsConfig(sections: []),
   ),
 )
 ```
 
-### Multi-Model Switching
+### Adding Model Options
+
+```dart
+chatExperienceConfig: ChatExperienceConfig(
+  assistantName: 'Assistant',
+  availableModels: [
+    ModelOption(
+      id: 'gpt-4o',
+      name: 'GPT-4o',
+      description: 'Fast and capable',
+      icon: Icons.bolt_rounded,
+    ),
+    ModelOption(
+      id: 'claude-sonnet-4-20250514',
+      name: 'Claude Sonnet',
+      description: 'Intelligent and fast',
+      icon: Icons.auto_awesome,
+    ),
+  ],
+),
+```
+
+### Multi-Model Switching (Without App Scaffold)
 
 ```dart
 final providers = {
@@ -539,7 +777,7 @@ void switchModel(String name) {
 }
 ```
 
-### Tool Calling
+### Tool Calling with ChatScreenController
 
 ```dart
 final controller = ChatScreenController(
@@ -570,7 +808,7 @@ final controller = ChatScreenController(
 );
 ```
 
-### Custom Theme
+### Custom Theme with Brand Colors
 
 ```dart
 final brandTheme = FlaiThemeData.dark().copyWith(
@@ -583,13 +821,16 @@ final brandTheme = FlaiThemeData.dark().copyWith(
   typography: FlaiTypography(fontFamily: 'Inter', monoFontFamily: 'Fira Code'),
 );
 
-FlaiTheme(
-  data: brandTheme,
-  child: MaterialApp(home: ChatPage()),
+// In main.dart with app_scaffold:
+FlaiApp(
+  config: AppScaffoldConfig(
+    appTitle: 'My App',
+    authProvider: MockAuthProvider(),
+    theme: brandTheme,
+    // ...
+  ),
 )
 ```
-
-## Common Patterns
 
 ### Switch Between Light and Dark Theme
 
@@ -640,22 +881,6 @@ FlaiStreamingText.fromStream(
 )
 ```
 
-### Custom Empty State
-
-```dart
-FlaiChatScreen(
-  controller: controller,
-  emptyState: Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Image.asset('assets/logo.png', height: 64),
-      SizedBox(height: 16),
-      Text('How can I help you today?'),
-    ],
-  ),
-)
-```
-
 ### Using Theme Icons in Custom Widgets
 
 ```dart
@@ -668,3 +893,14 @@ Widget build(BuildContext context) {
   );
 }
 ```
+
+## Architecture Notes
+
+- All widgets use `FlaiTheme.of(context)` to read styling -- no hardcoded colors or icons
+- Components access icons via `theme.icons.send`, `theme.icons.copy`, etc.
+- Components use the Widget + Controller + State pattern for complex state
+- The `AiProvider` abstract class defines the interface; implementations use raw HTTP via `package:http`
+- No external state management dependency -- vanilla Flutter (`ChangeNotifier`, `Stream`)
+- Components are Mason bricks; the `{{output_dir}}` variable controls output location
+- Zero external dependencies in core; provider bricks add `package:http`
+- The developer owns all generated source code and can modify it freely

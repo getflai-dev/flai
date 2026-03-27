@@ -27,6 +27,7 @@ const CATEGORIES = {
   AI_WIDGETS: "AI Widgets",
   CONVERSATION: "Conversation",
   PROVIDERS: "Providers",
+  FLOWS: "Flows",
 } as const;
 
 const COMPONENT_REGISTRY: Record<string, ComponentInfo> = {
@@ -397,6 +398,7 @@ await for (final event in stream) {
   apiKey: 'sk-ant-...',
   model: 'claude-sonnet-4-20250514',
   thinkingBudgetTokens: 10000,
+
 );
 
 final stream = provider.streamChat(ChatRequest(
@@ -406,6 +408,83 @@ final stream = provider.streamChat(ChatRequest(
 await for (final event in stream) {
   // Handle ChatEvent (TextDelta, ThinkingDelta, ToolCallDelta, etc.)
 }`,
+  },
+
+  // ── Flows ───────────────────────────────────────────────────────────
+  auth_flow: {
+    name: "auth_flow",
+    description:
+      "Complete authentication flow with login, register, forgot password, verification, and reset screens. Includes AuthController state machine and AuthFlowConfig.",
+    category: CATEGORIES.FLOWS,
+    dependencies: [],
+    pubDependencies: [],
+    props: {
+      config: "AuthFlowConfig — configures available auth methods, branding, and callbacks",
+    },
+    usageExample: `// Installed automatically by app_scaffold, or standalone:
+flai add auth_flow`,
+  },
+
+  onboarding_flow: {
+    name: "onboarding_flow",
+    description:
+      "Configurable onboarding flow with splash, naming, multi-select pills, custom steps, and reveal animation. Includes OnboardingController state machine.",
+    category: CATEGORIES.FLOWS,
+    dependencies: [],
+    pubDependencies: [],
+    props: {
+      config: "OnboardingConfig — configures steps, branding, and completion callback",
+    },
+    usageExample: `// Installed automatically by app_scaffold, or standalone:
+flai add onboarding_flow`,
+  },
+
+  chat_experience: {
+    name: "chat_experience",
+    description:
+      "AI chat experience with composer v2, model selector, voice recorder, ghost mode banner, attachment menu, and empty chat state.",
+    category: CATEGORIES.FLOWS,
+    dependencies: [],
+    pubDependencies: ["image_picker", "file_picker"],
+    props: {
+      controller: "HomeController — manages chat state, streaming, and conversations",
+    },
+    usageExample: `// Installed automatically by app_scaffold, or standalone:
+flai add chat_experience`,
+  },
+
+  sidebar_nav: {
+    name: "sidebar_nav",
+    description:
+      "Sidebar navigation flow with drawer, conversation lists, search, settings sheet, and workspace switcher.",
+    category: CATEGORIES.FLOWS,
+    dependencies: [],
+    pubDependencies: [],
+    props: {
+      conversations: "List<Conversation> — conversation list for the sidebar",
+      onSelect: "Function(Conversation) — callback when a conversation is selected",
+    },
+    usageExample: `// Installed automatically by app_scaffold, or standalone:
+flai add sidebar_nav`,
+  },
+
+  app_scaffold: {
+    name: "app_scaffold",
+    description:
+      "Production-ready app shell wiring auth, onboarding, chat, and sidebar flows with GoRouter. Auto-generates main.dart. Installs all 4 flow bricks plus message_bubble and typing_indicator as dependencies.",
+    category: CATEGORIES.FLOWS,
+    dependencies: ["auth_flow", "onboarding_flow", "chat_experience", "sidebar_nav", "message_bubble", "typing_indicator"],
+    pubDependencies: ["go_router", "flutter_secure_storage", "share_plus"],
+    props: {
+      config: "AppScaffoldConfig — accepts FlaiProviders (AI, auth, storage, voice) and flow configs",
+    },
+    usageExample: `// 3-command pipeline to a running chat app:
+// flai init
+// flai add app_scaffold
+// flutter run
+//
+// For production backend:
+// flai connect cmmd`,
   },
 };
 
@@ -490,6 +569,7 @@ const CATEGORY_ORDER = [
   CATEGORIES.AI_WIDGETS,
   CATEGORIES.CONVERSATION,
   CATEGORIES.PROVIDERS,
+  CATEGORIES.FLOWS,
 ];
 
 function componentsByCategory(): Record<string, ComponentInfo[]> {
@@ -626,7 +706,7 @@ const server = new McpServer({
 
 server.tool(
   "list_components",
-  "Lists all available FlAI components with descriptions and categories. Returns the full component registry grouped by category: Chat Essentials, AI Widgets, Conversation, and Providers.",
+  "Lists all available FlAI components with descriptions and categories. Returns the full component registry grouped by category: Chat Essentials, AI Widgets, Conversation, Providers, and Flows.",
   {},
   async () => {
     return {
@@ -639,7 +719,7 @@ server.tool(
 
 server.tool(
   "add_component",
-  "Installs a FlAI component into a Flutter project. Validates the component exists, resolves dependencies, and runs `flai add <name>`. Requires FlAI CLI to be installed and the project to be initialized with `flai init`.",
+  "Installs a FlAI component into a Flutter project. Validates the component exists, resolves dependencies, and runs `flai add <name>`. Installing app_scaffold also auto-generates main.dart with full app wiring. Requires FlAI CLI to be installed and the project to be initialized with `flai init`.",
   {
     component_name: z
       .string()
@@ -709,6 +789,14 @@ server.tool(
     installPlan.push("Installation successful!");
     if (result.stdout) installPlan.push("", result.stdout.trim());
 
+    if (component_name === "app_scaffold") {
+      installPlan.push(
+        "",
+        "Note: `app_scaffold` auto-generated main.dart with full app wiring.",
+        "Run `flutter run` to launch the app. Use `flai connect cmmd` for production backend."
+      );
+    }
+
     return {
       content: [{ type: "text", text: installPlan.join("\n") }],
     };
@@ -750,7 +838,7 @@ server.tool(
 
 server.tool(
   "init_project",
-  "Initializes FlAI in a Flutter project. Runs `flai init` which sets up the core theme system (FlaiTheme, FlaiColors, FlaiTypography, FlaiRadius, FlaiSpacing), data models (Message, Conversation, ChatEvent, ChatRequest), and the AiProvider interface.",
+  "Initializes FlAI in a Flutter project. Runs `flai init` which interactively prompts for app name, assistant name, and theme preset (dark/light/ios/premium). Creates the core theme system, data models, provider interfaces, and a flai.yaml config file. Use `--no-interactive` with `--app-name`, `--assistant-name`, `--theme` flags for CI/scripting.",
   {
     project_path: z
       .string()
@@ -768,12 +856,20 @@ server.tool(
       "- lib/flai/core/models/ — Message, Conversation, ChatEvent, ChatRequest, UsageInfo, ToolCall, Citation",
       "- lib/flai/providers/ — AiProvider abstract interface",
       "- lib/flai/flai.dart — barrel export file",
+      "- flai.yaml — project config (output_dir, theme, app_name, assistant_name, installed components)",
+      "",
+      "Interactive prompts:",
+      "- App name (displayed in the UI)",
+      "- Assistant name (AI assistant's display name)",
+      "- Theme preset: dark, light, ios, or premium",
+      "",
+      "For CI/scripting, use: `flai init --no-interactive --app-name \"My App\" --assistant-name \"Assistant\" --theme dark`",
       "",
       "Running `flai init`...",
       "",
     ];
 
-    const result = await runFlaiCommand("init", project_path);
+    const result = await runFlaiCommand("init --no-interactive", project_path);
 
     if (result.exitCode !== 0) {
       lines.push("Initialization failed:");
@@ -797,15 +893,14 @@ server.tool(
     lines.push(
       "",
       "Next steps:",
-      "1. Wrap your app with FlaiTheme:",
-      "   ```dart",
-      "   FlaiTheme(",
-      "     data: FlaiThemeData.light(),",
-      "     child: MaterialApp(home: MyHomePage()),",
-      "   )",
+      "1. Install the app scaffold for a complete chat app (auto-generates main.dart):",
+      "   ```bash",
+      "   flai add app_scaffold",
+      "   flutter run",
       "   ```",
-      "2. Install components: `flai add message_bubble`, `flai add chat_screen`, etc.",
-      '3. Or use `list_components` to see all available components.'
+      "2. Or install individual components: `flai add message_bubble`, `flai add chat_screen`, etc.",
+      "3. For production backend: `flai connect cmmd`",
+      '4. Use `list_components` to see all available components.'
     );
 
     return {
@@ -866,13 +961,20 @@ server.tool(
 
 server.tool(
   "get_theme_info",
-  "Gets detailed theming information for FlAI including the 4 theme presets (Light/Zinc, Dark, iOS, Premium/Linear), all design tokens (colors, typography, radius, spacing), and customization examples.",
+  "Gets detailed theming information for FlAI including the 4 theme presets (Light/Zinc, Dark, iOS, Premium/Linear), all design tokens (colors, typography, radius, spacing), and customization examples. Themes can be set during `flai init` and are stored in flai.yaml.",
   {},
   async () => {
     const lines: string[] = [
       "# FlAI Theme System",
       "",
       THEME_INFO.overview,
+      "",
+      "## Setting a Theme",
+      "",
+      "Themes can be selected during project initialization:",
+      "- Interactive: `flai init` (prompts for theme choice)",
+      "- Non-interactive: `flai init --no-interactive --theme premium`",
+      "- The selected theme is stored in `flai.yaml` and used when generating main.dart via `flai add app_scaffold`.",
       "",
       "## Theme Presets",
       "",
@@ -909,11 +1011,12 @@ server.tool(
 
 server.tool(
   "scaffold_chat_app",
-  "Generates a complete main.dart code snippet showing how to set up a full chat app with FlAI using the specified AI provider and theme. Does NOT run any commands — returns code for the user to copy into their project.",
+  "Explains how to scaffold a complete FlAI chat app. The recommended approach is the 3-command pipeline: `flai init` -> `flai add app_scaffold` -> `flutter run`. The `app_scaffold` brick auto-generates main.dart with full app wiring (auth, onboarding, chat, sidebar, GoRouter). Use `flai connect cmmd` for production backend.",
   {
     provider: z
-      .enum(["openai", "anthropic"])
-      .describe("AI provider to use: 'openai' or 'anthropic'"),
+      .enum(["openai", "anthropic", "cmmd"])
+      .default("cmmd")
+      .describe("AI provider to use: 'openai', 'anthropic', or 'cmmd' (default: 'cmmd')"),
     theme: z
       .enum(["light", "dark", "ios", "premium"])
       .default("dark")
@@ -927,122 +1030,93 @@ server.tool(
       premium: "FlaiThemeData.premium()",
     };
 
-    const providerImport =
-      provider === "openai"
-        ? "import 'package:your_app/flai/providers/openai_provider.dart';"
-        : "import 'package:your_app/flai/providers/anthropic_provider.dart';";
-
-    const providerSetup =
-      provider === "openai"
-        ? `  // Create the OpenAI provider
-  final aiProvider = OpenAiProvider(
-    apiKey: const String.fromEnvironment('OPENAI_API_KEY'),
-    model: 'gpt-4o',
-  );`
-        : `  // Create the Anthropic provider
-  final aiProvider = AnthropicProvider(
-    apiKey: const String.fromEnvironment('ANTHROPIC_API_KEY'),
-    model: 'claude-sonnet-4-20250514',
-    thinkingBudgetTokens: 10000,
-  );`;
-
-    const envFlag =
-      provider === "openai"
-        ? "flutter run --dart-define=OPENAI_API_KEY=sk-..."
-        : "flutter run --dart-define=ANTHROPIC_API_KEY=sk-ant-...";
-
-    const code = `import 'package:flutter/material.dart';
-import 'package:your_app/flai/flai.dart';
-${providerImport}
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FlaiTheme(
-      data: ${themeFactory[theme]},
-      child: MaterialApp(
-        title: 'FlAI Chat',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(useMaterial3: true),
-        home: const ChatPage(),
-      ),
-    );
-  }
-}
-
-class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
-
-  @override
-  State<ChatPage> createState() => _ChatPageState();
-}
-
-class _ChatPageState extends State<ChatPage> {
-  late final ChatScreenController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-${providerSetup}
-
-    // Create the chat controller
-    _controller = ChatScreenController(provider: aiProvider);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: FlaiChatScreen(
-        controller: _controller,
-        title: 'AI Assistant',
-        subtitle: '${provider === "openai" ? "GPT-4o" : "Claude Sonnet 4"}',
-        inputPlaceholder: 'Ask anything...',
-        emptyState: const Center(
-          child: Text('Start a conversation!'),
-        ),
-      ),
-    );
-  }
-}`;
-
     const lines: string[] = [
-      `# FlAI Chat App — ${provider === "openai" ? "OpenAI" : "Anthropic"} + ${theme} theme`,
+      `# FlAI Chat App — ${provider} + ${theme} theme`,
       "",
-      "## Prerequisites",
+      "## Recommended: 3-Command Pipeline",
+      "",
+      "`flai add app_scaffold` **auto-generates main.dart** with full app wiring — you do NOT need to write it manually.",
       "",
       "```bash",
-      "# Initialize FlAI in your Flutter project",
-      "flai init",
+      "# 1. Initialize FlAI (creates core theme, models, providers, and flai.yaml)",
+      `flai init --no-interactive --theme ${theme}`,
       "",
-      "# Install required components",
-      "flai add chat_screen",
-      `flai add ${provider}_provider`,
+      "# 2. Install the app scaffold (auto-generates main.dart, installs all flow bricks)",
+      "flai add app_scaffold",
+      "",
+      "# 3. Run the app",
+      "flutter run",
       "```",
       "",
-      "## main.dart",
+    ];
+
+    if (provider === "cmmd") {
+      lines.push(
+        "## Production Backend (CMMD)",
+        "",
+        "```bash",
+        "# Wire CMMD backend providers (AI, auth, storage, voice)",
+        "flai connect cmmd",
+        "```",
+        "",
+        "This generates `CmmdAiProvider`, `CmmdAuthProvider`, `CmmdStorageProvider`, and `CmmdVoiceProvider`",
+        "that implement the FlAI provider interfaces against the CMMD API.",
+        "",
+      );
+    } else {
+      lines.push(
+        `## Adding ${provider === "openai" ? "OpenAI" : "Anthropic"} Provider`,
+        "",
+        "```bash",
+        `flai add ${provider}_provider`,
+        "```",
+        "",
+      );
+    }
+
+    lines.push(
+      "## What Gets Generated",
+      "",
+      "The `app_scaffold` brick generates:",
+      "- **main.dart** — complete app entry point with FlaiApp root widget",
+      "- **FlaiApp** — root widget accepting AppScaffoldConfig with providers and flow configs",
+      "- **GoRouter** — navigation with auth redirects between flows",
+      "- **HomeController** — bridges providers to chat UI (conversations, messages, streaming)",
+      "- **FlaiChatContent** — message list + composer using MessageBubble + FlaiTypingIndicator",
+      "- **FlaiHomeScreen** — sidebar drawer + top nav + chat area with empty state",
+      "",
+      "Dependencies auto-installed: auth_flow, onboarding_flow, chat_experience, sidebar_nav, message_bubble, typing_indicator",
+      "",
+      `Pub packages auto-added: go_router, flutter_secure_storage, share_plus`,
+      "",
+      "## Auto-Generated main.dart (for reference)",
+      "",
+      "The generated main.dart uses the theme selected during `flai init` (stored in flai.yaml).",
+      "It wires FlaiApp with MockAuthProvider and InMemoryStorageProvider by default.",
+      `To use ${themeFactory[theme]}, either select "${theme}" during \`flai init\` or edit flai.yaml.`,
       "",
       "```dart",
-      code,
-      "```",
+      "// This is auto-generated by `flai add app_scaffold` — you don't write this manually.",
+      "// The generated code uses your flai.yaml settings (app_name, assistant_name, theme).",
+      "import 'package:flutter/material.dart';",
+      "import 'package:your_app/flai/flai.dart';",
       "",
-      "## Run",
-      "",
-      "```bash",
-      envFlag,
+      "void main() {",
+      "  runApp(",
+      "    FlaiApp(",
+      "      config: AppScaffoldConfig(",
+      "        providers: FlaiProviders(",
+      "          ai: yourAiProvider,       // Implement or use a provider brick",
+      "          auth: MockAuthProvider(),  // Default, replace with real auth",
+      "          storage: InMemoryStorageProvider(), // Default, replace with real storage",
+      "        ),",
+      `        theme: ${themeFactory[theme]},`,
+      "      ),",
+      "    ),",
+      "  );",
+      "}",
       "```",
-    ];
+    );
 
     return {
       content: [{ type: "text", text: lines.join("\n") }],
