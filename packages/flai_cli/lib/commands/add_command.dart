@@ -164,7 +164,12 @@ class AddCommand extends Command<int> {
       }
     }
 
-    // 9. Update flai.yaml.
+    // 9. Generate main.dart if installing app_scaffold.
+    if (installOrder.contains('app_scaffold')) {
+      _generateMainDart(cwd, config, outputDirVar);
+    }
+
+    // 10. Update flai.yaml.
     configManager.markInstalled(installOrder);
 
     stdout.writeln('');
@@ -207,6 +212,64 @@ class AddCommand extends Command<int> {
     }
 
     return null;
+  }
+
+  /// Generates a ready-to-run `main.dart` using values from `flai.yaml`.
+  void _generateMainDart(String projectRoot, FlaiConfig config, String outputDir) {
+    final mainPath = p.join(projectRoot, 'lib', 'main.dart');
+    final themeConstructor = switch (config.theme) {
+      'light' => 'FlaiThemeData.light()',
+      'ios' => 'FlaiThemeData.ios()',
+      'premium' => 'FlaiThemeData.premium()',
+      _ => 'FlaiThemeData.dark()',
+    };
+
+    final appName = config.appName;
+    final assistantName = config.assistantName;
+
+    final content = '''import 'package:flutter/material.dart';
+
+import '$outputDir/app_scaffold.dart';
+import '$outputDir/core/theme/flai_theme.dart';
+import '$outputDir/flows/auth/mock_auth_provider.dart';
+import '$outputDir/flows/chat/chat_experience_config.dart';
+import '$outputDir/flows/sidebar/settings_config.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    FlaiApp(
+      config: AppScaffoldConfig(
+        appTitle: '$appName',
+        authProvider: MockAuthProvider(),
+        theme: $themeConstructor,
+        chatExperienceConfig: ChatExperienceConfig(
+          assistantName: '$assistantName',
+        ),
+        settingsConfig: SettingsConfig(
+          sections: [
+            SettingsSection(
+              title: 'Account',
+              rows: [
+                NavigationRow(
+                  icon: Icons.logout,
+                  label: 'Sign Out',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+''';
+
+    File(mainPath).writeAsStringSync(content);
+    stdout.writeln(
+      '  \x1B[32m\u2713\x1B[0m Generated \x1B[36mlib/main.dart\x1B[0m '
+      '(theme: ${config.theme}, app: $appName)',
+    );
   }
 
   /// Adds [packages] to the project's `pubspec.yaml` under `dependencies`.

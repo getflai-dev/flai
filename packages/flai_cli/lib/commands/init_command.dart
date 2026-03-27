@@ -8,6 +8,14 @@ import '../config.dart';
 import '../platform_setup.dart';
 
 /// `flai init` — initialise FlAI in the current Flutter project.
+///
+/// Runs an interactive setup when no flags are passed, asking for:
+/// - App name
+/// - AI assistant name
+/// - Theme preset
+///
+/// All prompts have sensible defaults so the user can press Enter through
+/// everything for a working setup in seconds.
 class InitCommand extends Command<int> {
   @override
   String get name => 'init';
@@ -27,9 +35,21 @@ class InitCommand extends Command<int> {
       ..addOption(
         'theme',
         abbr: 't',
-        help: 'Default theme (dark or light).',
-        defaultsTo: 'dark',
-        allowed: ['dark', 'light'],
+        help: 'Theme preset.',
+        allowed: ['dark', 'light', 'ios', 'premium'],
+      )
+      ..addOption(
+        'app-name',
+        help: 'Application display name.',
+      )
+      ..addOption(
+        'assistant-name',
+        help: 'AI assistant display name.',
+      )
+      ..addFlag(
+        'no-interactive',
+        negatable: false,
+        help: 'Skip interactive prompts and use defaults.',
       );
   }
 
@@ -59,19 +79,53 @@ class InitCommand extends Command<int> {
       );
     }
 
+    final noInteractive = argResults!['no-interactive'] as bool;
     final outputDir = argResults!['output-dir'] as String;
-    final theme = argResults!['theme'] as String;
 
-    // 3. Create the config file.
+    // 3. Collect configuration — interactive prompts with defaults.
+    String appName;
+    String assistantName;
+    String theme;
+
+    if (noInteractive) {
+      appName = (argResults!['app-name'] as String?) ?? 'FlAI Chat';
+      assistantName = (argResults!['assistant-name'] as String?) ?? 'Assistant';
+      theme = (argResults!['theme'] as String?) ?? 'dark';
+    } else {
+      stdout.writeln('');
+      stdout.writeln(
+        '\x1B[1m\x1B[36m  FlAI\x1B[0m — AI Chat Components for Flutter',
+      );
+      stdout.writeln('');
+
+      appName = (argResults!['app-name'] as String?) ??
+          _prompt('  App name', defaultValue: 'FlAI Chat');
+
+      assistantName = (argResults!['assistant-name'] as String?) ??
+          _prompt('  Assistant name', defaultValue: 'Assistant');
+
+      theme = (argResults!['theme'] as String?) ??
+          _promptChoice(
+            '  Theme',
+            choices: ['dark', 'light', 'ios', 'premium'],
+            defaultValue: 'dark',
+          );
+
+      stdout.writeln('');
+    }
+
+    // 4. Create the config file.
     final config = FlaiConfig(
       outputDir: 'lib/$outputDir',
       theme: theme,
+      appName: appName,
+      assistantName: assistantName,
       installed: ['flai_init'],
     );
     configManager.write(config);
     stdout.writeln('\x1B[32m\u2713\x1B[0m Created $kConfigFileName');
 
-    // 4. Generate core files using the flai_init Mason brick.
+    // 5. Generate core files using the flai_init Mason brick.
     final brickPath = _resolveBrickPath('flai_init');
     if (brickPath == null) {
       stderr.writeln(
@@ -103,7 +157,7 @@ class InitCommand extends Command<int> {
       return 1;
     }
 
-    // 5. Configure iOS and Android platform permissions.
+    // 6. Configure iOS and Android platform permissions.
     stdout.writeln('\x1B[36m>\x1B[0m Configuring platform permissions...');
     final platformActions = PlatformSetup(projectRoot: cwd).run();
     for (final action in platformActions) {
@@ -114,24 +168,48 @@ class InitCommand extends Command<int> {
     }
 
     stdout.writeln('');
-    stdout.writeln('\x1B[32m\u2713 FlAI initialised successfully!\x1B[0m');
+    stdout.writeln('\x1B[32m\u2713 FlAI initialised!\x1B[0m');
+    stdout.writeln('');
+    stdout.writeln('  App name:       \x1B[36m$appName\x1B[0m');
+    stdout.writeln('  Assistant:      \x1B[36m$assistantName\x1B[0m');
+    stdout.writeln('  Theme:          \x1B[36m$theme\x1B[0m');
     stdout.writeln('');
     stdout.writeln('Next steps:');
     stdout.writeln(
-      '  \x1B[36mflai add chat_screen\x1B[0m   '
-      '— install the full chat screen',
+      '  \x1B[36mflai add app_scaffold\x1B[0m   '
+      '— install the complete app shell',
     );
     stdout.writeln(
       '  \x1B[36mflai list\x1B[0m              '
       '— see all available components',
     );
-    stdout.writeln(
-      '  \x1B[36mflai doctor\x1B[0m            '
-      '— check project health',
-    );
     stdout.writeln('');
 
     return 0;
+  }
+
+  /// Prompt the user for a string value with a default.
+  String _prompt(String label, {required String defaultValue}) {
+    stdout.write('$label \x1B[2m($defaultValue)\x1B[0m: ');
+    final input = stdin.readLineSync()?.trim() ?? '';
+    return input.isEmpty ? defaultValue : input;
+  }
+
+  /// Prompt the user to pick from a list of choices.
+  String _promptChoice(
+    String label, {
+    required List<String> choices,
+    required String defaultValue,
+  }) {
+    final choiceStr = choices.map((c) {
+      return c == defaultValue ? '\x1B[1m$c\x1B[0m' : c;
+    }).join(' / ');
+    stdout.write('$label [$choiceStr]: ');
+    final input = stdin.readLineSync()?.trim().toLowerCase() ?? '';
+    if (input.isEmpty) return defaultValue;
+    if (choices.contains(input)) return input;
+    stdout.writeln('  \x1B[33mInvalid choice, using $defaultValue\x1B[0m');
+    return defaultValue;
   }
 
   /// Tries to find the brick directory by checking common locations.

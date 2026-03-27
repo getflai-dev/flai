@@ -6,6 +6,8 @@ import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
+import '../config.dart';
+
 /// Hidden command that connects FlAI to a specific backend.
 ///
 /// Currently supports:
@@ -47,27 +49,22 @@ class ConnectCommand extends Command<int> {
     stdout.writeln('\u{1f517} Connecting FlAI to CMMD backend...');
     stdout.writeln('');
 
-    // Check for flai.yaml to find output_dir
-    final flaiYaml = File(p.join(cwd, 'flai.yaml'));
-    var outputDir = 'flai'; // default (without lib/ prefix)
+    // Read flai.yaml for output_dir and app settings.
+    final configManager = FlaiConfigManager(projectRoot: cwd);
+    FlaiConfig flaiConfig;
+    String outputDir;
 
-    if (!flaiYaml.existsSync()) {
+    if (!configManager.exists) {
       stderr.writeln(
         '\u{26a0}\u{fe0f}  No flai.yaml found. Run "flai init" first.',
       );
-      stderr.writeln('   Generating into default path: lib/$outputDir/providers/');
+      flaiConfig = const FlaiConfig();
+      outputDir = 'flai';
     } else {
-      try {
-        final yaml = loadYaml(flaiYaml.readAsStringSync()) as Map?;
-        final configOutputDir = yaml?['output_dir'] as String?;
-        if (configOutputDir != null) {
-          outputDir = configOutputDir.startsWith('lib/')
-              ? configOutputDir.substring(4)
-              : configOutputDir;
-        }
-      } catch (_) {
-        // Use default if yaml parsing fails
-      }
+      flaiConfig = configManager.read();
+      outputDir = flaiConfig.outputDir.startsWith('lib/')
+          ? flaiConfig.outputDir.substring(4)
+          : flaiConfig.outputDir;
     }
 
     stdout.writeln('\u{1f4e6} Generating CMMD provider implementations...');
@@ -104,94 +101,131 @@ class ConnectCommand extends Command<int> {
       _addPubDependency(cwd, dep);
     }
 
+    // Rewrite main.dart to use CMMD providers instead of mocks.
     stdout.writeln('');
-    stdout.writeln('\u{2705} CMMD providers generated!');
+    stdout.writeln('\x1B[36m>\x1B[0m Wiring CMMD providers into main.dart...');
+    _rewriteMainDart(cwd, outputDir, flaiConfig);
+
     stdout.writeln('');
-    stdout.writeln('Generated files:');
-    stdout.writeln('  lib/$outputDir/providers/cmmd_config.dart');
-    stdout.writeln('  lib/$outputDir/providers/cmmd_client_base.dart');
-    stdout.writeln('  lib/$outputDir/providers/cmmd_auth_provider.dart');
-    stdout.writeln('  lib/$outputDir/providers/cmmd_ai_provider.dart');
-    stdout.writeln('  lib/$outputDir/providers/cmmd_storage_provider.dart');
-    stdout.writeln('  lib/$outputDir/providers/cmmd_voice_provider.dart');
-    stdout.writeln('');
-    stdout.writeln('Usage:');
-    stdout.writeln(
-      "  import 'package:your_app/$outputDir/providers/cmmd_providers.dart';",
-    );
-    stdout.writeln('');
-    stdout.writeln('  final config = CmmdConfig(');
-    stdout.writeln("    googleClientId: 'YOUR_GOOGLE_CLIENT_ID',");
-    stdout.writeln('  );');
-    stdout.writeln('  final authProvider = CmmdAuthProvider(config: config);');
-    stdout.writeln(
-      "  final tokenFn = () => authProvider.accessToken ?? '';",
-    );
-    stdout.writeln(
-      '  final orgFn = () => authProvider.organizationId;',
-    );
-    stdout.writeln('');
-    stdout.writeln('  runApp(FlaiApp(');
-    stdout.writeln('    config: AppScaffoldConfig(');
-    stdout.writeln('      authProvider: authProvider,');
-    stdout.writeln(
-      '      aiProvider: CmmdAiProvider(',
-    );
-    stdout.writeln(
-      '        config: config,',
-    );
-    stdout.writeln(
-      '        accessTokenProvider: tokenFn,',
-    );
-    stdout.writeln(
-      '        organizationIdProvider: orgFn,',
-    );
-    stdout.writeln(
-      '      ),',
-    );
-    stdout.writeln(
-      '      storageProvider: CmmdStorageProvider(',
-    );
-    stdout.writeln(
-      '        config: config,',
-    );
-    stdout.writeln(
-      '        accessTokenProvider: tokenFn,',
-    );
-    stdout.writeln(
-      '        organizationIdProvider: orgFn,',
-    );
-    stdout.writeln(
-      '      ),',
-    );
-    stdout.writeln(
-      '      voiceProvider: CmmdVoiceProvider(',
-    );
-    stdout.writeln(
-      '        config: config,',
-    );
-    stdout.writeln(
-      '        accessTokenProvider: tokenFn,',
-    );
-    stdout.writeln(
-      '        organizationIdProvider: orgFn,',
-    );
-    stdout.writeln(
-      '      ),',
-    );
-    stdout.writeln('    ),');
-    stdout.writeln('  ));');
+    stdout.writeln('\u{2705} CMMD backend connected!');
     stdout.writeln('');
     stdout.writeln(
-      'Voice uses on-device speech recognition (no API key needed for STT).',
+      'Your app is now wired to \x1B[36mcmmd.ai\x1B[0m with:',
     );
-    stdout.writeln(
-      'TTS uses the CMMD backend. Voice is auto-enabled when configured.',
-    );
+    stdout.writeln('  \x1B[32m\u2713\x1B[0m Authentication (email, Apple, Google)');
+    stdout.writeln('  \x1B[32m\u2713\x1B[0m AI chat streaming');
+    stdout.writeln('  \x1B[32m\u2713\x1B[0m Conversation persistence');
+    stdout.writeln('  \x1B[32m\u2713\x1B[0m Voice (on-device STT + CMMD TTS)');
     stdout.writeln('');
-    stdout.writeln('Run \x1B[36mflutter pub get\x1B[0m to fetch dependencies.');
+    stdout.writeln('Run \x1B[36mflutter pub get\x1B[0m then \x1B[36mflutter run\x1B[0m.');
 
     return 0;
+  }
+
+  /// Rewrites main.dart to use CMMD providers instead of MockAuthProvider.
+  void _rewriteMainDart(String projectRoot, String outputDir, FlaiConfig config) {
+    final mainPath = p.join(projectRoot, 'lib', 'main.dart');
+    final themeConstructor = switch (config.theme) {
+      'light' => 'FlaiThemeData.light()',
+      'ios' => 'FlaiThemeData.ios()',
+      'premium' => 'FlaiThemeData.premium()',
+      _ => 'FlaiThemeData.dark()',
+    };
+
+    final appName = config.appName;
+    final assistantName = config.assistantName;
+
+    final content = '''import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+import '$outputDir/app_scaffold.dart';
+import '$outputDir/core/theme/flai_theme.dart';
+import '$outputDir/flows/chat/chat_experience_config.dart';
+import '$outputDir/flows/sidebar/settings_config.dart';
+import '$outputDir/providers/cmmd_providers.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Suppress _dependents.isEmpty debug assertion (Flutter bug #106549).
+  if (kDebugMode) {
+    final originalOnError = FlutterError.onError;
+    FlutterError.onError = (details) {
+      if (details.exception.toString().contains('_dependents.isEmpty')) return;
+      originalOnError?.call(details);
+    };
+  }
+
+  final config = CmmdConfig();
+  final authProvider = CmmdAuthProvider(config: config);
+  String tokenFn() => authProvider.accessToken ?? '';
+  String? orgFn() => authProvider.organizationId;
+  Map<String, String> csrfFn() => authProvider.csrfHeaders;
+
+  runApp(
+    FlaiApp(
+      config: AppScaffoldConfig(
+        appTitle: '$appName',
+        authProvider: authProvider,
+        aiProvider: CmmdAiProvider(
+          config: config,
+          accessTokenProvider: tokenFn,
+          organizationIdProvider: orgFn,
+          csrfHeadersProvider: csrfFn,
+        ),
+        storageProvider: CmmdStorageProvider(
+          config: config,
+          accessTokenProvider: tokenFn,
+          organizationIdProvider: orgFn,
+          csrfHeadersProvider: csrfFn,
+        ),
+        voiceProvider: CmmdVoiceProvider(
+          config: config,
+          accessTokenProvider: tokenFn,
+          organizationIdProvider: orgFn,
+          csrfHeadersProvider: csrfFn,
+        ),
+        theme: $themeConstructor,
+        chatExperienceConfig: ChatExperienceConfig(
+          assistantName: '$assistantName',
+          availableModels: [
+            ModelOption(
+              id: 'claude-sonnet-4-20250514',
+              name: 'Claude Sonnet',
+              description: 'Fast and intelligent',
+              icon: Icons.bolt_rounded,
+            ),
+            ModelOption(
+              id: 'claude-opus-4-20250514',
+              name: 'Claude Opus',
+              description: 'Most capable',
+              icon: Icons.auto_awesome,
+            ),
+          ],
+        ),
+        settingsConfig: SettingsConfig(
+          sections: [
+            SettingsSection(
+              title: 'Account',
+              rows: [
+                NavigationRow(
+                  icon: Icons.logout,
+                  label: 'Sign Out',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+''';
+
+    File(mainPath).writeAsStringSync(content);
+    stdout.writeln(
+      '  \x1B[32m\u2713\x1B[0m Rewrote \x1B[36mlib/main.dart\x1B[0m with CMMD providers',
+    );
   }
 
   String _findBrickPath() {

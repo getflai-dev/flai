@@ -12,8 +12,14 @@ class FlaiConfig {
   /// Directory (relative to project root) where generated components are placed.
   final String outputDir;
 
-  /// Active theme name.
+  /// Active theme name (dark, light, ios, premium).
   final String theme;
+
+  /// The application display name.
+  final String appName;
+
+  /// The AI assistant's display name.
+  final String assistantName;
 
   /// Names of components already installed in this project.
   final List<String> installed;
@@ -21,6 +27,8 @@ class FlaiConfig {
   const FlaiConfig({
     this.outputDir = 'lib/flai',
     this.theme = 'dark',
+    this.appName = 'FlAI Chat',
+    this.assistantName = 'Assistant',
     this.installed = const [],
   });
 
@@ -29,6 +37,8 @@ class FlaiConfig {
     return FlaiConfig(
       outputDir: yaml['output_dir'] as String? ?? 'lib/flai',
       theme: yaml['theme'] as String? ?? 'dark',
+      appName: yaml['app_name'] as String? ?? 'FlAI Chat',
+      assistantName: yaml['assistant_name'] as String? ?? 'Assistant',
       installed:
           (yaml['installed'] as YamlList?)?.cast<String>().toList(
             growable: true,
@@ -43,6 +53,8 @@ class FlaiConfig {
     editor.update([], {
       'output_dir': outputDir,
       'theme': theme,
+      'app_name': appName,
+      'assistant_name': assistantName,
       'installed': installed,
     });
     return editor.toString();
@@ -102,6 +114,8 @@ class FlaiConfigManager {
       FlaiConfig(
         outputDir: config.outputDir,
         theme: config.theme,
+        appName: config.appName,
+        assistantName: config.assistantName,
         installed: updated,
       ),
     );
