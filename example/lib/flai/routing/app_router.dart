@@ -364,9 +364,24 @@ class _WiredHomePageState extends State<_WiredHomePage> {
     final chatConfig = _effectiveChatConfig;
     final hasActiveChat = ctrl.activeConversationId != null;
 
+    final baseSidebar = widget.config.sidebarConfig ??
+        SidebarConfig(appName: widget.config.appTitle);
+
     return FlaiHomeScreen(
-      sidebarConfig: widget.config.sidebarConfig ??
-          SidebarConfig(appName: widget.config.appTitle),
+      sidebarConfig: SidebarConfig(
+        appName: baseSidebar.appName,
+        appLogo: baseSidebar.appLogo,
+        navItems: baseSidebar.navItems,
+        enableSearch: baseSidebar.enableSearch,
+        topNavActions: baseSidebar.topNavActions,
+        settingsConfig: baseSidebar.settingsConfig,
+        onNewChat: baseSidebar.onNewChat,
+        onConversationTap: baseSidebar.onConversationTap,
+        onConversationStar: baseSidebar.onConversationStar ?? (item) => ctrl.starConversation(item),
+        onConversationRename: baseSidebar.onConversationRename ?? (item, title) => ctrl.renameConversation(item, title),
+        onConversationShare: baseSidebar.onConversationShare,
+        onConversationDelete: baseSidebar.onConversationDelete ?? (item) => ctrl.deleteConversation(item),
+      ),
       chatExperienceConfig: chatConfig,
       settingsConfig: _effectiveSettingsConfig,
       userProfile: ctrl.userProfile,

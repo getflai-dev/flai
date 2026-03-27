@@ -59,9 +59,14 @@ class ChatListItem extends StatelessWidget {
   }
 
   Future<void> _showRenameDialog(BuildContext context) async {
+    // Use the Scaffold's context (outside the drawer) for the dialog.
+    // Using the drawer's context causes _dependents.isEmpty assertion
+    // when the dialog's InheritedWidget references outlive the drawer.
+    final scaffoldContext = Scaffold.of(context).context;
+
     final controller = TextEditingController(text: item.title);
     final result = await showDialog<String>(
-      context: context,
+      context: scaffoldContext,
       builder: (ctx) => AlertDialog(
         title: const Text('Rename conversation'),
         content: TextField(
@@ -82,10 +87,16 @@ class ChatListItem extends StatelessWidget {
         ],
       ),
     );
+    controller.dispose();
     if (result != null && result.isNotEmpty) {
+      // Close the drawer before triggering the rename callback.
+      // HomeController.renameConversation → notifyListeners() causes a
+      // _dependents.isEmpty assertion if the drawer is still mounted.
+      if (context.mounted) {
+        Navigator.of(context).pop(); // close drawer
+      }
       onRename?.call(result);
     }
-    controller.dispose();
   }
 
   void _showContextMenu(BuildContext context) {

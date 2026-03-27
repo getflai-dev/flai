@@ -70,7 +70,16 @@ appId: com.example.flaiExample
 - inputText: "My Renamed Chat"
 - tapOn: "Rename"
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 10000
+
+# ── Drawer closes after rename — reopen to verify ───────────────────
+- tapOn:
+    point: "10%,10%"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "RECENTS"
+    timeout: 15000
 
 # ── Verify renamed title appears in sidebar ──────────────────────────
 - extendedWaitUntil:

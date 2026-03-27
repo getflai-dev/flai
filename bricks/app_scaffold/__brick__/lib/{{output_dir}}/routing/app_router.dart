@@ -283,6 +283,16 @@ class _WiredHomePageState extends State<_WiredHomePage> {
       storage: providers.storageProvider,
       ai: providers.aiProvider,
       auth: widget.config.authProvider,
+      onError: (message) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red.shade700,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      },
     );
     _controller!.addListener(_onChanged);
     _controller!.loadConversations();
@@ -295,7 +305,35 @@ class _WiredHomePageState extends State<_WiredHomePage> {
   @override
   void dispose() {
     _controller?.removeListener(_onChanged);
+    _controller?.dispose();
     super.dispose();
+  }
+
+  SettingsConfig get _effectiveSettingsConfig {
+    final base = widget.config.settingsConfig;
+    return SettingsConfig(
+      drawerHeightRatio: base.drawerHeightRatio,
+      showWorkspaceSwitcher: base.showWorkspaceSwitcher,
+      sections: base.sections.map((section) {
+        return SettingsSection(
+          title: section.title,
+          rows: section.rows.map((row) {
+            if (row is NavigationRow && row.label == 'Sign Out') {
+              return NavigationRow(
+                icon: row.icon,
+                label: row.label,
+                onTap: () async {
+                  await widget.config.authProvider.signOut();
+                },
+              );
+            }
+            return row;
+          }).toList(),
+        );
+      }).toList(),
+      infoItems: base.infoItems,
+      appVersion: base.appVersion,
+    );
   }
 
   ChatExperienceConfig get _effectiveChatConfig {
@@ -325,11 +363,26 @@ class _WiredHomePageState extends State<_WiredHomePage> {
     final chatConfig = _effectiveChatConfig;
     final hasActiveChat = ctrl.activeConversationId != null;
 
+    final baseSidebar = widget.config.sidebarConfig ??
+        SidebarConfig(appName: widget.config.appTitle);
+
     return FlaiHomeScreen(
-      sidebarConfig: widget.config.sidebarConfig ??
-          SidebarConfig(appName: widget.config.appTitle),
+      sidebarConfig: SidebarConfig(
+        appName: baseSidebar.appName,
+        appLogo: baseSidebar.appLogo,
+        navItems: baseSidebar.navItems,
+        enableSearch: baseSidebar.enableSearch,
+        topNavActions: baseSidebar.topNavActions,
+        settingsConfig: baseSidebar.settingsConfig,
+        onNewChat: baseSidebar.onNewChat,
+        onConversationTap: baseSidebar.onConversationTap,
+        onConversationStar: baseSidebar.onConversationStar ?? (item) => ctrl.starConversation(item),
+        onConversationRename: baseSidebar.onConversationRename ?? (item, title) => ctrl.renameConversation(item, title),
+        onConversationShare: baseSidebar.onConversationShare,
+        onConversationDelete: baseSidebar.onConversationDelete ?? (item) => ctrl.deleteConversation(item),
+      ),
       chatExperienceConfig: chatConfig,
-      settingsConfig: widget.config.settingsConfig,
+      settingsConfig: _effectiveSettingsConfig,
       userProfile: ctrl.userProfile,
       conversations: ctrl.conversations,
       starredConversations: ctrl.starred,
