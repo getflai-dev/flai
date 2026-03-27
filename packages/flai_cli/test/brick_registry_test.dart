@@ -156,6 +156,8 @@ void main() {
               'onboarding_flow',
               'chat_experience',
               'sidebar_nav',
+              'message_bubble',
+              'typing_indicator',
             ]),
           );
           expect(info.pubDependencies, contains('go_router'));
