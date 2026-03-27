@@ -1,0 +1,90 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Sidebar E2E Test — Conversations, New Chat, Tap to Open
+#
+# Run:
+#   maestro test .maestro/sidebar_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Launch ────────────────────────────────────────────────────────────
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+
+# ── Login if needed (session may be restored from Keychain) ───────────
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+
+# ── Wait for home screen (either from login or session restore) ───────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 25000
+- takeScreenshot: sidebar_00_home
+
+# ── Send a message so there's a conversation ──────────────────────────
+- tapOn: "Ask Assistant anything..."
+- inputText: "Sidebar test message"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: sidebar_01_sent
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# ── Open sidebar (hamburger menu) ─────────────────────────────────────
+- tapOn:
+    point: "10%,10%"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# ── Assert conversations loaded ───────────────────────────────────────
+- extendedWaitUntil:
+    visible: "RECENTS"
+    timeout: 30000
+- takeScreenshot: sidebar_02_recents
+
+# ── Tap new chat — verify empty state ─────────────────────────────────
+- tapOn: "New chat"
+- waitForAnimationToEnd:
+    timeout: 3000
+# Close the drawer by tapping the dimmed area to the right of the drawer
+- tapOn:
+    point: "90%,50%"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "How can I help you today?"
+    timeout: 10000
+- takeScreenshot: sidebar_03_new_chat
+
+# ── Reopen sidebar, tap first conversation — verify it loads ──────────
+- tapOn:
+    point: "10%,10%"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "RECENTS"
+    timeout: 10000
+# Tap the first conversation in RECENTS (most recent)
+- tapOn:
+    point: "40%,20%"
+- waitForAnimationToEnd:
+    timeout: 3000
+# Close drawer by tapping outside it
+- tapOn:
+    point: "90%,50%"
+- waitForAnimationToEnd:
+    timeout: 5000
+# Verify we're in a chat view (composer visible, not empty state greeting)
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 10000
+- assertNotVisible: "How can I help you today?"
+- takeScreenshot: sidebar_04_loaded

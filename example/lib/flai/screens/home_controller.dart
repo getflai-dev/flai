@@ -259,6 +259,13 @@ class HomeController extends ChangeNotifier {
 
     await loadConversations();
 
+    // If the API returned no conversations (server may need time to index),
+    // retry once after a short delay.
+    if (_conversations.isEmpty && _serverChatId != null) {
+      await Future<void>.delayed(const Duration(seconds: 2));
+      await loadConversations();
+    }
+
     notifyListeners();
   }
 
