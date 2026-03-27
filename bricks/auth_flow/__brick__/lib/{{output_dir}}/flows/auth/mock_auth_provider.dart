@@ -106,6 +106,17 @@ class MockAuthProvider implements AuthProvider {
     _authStateController.add(null);
   }
 
+  @override
+  Future<bool> tryRestoreSession(
+    String accessToken,
+    String refreshToken,
+  ) async =>
+      false;
+
+  @override
+  Stream<({String? accessToken, String? refreshToken})> get tokenChanges =>
+      const Stream.empty();
+
   /// Dispose the stream controller.
   void dispose() {
     _authStateController.close();

@@ -94,7 +94,13 @@ class ConnectCommand extends Command<int> {
 
     // Add dependencies to pubspec.yaml.
     stdout.writeln('\u{1f4e6} Adding dependencies...');
-    for (final dep in ['http', 'record', 'path_provider']) {
+    for (final dep in [
+      'http',
+      'sign_in_with_apple',
+      'google_sign_in',
+      'url_launcher',
+      'speech_to_text',
+    ]) {
       _addPubDependency(cwd, dep);
     }
 
@@ -113,32 +119,75 @@ class ConnectCommand extends Command<int> {
       "  import 'package:your_app/$outputDir/providers/cmmd_providers.dart';",
     );
     stdout.writeln('');
-    stdout.writeln("  final config = CmmdConfig(organizationId: '42');");
-    stdout.writeln(
-      '  final authProvider = CmmdAuthProvider(config: config);',
-    );
+    stdout.writeln('  final config = CmmdConfig(');
+    stdout.writeln("    googleClientId: 'YOUR_GOOGLE_CLIENT_ID',");
+    stdout.writeln('  );');
+    stdout.writeln('  final authProvider = CmmdAuthProvider(config: config);');
     stdout.writeln(
       "  final tokenFn = () => authProvider.accessToken ?? '';",
+    );
+    stdout.writeln(
+      '  final orgFn = () => authProvider.organizationId;',
     );
     stdout.writeln('');
     stdout.writeln('  runApp(FlaiApp(');
     stdout.writeln('    config: AppScaffoldConfig(');
     stdout.writeln('      authProvider: authProvider,');
     stdout.writeln(
-      '      aiProvider: CmmdAiProvider(config: config, accessTokenProvider: tokenFn),',
+      '      aiProvider: CmmdAiProvider(',
     );
     stdout.writeln(
-      '      storageProvider: CmmdStorageProvider(config: config, accessTokenProvider: tokenFn),',
+      '        config: config,',
     );
     stdout.writeln(
-      '      voiceProvider: CmmdVoiceProvider(config: config, accessTokenProvider: tokenFn),',
+      '        accessTokenProvider: tokenFn,',
+    );
+    stdout.writeln(
+      '        organizationIdProvider: orgFn,',
+    );
+    stdout.writeln(
+      '      ),',
+    );
+    stdout.writeln(
+      '      storageProvider: CmmdStorageProvider(',
+    );
+    stdout.writeln(
+      '        config: config,',
+    );
+    stdout.writeln(
+      '        accessTokenProvider: tokenFn,',
+    );
+    stdout.writeln(
+      '        organizationIdProvider: orgFn,',
+    );
+    stdout.writeln(
+      '      ),',
+    );
+    stdout.writeln(
+      '      voiceProvider: CmmdVoiceProvider(',
+    );
+    stdout.writeln(
+      '        config: config,',
+    );
+    stdout.writeln(
+      '        accessTokenProvider: tokenFn,',
+    );
+    stdout.writeln(
+      '        organizationIdProvider: orgFn,',
+    );
+    stdout.writeln(
+      '      ),',
     );
     stdout.writeln('    ),');
     stdout.writeln('  ));');
     stdout.writeln('');
     stdout.writeln(
-      'Voice is auto-enabled when voiceProvider is configured.',
+      'Voice uses on-device speech recognition (no API key needed for STT).',
     );
+    stdout.writeln(
+      'TTS uses the CMMD backend. Voice is auto-enabled when configured.',
+    );
+    stdout.writeln('');
     stdout.writeln('Run \x1B[36mflutter pub get\x1B[0m to fetch dependencies.');
 
     return 0;
