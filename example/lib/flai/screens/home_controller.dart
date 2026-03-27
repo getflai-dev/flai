@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../core/models/chat_event.dart';
 import '../core/models/chat_request.dart';
@@ -161,6 +162,22 @@ class HomeController extends ChangeNotifier {
       onError?.call('Failed to delete conversation');
       debugPrint('Failed to delete conversation: $e');
       await loadConversations(); // reload to restore UI state
+    }
+  }
+
+  Future<void> shareConversation(ConversationItem item) async {
+    try {
+      final messages = await storage.loadMessages(item.id);
+      final buffer = StringBuffer()..writeln(item.title)..writeln();
+      for (final msg in messages) {
+        final role = msg.role == MessageRole.user ? 'You' : 'Assistant';
+        buffer.writeln('$role: ${msg.content}');
+        buffer.writeln();
+      }
+      await SharePlus.instance.share(ShareParams(text: buffer.toString()));
+    } catch (e) {
+      onError?.call('Failed to share conversation');
+      debugPrint('Failed to share conversation: $e');
     }
   }
 

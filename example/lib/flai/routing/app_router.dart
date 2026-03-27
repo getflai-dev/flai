@@ -446,7 +446,7 @@ class _WiredHomePageState extends State<_WiredHomePage> {
             await ctrl.renameConversation(item, newTitle);
           }
         },
-        onConversationShare: baseSidebar.onConversationShare,
+        onConversationShare: baseSidebar.onConversationShare ?? (item) => ctrl.shareConversation(item),
         onConversationDelete: baseSidebar.onConversationDelete ?? (item) => ctrl.deleteConversation(item),
       ),
       chatExperienceConfig: chatConfig,

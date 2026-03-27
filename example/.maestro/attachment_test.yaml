@@ -1,0 +1,57 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Attachment Menu E2E Test
+#
+# Verifies the attachment menu opens from the composer [+] button
+# and shows Camera, Photos, Files options.
+#
+# NOTE: Actually picking a photo requires simulator photos which may not
+# be available. This test verifies the menu UI flow only.
+#
+# Run:
+#   maestro test .maestro/attachment_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Launch ────────────────────────────────────────────────────────────
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+
+# ── Login if needed ───────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+
+# ── Wait for home screen ─────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 25000
+- takeScreenshot: attach_00_home
+
+# ── Tap the [+] button to open attachment menu ───────────────────────
+# The [+] button is the first icon in the composer action row
+- tapOn:
+    point: "8%,93%"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# ── Verify attachment menu is visible with all 3 options ──────────────
+- extendedWaitUntil:
+    visible: "Add to Chat"
+    timeout: 5000
+- assertVisible: "Camera"
+- assertVisible: "Photos"
+- assertVisible: "Files"
+- takeScreenshot: attach_01_menu_open
+
+# ── Dismiss the menu ─────────────────────────────────────────────────
+# Tap the close button (X) at top-left of the sheet
+- tapOn:
+    point: "10%,55%"
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: attach_02_dismissed

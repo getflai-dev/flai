@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/flai_theme.dart';
 import '../chat_experience_config.dart';
 import 'attachment_menu.dart';
+import 'attachment_picker.dart';
 import 'model_selector_sheet.dart';
 
 /// A composer widget with model selection, attachment menu, and voice input.
@@ -67,6 +69,7 @@ class FlaiComposerV2 extends StatefulWidget {
 
 class _FlaiComposerV2State extends State<FlaiComposerV2> {
   final TextEditingController _textController = TextEditingController();
+  final List<PickedAttachment> _pendingAttachments = [];
   bool _hasText = false;
 
   @override
@@ -100,15 +103,19 @@ class _FlaiComposerV2State extends State<FlaiComposerV2> {
 
   void _handleSend() {
     final text = _textController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty && _pendingAttachments.isEmpty) return;
     _textController.clear();
-    widget.onSend(text);
+    setState(() => _pendingAttachments.clear());
+    widget.onSend(text.isEmpty ? '[attachment]' : text);
   }
 
   Future<void> _openAttachmentMenu() async {
     await showAttachmentMenu(
       context: context,
       config: widget.config.composerConfig,
+      onAttachmentPicked: (picked) {
+        setState(() => _pendingAttachments.add(picked));
+      },
     );
   }
 
@@ -162,6 +169,14 @@ class _FlaiComposerV2State extends State<FlaiComposerV2> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Attachment previews
+          if (_pendingAttachments.isNotEmpty)
+            _AttachmentPreviewRow(
+              attachments: _pendingAttachments,
+              onRemove: (index) {
+                setState(() => _pendingAttachments.removeAt(index));
+              },
+            ),
           // Text field (always visible)
           TextField(
             controller: _textController,
@@ -217,18 +232,12 @@ class _FlaiComposerV2State extends State<FlaiComposerV2> {
           ),
         ],
         const Spacer(),
-        if (widget.config.enableVoice && !_hasText)
-          _ComposerIconButton(
-            icon: Icons.mic,
-            filled: false,
-            onTap: _handleMicTap,
-          )
-        else
-          _ComposerIconButton(
-            icon: Icons.arrow_upward,
-            filled: _hasText,
-            onTap: _hasText ? _handleSend : null,
-          ),
+        _AnimatedSendButton(
+          showMic: widget.config.enableVoice && !_hasText,
+          hasText: _hasText,
+          onMicTap: _handleMicTap,
+          onSendTap: _handleSend,
+        ),
       ],
     );
   }
@@ -515,6 +524,184 @@ class _StopButton extends StatelessWidget {
               Icons.stop_rounded,
               size: 18,
               color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Attachment Preview Row ──────────────────────────────────────────────────
+
+/// Horizontal row of attachment thumbnails shown above the text field.
+class _AttachmentPreviewRow extends StatelessWidget {
+  final List<PickedAttachment> attachments;
+  final void Function(int index) onRemove;
+
+  const _AttachmentPreviewRow({
+    required this.attachments,
+    required this.onRemove,
+  });
+
+  bool _isImage(PickedAttachment a) {
+    final mime = a.mimeType ?? '';
+    return mime.startsWith('image/') || a.name.endsWith('.jpg') ||
+        a.name.endsWith('.jpeg') || a.name.endsWith('.png') ||
+        a.name.endsWith('.heic');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = FlaiTheme.of(context);
+
+    return SizedBox(
+      height: 72,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(
+          horizontal: theme.spacing.xs,
+          vertical: theme.spacing.xs,
+        ),
+        itemCount: attachments.length,
+        itemBuilder: (_, index) {
+          final a = attachments[index];
+          return Padding(
+            padding: EdgeInsets.only(right: theme.spacing.xs),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: theme.colors.muted,
+                    borderRadius: BorderRadius.circular(theme.radius.md),
+                    border: Border.all(color: theme.colors.border),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: _isImage(a)
+                      ? Image.file(
+                          File(a.path),
+                          fit: BoxFit.cover,
+                          width: 60,
+                          height: 60,
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.insert_drive_file,
+                              size: 20,
+                              color: theme.colors.mutedForeground,
+                            ),
+                            const SizedBox(height: 2),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: Text(
+                                a.name,
+                                style: theme.typography.sm.copyWith(
+                                  color: theme.colors.mutedForeground,
+                                  fontSize: 9,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+                // Remove button
+                Positioned(
+                  top: -4,
+                  right: -4,
+                  child: GestureDetector(
+                    onTap: () => onRemove(index),
+                    child: Container(
+                      width: 18,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: theme.colors.foreground,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.close,
+                        size: 12,
+                        color: theme.colors.background,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ── Animated Send Button ────────────────────────────────────────────────────
+
+/// Smoothly morphs between mic and send-arrow icons.
+///
+/// Uses [AnimatedSwitcher] with a scale+fade transition for a polished
+/// mic → arrow morph as the user types. The filled background also
+/// animates via [AnimatedContainer].
+class _AnimatedSendButton extends StatelessWidget {
+  final bool showMic;
+  final bool hasText;
+  final VoidCallback onMicTap;
+  final VoidCallback onSendTap;
+
+  const _AnimatedSendButton({
+    required this.showMic,
+    required this.hasText,
+    required this.onMicTap,
+    required this.onSendTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = FlaiTheme.of(context);
+    final filled = hasText;
+    final bgColor = filled ? theme.colors.primary : theme.colors.background;
+    final fgColor =
+        filled ? theme.colors.primaryForeground : theme.colors.foreground;
+
+    return GestureDetector(
+      onTap: showMic ? onMicTap : (hasText ? onSendTap : null),
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 44,
+        height: 44,
+        child: Center(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: bgColor,
+              shape: BoxShape.circle,
+              border: filled ? null : Border.all(color: theme.colors.border),
+            ),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              switchInCurve: Curves.easeInOut,
+              switchOutCurve: Curves.easeInOut,
+              transitionBuilder: (child, animation) {
+                return ScaleTransition(
+                  scale: animation,
+                  child: FadeTransition(opacity: animation, child: child),
+                );
+              },
+              child: Icon(
+                showMic ? Icons.mic : Icons.arrow_upward,
+                key: ValueKey(showMic ? 'mic' : 'arrow'),
+                size: 18,
+                color: fgColor,
+              ),
             ),
           ),
         ),

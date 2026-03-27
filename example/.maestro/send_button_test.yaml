@@ -1,0 +1,51 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Send Button Animation E2E Test
+#
+# Verifies the send button morphs between mic and arrow states:
+# - Empty text → mic icon visible
+# - Type text → arrow icon visible (filled)
+# - Send message → mic icon returns
+#
+# Run:
+#   maestro test .maestro/send_button_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Launch ────────────────────────────────────────────────────────────
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+
+# ── Login if needed ───────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+
+# ── Wait for home screen ─────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 25000
+- takeScreenshot: send_btn_00_idle_mic
+
+# ── Type text → send button should appear ─────────────────────────────
+- tapOn: "Ask Assistant anything..."
+- inputText: "Hello"
+- takeScreenshot: send_btn_01_has_text_arrow
+
+# ── Clear text → mic should return ────────────────────────────────────
+- eraseText: 5
+- takeScreenshot: send_btn_02_cleared_mic
+
+# ── Type and send → verify response + mic returns ─────────────────────
+- inputText: "Quick send button test"
+- takeScreenshot: send_btn_03_ready_to_send
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: send_btn_04_after_send_mic

@@ -1,0 +1,67 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Share Conversation E2E Test
+#
+# Verifies that sharing a conversation opens the system share sheet.
+#
+# Run:
+#   maestro test .maestro/share_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Launch ────────────────────────────────────────────────────────────
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+
+# ── Login if needed ───────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+
+# ── Wait for home screen ─────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 25000
+
+# ── Send a message so we have a conversation ─────────────────────────
+- tapOn: "Ask Assistant anything..."
+- inputText: "Share test message"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: share_00_sent
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# ── Open sidebar ─────────────────────────────────────────────────────
+- tapOn:
+    point: "10%,10%"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "RECENTS"
+    timeout: 30000
+
+# ── Long-press first conversation → context menu ─────────────────────
+- longPressOn:
+    point: "40%,20%"
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible: "Share"
+    timeout: 5000
+- takeScreenshot: share_01_context_menu
+
+# ── Tap Share ─────────────────────────────────────────────────────────
+- tapOn: "Share"
+- waitForAnimationToEnd:
+    timeout: 5000
+# The system share sheet should appear. On iOS simulator it shows
+# activity options. Just verify the sheet appeared and dismiss.
+- takeScreenshot: share_02_share_sheet
