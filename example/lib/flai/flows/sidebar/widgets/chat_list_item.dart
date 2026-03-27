@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/theme/flai_theme.dart';
 import '../sidebar_config.dart';
@@ -133,9 +134,11 @@ class ChatListItem extends StatelessWidget {
       ),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
+          HapticFeedback.mediumImpact();
           onStar?.call();
           return false; // keep in list
         } else {
+          HapticFeedback.mediumImpact();
           onDelete?.call();
           return true; // remove from list
         }

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'flai/app_scaffold.dart';
+import 'flai/flows/chat/chat_experience_config.dart';
 import 'flai/flows/sidebar/settings_config.dart';
 import 'flai/providers/cmmd_providers.dart';
 
@@ -53,6 +54,28 @@ void main() {
         accessTokenProvider: tokenFn,
         organizationIdProvider: orgFn,
         csrfHeadersProvider: csrfFn,
+      ),
+      chatExperienceConfig: ChatExperienceConfig(
+        availableModels: [
+          ModelOption(
+            id: 'claude-sonnet-4-20250514',
+            name: 'Claude Sonnet',
+            description: 'Fast and intelligent',
+            icon: Icons.bolt_rounded,
+          ),
+          ModelOption(
+            id: 'claude-opus-4-20250514',
+            name: 'Claude Opus',
+            description: 'Most capable',
+            icon: Icons.auto_awesome,
+          ),
+          ModelOption(
+            id: 'gpt-4o',
+            name: 'GPT-4o',
+            description: 'OpenAI multimodal',
+            icon: Icons.circle_outlined,
+          ),
+        ],
       ),
       settingsConfig: SettingsConfig(
         sections: [

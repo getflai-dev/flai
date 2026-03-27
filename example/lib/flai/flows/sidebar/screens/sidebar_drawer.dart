@@ -71,6 +71,70 @@ class _FlaiSidebarDrawerState extends State<FlaiSidebarDrawer> {
     );
   }
 
+  /// Groups conversations by time period: Today, Yesterday, Previous 7 Days,
+  /// Older. Only keys with at least one item are included.
+  Map<String, List<ConversationItem>> _groupByDate(
+    List<ConversationItem> items,
+  ) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final weekAgo = today.subtract(const Duration(days: 7));
+
+    final groups = <String, List<ConversationItem>>{};
+    for (final item in items) {
+      final date = DateTime(
+        item.timestamp.year,
+        item.timestamp.month,
+        item.timestamp.day,
+      );
+      String key;
+      if (date == today || date.isAfter(today)) {
+        key = 'Today';
+      } else if (date == yesterday ||
+          (date.isAfter(yesterday) && date.isBefore(today))) {
+        key = 'Yesterday';
+      } else if (date.isAfter(weekAgo)) {
+        key = 'Previous 7 Days';
+      } else {
+        key = 'Older';
+      }
+      (groups[key] ??= []).add(item);
+    }
+    return groups;
+  }
+
+  /// Builds grouped section headers and chat list items for recent
+  /// conversations, ordered: Today, Yesterday, Previous 7 Days, Older.
+  List<Widget> _buildGroupedRecents(
+    List<ConversationItem> items,
+    FlaiThemeData theme,
+  ) {
+    final groups = _groupByDate(items);
+    const order = ['Today', 'Yesterday', 'Previous 7 Days', 'Older'];
+    final widgets = <Widget>[];
+
+    for (final label in order) {
+      final group = groups[label];
+      if (group == null || group.isEmpty) continue;
+      widgets.add(_SectionHeader(label: label, theme: theme));
+      for (final item in group) {
+        widgets.add(
+          ChatListItem(
+            item: item,
+            isSelected: item.id == widget.selectedConversationId,
+            onTap: () => widget.config.onConversationTap?.call(item),
+            onStar: () => widget.config.onConversationStar?.call(item),
+            onRename: () => widget.config.onConversationRename?.call(item),
+            onShare: () => widget.config.onConversationShare?.call(item),
+            onDelete: () => widget.config.onConversationDelete?.call(item),
+          ),
+        );
+      }
+    }
+    return widgets;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = FlaiTheme.of(context);
@@ -234,28 +298,9 @@ class _FlaiSidebarDrawerState extends State<FlaiSidebarDrawer> {
                     ),
                   ],
 
-                  // Recents section
-                  if (filteredRecents.isNotEmpty) ...[
-                    _SectionHeader(
-                      label: 'Recents',
-                      theme: theme,
-                    ),
-                    ...filteredRecents.map(
-                      (item) => ChatListItem(
-                        item: item,
-                        isSelected: item.id == widget.selectedConversationId,
-                        onTap: () => widget.config.onConversationTap?.call(item),
-                        onStar: () =>
-                            widget.config.onConversationStar?.call(item),
-                        onRename: () =>
-                            widget.config.onConversationRename?.call(item),
-                        onShare: () =>
-                            widget.config.onConversationShare?.call(item),
-                        onDelete: () =>
-                            widget.config.onConversationDelete?.call(item),
-                      ),
-                    ),
-                  ],
+                  // Recents section — grouped by date
+                  if (filteredRecents.isNotEmpty)
+                    ..._buildGroupedRecents(filteredRecents, theme),
 
                   if (filteredStarred.isEmpty && filteredRecents.isEmpty)
                     Padding(

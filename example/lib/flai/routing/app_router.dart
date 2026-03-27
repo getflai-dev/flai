@@ -465,6 +465,7 @@ class _WiredHomePageState extends State<_WiredHomePage> {
               onSend: (text) => ctrl.sendMessage(text),
               isStreaming: ctrl.isStreaming,
               onRetry: (msg) => ctrl.sendMessage(msg.content),
+              onRegenerate: (msg) => ctrl.sendMessage(msg.content),
             )
           : null,
     );
