@@ -167,7 +167,7 @@ abstract final class BrickRegistry {
         'chat_experience',
         'sidebar_nav',
       ],
-      pubDependencies: ['go_router', 'flutter_secure_storage'],
+      pubDependencies: ['go_router', 'flutter_secure_storage', 'share_plus'],
     ),
   };
 

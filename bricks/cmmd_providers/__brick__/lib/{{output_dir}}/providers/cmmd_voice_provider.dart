@@ -38,6 +38,7 @@ class CmmdVoiceProvider implements VoiceProvider {
     required this.config,
     required this.accessTokenProvider,
     this.organizationIdProvider,
+    this.csrfHeadersProvider,
     this.localeId = 'en_US',
   });
 
@@ -49,6 +50,9 @@ class CmmdVoiceProvider implements VoiceProvider {
 
   /// Returns the current organization ID, if available.
   final String? Function()? organizationIdProvider;
+
+  /// Returns CSRF headers from the auth provider, if available.
+  final Map<String, String> Function()? csrfHeadersProvider;
 
   /// Locale for on-device speech recognition (e.g., 'en_US', 'es_ES').
   final String localeId;
@@ -250,9 +254,11 @@ class CmmdVoiceProvider implements VoiceProvider {
     return {
       'Content-Type': 'application/json',
       'Accept': 'application/octet-stream',
+      'User-Agent': 'FlAI/1.0 (cmmd_providers)',
       'Authorization': 'Bearer ${accessTokenProvider()}',
       'X-Auth-Type': 'jwt',
       if (orgId != null) 'X-Organization-ID': orgId,
+      ...?csrfHeadersProvider?.call(),
     };
   }
 }

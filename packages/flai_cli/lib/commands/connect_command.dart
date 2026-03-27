@@ -109,6 +109,7 @@ class ConnectCommand extends Command<int> {
     stdout.writeln('');
     stdout.writeln('Generated files:');
     stdout.writeln('  lib/$outputDir/providers/cmmd_config.dart');
+    stdout.writeln('  lib/$outputDir/providers/cmmd_client_base.dart');
     stdout.writeln('  lib/$outputDir/providers/cmmd_auth_provider.dart');
     stdout.writeln('  lib/$outputDir/providers/cmmd_ai_provider.dart');
     stdout.writeln('  lib/$outputDir/providers/cmmd_storage_provider.dart');

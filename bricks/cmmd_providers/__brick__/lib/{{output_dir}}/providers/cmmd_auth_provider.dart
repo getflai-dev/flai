@@ -67,6 +67,17 @@ class CmmdAuthProvider implements AuthProvider {
   /// The organization ID from the last successful login.
   String? get organizationId => _organizationId ?? config.organizationId;
 
+  /// CSRF headers to include in authenticated requests.
+  ///
+  /// Other CMMD providers (AI, Storage, Voice) should merge these into
+  /// their own request headers so that CSRF-protected endpoints work.
+  Map<String, String> get csrfHeaders => {
+        if (_csrfToken != null) ...{
+          'X-XSRF-TOKEN': _csrfToken!,
+          'Cookie': 'XSRF-TOKEN=$_csrfToken${_sessionCookie ?? ''}',
+        },
+      };
+
   // ---------------------------------------------------------------------------
   // Session
   // ---------------------------------------------------------------------------
@@ -526,10 +537,12 @@ class CmmdAuthProvider implements AuthProvider {
 
     try {
       await _ensureCsrfToken();
-      final response = await http.post(
-        Uri.parse('${config.baseUrl}/api/auth/validate'),
-        headers: _baseHeaders,
-      );
+      final response = await http
+          .post(
+            Uri.parse('${config.baseUrl}/api/auth/validate'),
+            headers: _baseHeaders,
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -541,7 +554,7 @@ class CmmdAuthProvider implements AuthProvider {
         }
       }
     } catch (_) {
-      // Token may be expired — clear and require re-auth.
+      // Token may be expired or network unavailable — clear and require re-auth.
     }
 
     _accessToken = null;
@@ -571,6 +584,7 @@ class CmmdAuthProvider implements AuthProvider {
   Map<String, String> get _baseHeaders => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'User-Agent': 'FlAI/1.0 (cmmd_providers)',
         'X-Auth-Type': 'jwt',
         if (_accessToken != null) 'Authorization': 'Bearer $_accessToken',
         if (_csrfToken != null) ...{
@@ -583,6 +597,7 @@ class CmmdAuthProvider implements AuthProvider {
   Map<String, String> _authHeaders(String token) => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'User-Agent': 'FlAI/1.0 (cmmd_providers)',
         'Authorization': 'Bearer $token',
         'X-Auth-Type': 'jwt',
         if (organizationId != null) 'X-Organization-ID': organizationId!,

@@ -1,9 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
-
 import '../core/models/conversation.dart';
 import '../core/models/message.dart';
+import 'cmmd_client_base.dart';
 import 'cmmd_config.dart';
 import 'storage_provider.dart';
 
@@ -23,41 +22,37 @@ import 'storage_provider.dart';
 ///   organizationIdProvider: () => authProvider.organizationId,
 /// );
 /// ```
-class CmmdStorageProvider implements StorageProvider {
-  /// Creates a [CmmdStorageProvider].
+class CmmdStorageProvider with CmmdClientBase implements StorageProvider {
   CmmdStorageProvider({
     required this.config,
     required this.accessTokenProvider,
     this.organizationIdProvider,
+    this.csrfHeadersProvider,
   });
 
-  /// The CMMD API configuration.
+  @override
   final CmmdConfig config;
 
-  /// Returns the current JWT access token for authenticated requests.
+  @override
   final String Function() accessTokenProvider;
 
-  /// Returns the current organization ID, if available.
+  @override
   final String? Function()? organizationIdProvider;
 
-  // Cache of conversations for client-side search.
+  @override
+  final Map<String, String> Function()? csrfHeadersProvider;
+
   List<Conversation>? _cachedConversations;
 
-  // ---------------------------------------------------------------------------
-  // Conversations
-  // ---------------------------------------------------------------------------
+  // ── Conversations ──────────────────────────────────────────────────
 
   @override
   Future<List<Conversation>> loadConversations() async {
-    final response = await _get('/api/ai/conversations');
-    final json = jsonDecode(response.body);
-
-    // API returns a plain array.
-    final list = json is List
-        ? json
-        : (json as Map<String, dynamic>)['data'] as List? ??
-            (json)['conversations'] as List? ??
-            [];
+    // Use /conversations/list — the paginated org-scoped endpoint.
+    // Returns { data: [...], total, limit, offset }.
+    final response = await cmmdGet('/api/ai/conversations/list');
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    final list = json['data'] as List? ?? [];
 
     final conversations = list
         .map((e) => _parseConversation(e as Map<String, dynamic>))
@@ -69,20 +64,16 @@ class CmmdStorageProvider implements StorageProvider {
 
   @override
   Future<Conversation> saveConversation(Conversation conversation) async {
-    // Conversations are created server-side when the first message is sent
-    // via the chat endpoint. This is a no-op.
     return conversation;
   }
 
   @override
   Future<void> deleteConversation(String id) async {
-    await _delete('/api/ai/conversations/$id');
+    await cmmdDelete('/api/ai/conversations/$id');
     _cachedConversations?.removeWhere((c) => c.id == id);
   }
 
-  // ---------------------------------------------------------------------------
-  // Starring (pinning) — not exposed in API contract; local-only stubs
-  // ---------------------------------------------------------------------------
+  // ── Starring ───────────────────────────────────────────────────────
 
   final Set<String> _localStarred = {};
 
@@ -103,13 +94,11 @@ class CmmdStorageProvider implements StorageProvider {
     return all.where((c) => _localStarred.contains(c.id)).toList();
   }
 
-  // ---------------------------------------------------------------------------
-  // Messages
-  // ---------------------------------------------------------------------------
+  // ── Messages ───────────────────────────────────────────────────────
 
   @override
   Future<List<Message>> loadMessages(String conversationId) async {
-    final response = await _get('/api/ai/conversations/$conversationId');
+    final response = await cmmdGet('/api/ai/conversations/$conversationId');
     final json = jsonDecode(response.body) as Map<String, dynamic>;
     final messages = json['messages'] as List<dynamic>? ?? [];
     return messages
@@ -118,13 +107,9 @@ class CmmdStorageProvider implements StorageProvider {
   }
 
   @override
-  Future<void> saveMessage(String conversationId, Message message) async {
-    // Messages are persisted server-side during the chat streaming flow.
-  }
+  Future<void> saveMessage(String conversationId, Message message) async {}
 
-  // ---------------------------------------------------------------------------
-  // Search (client-side)
-  // ---------------------------------------------------------------------------
+  // ── Search (client-side) ───────────────────────────────────────────
 
   @override
   Future<List<Conversation>> searchConversations(String query) async {
@@ -135,94 +120,34 @@ class CmmdStorageProvider implements StorageProvider {
         .toList();
   }
 
-  // ---------------------------------------------------------------------------
-  // Metadata
-  // ---------------------------------------------------------------------------
+  // ── Metadata ───────────────────────────────────────────────────────
 
   @override
   Future<void> renameConversation(String id, String newTitle) async {
-    await _patch(
+    await cmmdPatch(
       '/api/ai/conversations/$id',
       body: {'title': newTitle},
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // HTTP helpers
-  // ---------------------------------------------------------------------------
-
-  Map<String, String> get _headers {
-    final orgId = organizationIdProvider?.call() ?? config.organizationId;
-    return {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer ${accessTokenProvider()}',
-      'X-Auth-Type': 'jwt',
-      if (orgId != null) 'X-Organization-ID': orgId,
-    };
-  }
-
-  Future<http.Response> _get(String path) async {
-    final response = await http.get(
-      Uri.parse('${config.baseUrl}$path'),
-      headers: _headers,
-    );
-    _checkResponse(response);
-    return response;
-  }
-
-  Future<http.Response> _patch(
-    String path, {
-    required Map<String, dynamic> body,
-  }) async {
-    final response = await http.patch(
-      Uri.parse('${config.baseUrl}$path'),
-      headers: _headers,
-      body: jsonEncode(body),
-    );
-    _checkResponse(response);
-    return response;
-  }
-
-  Future<http.Response> _delete(String path) async {
-    final response = await http.delete(
-      Uri.parse('${config.baseUrl}$path'),
-      headers: _headers,
-    );
-    _checkResponse(response);
-    return response;
-  }
-
-  void _checkResponse(http.Response response) {
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception(
-        'CMMD API error ${response.statusCode}: ${response.body}',
-      );
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Parsing
-  // ---------------------------------------------------------------------------
+  // ── Parsing ────────────────────────────────────────────────────────
 
   Conversation _parseConversation(Map<String, dynamic> json) {
     return Conversation(
       id: (json['id'] ?? json['_id'] ?? '').toString(),
       title: json['title'] as String?,
-      createdAt: _parseDateTime(json['createdAt'] ?? json['updatedAt']),
-      updatedAt: _parseDateTime(json['updatedAt'] ?? json['createdAt']),
+      createdAt: CmmdClientBase.parseDateTime(json['createdAt'] ?? json['updatedAt']),
+      updatedAt: CmmdClientBase.parseDateTime(json['updatedAt'] ?? json['createdAt']),
       model: json['model'] as String?,
       metadata: {
         if (json['lastMessage'] != null) 'lastMessage': json['lastMessage'],
-        if (json['messageCount'] != null)
-          'messageCount': json['messageCount'],
+        if (json['messageCount'] != null) 'messageCount': json['messageCount'],
       },
     );
   }
 
   Message _parseMessage(Map<String, dynamic> json) {
-    final roleStr =
-        (json['role'] as String? ?? 'assistant').toLowerCase();
+    final roleStr = (json['role'] as String? ?? 'assistant').toLowerCase();
     final role = switch (roleStr) {
       'user' || 'human' => MessageRole.user,
       'system' => MessageRole.system,
@@ -234,19 +159,9 @@ class CmmdStorageProvider implements StorageProvider {
       id: (json['id'] ?? json['_id'] ?? '').toString(),
       role: role,
       content: json['content'] as String? ?? '',
-      timestamp: _parseDateTime(json['createdAt'] ?? json['timestamp']),
+      timestamp: CmmdClientBase.parseDateTime(json['createdAt'] ?? json['timestamp']),
       thinkingContent: json['thinking'] as String?,
       status: MessageStatus.complete,
     );
-  }
-
-  DateTime _parseDateTime(dynamic value) {
-    if (value is String) {
-      return DateTime.tryParse(value) ?? DateTime.now();
-    }
-    if (value is int) {
-      return DateTime.fromMillisecondsSinceEpoch(value);
-    }
-    return DateTime.now();
   }
 }

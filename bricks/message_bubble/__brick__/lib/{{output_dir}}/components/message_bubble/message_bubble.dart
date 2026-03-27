@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 
 import '../../core/models/message.dart';
 import '../../core/theme/flai_theme.dart';
@@ -76,9 +79,13 @@ class _ChatLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUser = message.isUser;
 
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: ConstrainedBox(
+    final isError = message.status == MessageStatus.error;
+
+    return Semantics(
+      label: isError ? 'error_message_bubble' : null,
+      child: Align(
+        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+        child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.78,
         ),
@@ -112,8 +119,20 @@ class _ChatLayout extends StatelessWidget {
 
               // Main bubble
               GestureDetector(
-                onLongPress:
-                    onLongPress != null ? () => onLongPress!(message) : null,
+                onLongPress: onLongPress != null
+                    ? () => onLongPress!(message)
+                    : () {
+                        Clipboard.setData(
+                          ClipboardData(text: message.content),
+                        );
+                        HapticFeedback.lightImpact();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Copied to clipboard'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
                 child: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: theme.spacing.md,
@@ -178,21 +197,11 @@ class _ChatLayout extends StatelessWidget {
                   onTap: () => onRetry!(message),
                 ),
               ],
-
-              // Timestamp
-              Padding(
-                padding: EdgeInsets.only(top: theme.spacing.xs / 2),
-                child: Text(
-                  _formatTime(message.timestamp),
-                  style: theme.typography.bodySmall(
-                    color: theme.colors.mutedForeground,
-                  ),
-                ),
-              ),
             ],
           ),
         ),
       ),
+    ),
     );
   }
 }
@@ -393,14 +402,14 @@ class _ThinkingBlockState extends State<_ThinkingBlock>
             Row(
               children: [
                 Icon(
-                  Icons.psychology,
+                  Icons.psychology_rounded,
                   size: 14,
                   color: theme.colors.mutedForeground,
                 ),
                 SizedBox(width: theme.spacing.xs),
                 Text(
-                  'Thinking...',
-                  style: theme.typography.bodySmall(
+                  'Thinking',
+                  style: theme.typography.sm.copyWith(
                     color: theme.colors.mutedForeground,
                   ),
                 ),
@@ -422,8 +431,9 @@ class _ThinkingBlockState extends State<_ThinkingBlock>
                 padding: EdgeInsets.only(top: theme.spacing.xs),
                 child: Text(
                   widget.content,
-                  style: theme.typography.bodySmall(
+                  style: theme.typography.sm.copyWith(
                     color: theme.colors.mutedForeground,
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
               ),
@@ -597,7 +607,27 @@ class _MessageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!isStreaming) {
-      return Text(content, style: style);
+      return MarkdownBody(
+        data: content,
+        styleSheet: MarkdownStyleSheet(
+          p: style,
+          listBullet: style,
+          code: style.copyWith(
+            fontFamily: 'monospace',
+            backgroundColor: Colors.transparent,
+          ),
+          codeblockDecoration: BoxDecoration(
+            color: style.color?.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          codeblockPadding: const EdgeInsets.fromLTRB(12, 32, 12, 12),
+        ),
+        builders: {
+          'code': _CodeBlockBuilder(codeColor: style.color),
+        },
+        selectable: true,
+        shrinkWrap: true,
+      );
     }
 
     return Row(
@@ -675,7 +705,10 @@ class _RetryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: theme.spacing.sm,
@@ -710,12 +743,102 @@ class _RetryButton extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+// ── Code Block Builder ─────────────────────────────────────────────────
 
-String _formatTime(DateTime dt) {
-  final h = dt.hour.toString().padLeft(2, '0');
-  final m = dt.minute.toString().padLeft(2, '0');
-  return '$h:$m';
+class _CodeBlockBuilder extends MarkdownElementBuilder {
+  final Color? codeColor;
+
+  _CodeBlockBuilder({this.codeColor});
+
+  @override
+  Widget? visitElementAfterWithContext(
+    BuildContext context,
+    md.Element element,
+    TextStyle? preferredStyle,
+    TextStyle? parentStyle,
+  ) {
+    if (element.tag != 'code') return null;
+    final parent = element.attributes['class'];
+    final lang = parent != null && parent.startsWith('language-')
+        ? parent.substring(9)
+        : null;
+    final code = element.textContent.trimRight();
+    return _CodeBlockWidget(code: code, language: lang, codeColor: codeColor);
+  }
 }
+
+class _CodeBlockWidget extends StatelessWidget {
+  final String code;
+  final String? language;
+  final Color? codeColor;
+
+  const _CodeBlockWidget({
+    required this.code,
+    this.language,
+    this.codeColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: codeColor?.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: codeColor?.withValues(alpha: 0.05),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+            ),
+            child: Row(
+              children: [
+                if (language != null)
+                  Text(
+                    language!,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: codeColor?.withValues(alpha: 0.6),
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: code));
+                    HapticFeedback.lightImpact();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Code copied'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.copy_rounded, size: 13, color: codeColor?.withValues(alpha: 0.5)),
+                      const SizedBox(width: 4),
+                      Text('Copy', style: TextStyle(fontSize: 11, color: codeColor?.withValues(alpha: 0.5))),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: SelectableText(
+              code,
+              style: TextStyle(fontFamily: 'monospace', fontSize: 13, color: codeColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+

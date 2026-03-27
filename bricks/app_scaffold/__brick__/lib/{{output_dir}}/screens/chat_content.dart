@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../components/message_bubble/message_bubble.dart';
+import '../components/typing_indicator/typing_indicator.dart';
 import '../core/models/message.dart';
 import '../core/theme/flai_theme.dart';
 import '../flows/chat/chat_experience_config.dart';
@@ -9,12 +12,15 @@ import '../providers.dart';
 
 /// The active chat content area: message list + composer.
 ///
-/// Displayed as [FlaiHomeScreen.chatContent] when a conversation is active.
+/// Uses the real FlAI component bricks (MessageBubble, FlaiTypingIndicator)
+/// instead of hand-rolled widgets.
 class FlaiChatContent extends StatefulWidget {
   final List<Message> messages;
   final ChatExperienceConfig config;
   final ValueChanged<String> onSend;
   final bool isStreaming;
+  final void Function(Message)? onRetry;
+  final void Function(Message)? onRegenerate;
 
   const FlaiChatContent({
     super.key,
@@ -22,6 +28,8 @@ class FlaiChatContent extends StatefulWidget {
     required this.config,
     required this.onSend,
     this.isStreaming = false,
+    this.onRetry,
+    this.onRegenerate,
   });
 
   @override
@@ -31,6 +39,23 @@ class FlaiChatContent extends StatefulWidget {
 class _FlaiChatContentState extends State<FlaiChatContent> {
   final ScrollController _scrollController = ScrollController();
   FlaiVoiceController? _voiceController;
+  bool _showScrollToBottom = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    final distanceFromBottom = pos.maxScrollExtent - pos.pixels;
+    final shouldShow = distanceFromBottom > 200;
+    if (shouldShow != _showScrollToBottom) {
+      setState(() => _showScrollToBottom = shouldShow);
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -58,7 +83,11 @@ class _FlaiChatContentState extends State<FlaiChatContent> {
   @override
   void didUpdateWidget(FlaiChatContent old) {
     super.didUpdateWidget(old);
-    if (widget.messages.length > old.messages.length) {
+    // Scroll to bottom when new messages arrive or content changes.
+    if (widget.messages.length != old.messages.length ||
+        (widget.messages.isNotEmpty &&
+            old.messages.isNotEmpty &&
+            widget.messages.last.content != old.messages.last.content)) {
       _scrollToBottom();
     }
   }
@@ -68,7 +97,7 @@ class _FlaiChatContentState extends State<FlaiChatContent> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 150),
           curve: Curves.easeOut,
         );
       }
@@ -77,9 +106,20 @@ class _FlaiChatContentState extends State<FlaiChatContent> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _voiceController?.dispose();
     super.dispose();
+  }
+
+  /// Finds the previous user message before the given index.
+  Message? _findPreviousUserMessage(int assistantIndex) {
+    for (var i = assistantIndex - 1; i >= 0; i--) {
+      if (widget.messages[i].role == MessageRole.user) {
+        return widget.messages[i];
+      }
+    }
+    return null;
   }
 
   @override
@@ -90,17 +130,156 @@ class _FlaiChatContentState extends State<FlaiChatContent> {
     return Column(
       children: [
         Expanded(
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: EdgeInsets.symmetric(
-              horizontal: theme.spacing.md,
-              vertical: theme.spacing.sm,
-            ),
-            itemCount: widget.messages.length,
-            itemBuilder: (context, index) {
-              final msg = widget.messages[index];
-              return _MessageTile(message: msg);
-            },
+          child: Stack(
+            children: [
+              ListView.builder(
+                controller: _scrollController,
+                padding: EdgeInsets.symmetric(
+                  horizontal: theme.spacing.md,
+                  vertical: theme.spacing.sm,
+                ),
+                itemCount: widget.messages.length +
+                    (widget.isStreaming && _isWaitingForFirstToken ? 1 : 0),
+                itemBuilder: (context, index) {
+                  // Show typing indicator as the last item while waiting for first token.
+                  if (index == widget.messages.length) {
+                    return const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: FlaiTypingIndicator(),
+                      ),
+                    );
+                  }
+
+                  final msg = widget.messages[index];
+
+                  // Skip rendering the empty streaming placeholder — the typing
+                  // indicator above handles that state.
+                  if (msg.isStreaming && msg.content.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+
+                  // Assistant messages: avatar + bubble + optional regenerate button
+                  if (msg.role == MessageRole.assistant && !msg.isStreaming) {
+                    final previousUser = _findPreviousUserMessage(index);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 24,
+                                height: 24,
+                                margin: const EdgeInsets.only(top: 4, right: 8),
+                                decoration: BoxDecoration(
+                                  color: theme.colors.muted,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.auto_awesome,
+                                  size: 14,
+                                  color: theme.colors.mutedForeground,
+                                ),
+                              ),
+                              Expanded(
+                                child: MessageBubble(
+                                  message: msg,
+                                  onRetry: widget.onRetry,
+                                ),
+                              ),
+                            ],
+                          ),
+                          // Regenerate button for completed assistant messages
+                          if (msg.status == MessageStatus.complete &&
+                              previousUser != null &&
+                              widget.onRegenerate != null)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32, top: 2),
+                              child: GestureDetector(
+                                onTap: () =>
+                                    widget.onRegenerate!(previousUser),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.refresh_rounded,
+                                      size: 16,
+                                      color: theme.colors.mutedForeground,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Regenerate',
+                                      style: theme.typography.bodySmall(
+                                        color: theme.colors.mutedForeground,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: MessageBubble(
+                      message: msg,
+                      onRetry: widget.onRetry,
+                    ),
+                  );
+                },
+              ),
+              // Scroll-to-bottom FAB
+              Positioned(
+                bottom: 8,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: AnimatedOpacity(
+                    opacity: _showScrollToBottom ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: IgnorePointer(
+                      ignoring: !_showScrollToBottom,
+                      child: GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          _scrollToBottom();
+                        },
+                        child: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: theme.colors.card,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: theme.colors.border,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 20,
+                            color: theme.colors.foreground,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         SafeArea(
@@ -126,74 +305,12 @@ class _FlaiChatContentState extends State<FlaiChatContent> {
       ],
     );
   }
-}
 
-/// A single message row in the chat list.
-class _MessageTile extends StatelessWidget {
-  final Message message;
-  const _MessageTile({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = FlaiTheme.of(context);
-    final isUser = message.isUser;
-
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.78,
-        ),
-        margin: EdgeInsets.only(bottom: theme.spacing.sm),
-        padding: EdgeInsets.symmetric(
-          horizontal: theme.spacing.md,
-          vertical: theme.spacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: isUser
-              ? theme.colors.primary
-              : theme.colors.card,
-          borderRadius: BorderRadius.circular(theme.radius.lg),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (message.hasThinking)
-              Padding(
-                padding: EdgeInsets.only(bottom: theme.spacing.xs),
-                child: Text(
-                  message.thinkingContent!,
-                  style: theme.typography.bodySmall(
-                    color: (isUser
-                            ? theme.colors.primaryForeground
-                            : theme.colors.mutedForeground)
-                        .withValues(alpha: 0.7),
-                  ).copyWith(fontStyle: FontStyle.italic),
-                ),
-              ),
-            Text(
-              message.content.isNotEmpty
-                  ? message.content
-                  : (message.isStreaming ? '...' : ''),
-              style: theme.typography.bodyBase(
-                color: isUser
-                    ? theme.colors.primaryForeground
-                    : theme.colors.foreground,
-              ),
-            ),
-            if (message.status == MessageStatus.error)
-              Padding(
-                padding: EdgeInsets.only(top: theme.spacing.xs),
-                child: Text(
-                  'Failed to send',
-                  style: theme.typography.bodySmall(
-                    color: theme.colors.destructive,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
+  /// True when streaming is active but no text has arrived yet.
+  bool get _isWaitingForFirstToken {
+    if (!widget.isStreaming) return false;
+    if (widget.messages.isEmpty) return true;
+    final last = widget.messages.last;
+    return last.isStreaming && last.content.isEmpty;
   }
 }

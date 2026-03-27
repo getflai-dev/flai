@@ -446,7 +446,7 @@ class _WiredHomePageState extends State<_WiredHomePage> {
             await ctrl.renameConversation(item, newTitle);
           }
         },
-        onConversationShare: baseSidebar.onConversationShare,
+        onConversationShare: baseSidebar.onConversationShare ?? (item) => ctrl.shareConversation(item),
         onConversationDelete: baseSidebar.onConversationDelete ?? (item) => ctrl.deleteConversation(item),
       ),
       chatExperienceConfig: chatConfig,
@@ -464,6 +464,8 @@ class _WiredHomePageState extends State<_WiredHomePage> {
               config: chatConfig,
               onSend: (text) => ctrl.sendMessage(text),
               isStreaming: ctrl.isStreaming,
+              onRetry: (msg) => ctrl.sendMessage(msg.content),
+              onRegenerate: (msg) => ctrl.sendMessage(msg.content),
             )
           : null,
     );
