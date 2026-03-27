@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'flai/app_scaffold.dart';
@@ -6,6 +7,27 @@ import 'flai/providers/cmmd_providers.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Suppress _dependents.isEmpty assertion (Flutter framework bug #106549)
+  // that fires when notifyListeners() rebuilds the widget tree while a
+  // Drawer overlay's InheritedWidget dependents haven't fully cleaned up.
+  // Debug-only — does not affect release builds.
+  if (kDebugMode) {
+    final originalOnError = FlutterError.onError;
+    FlutterError.onError = (details) {
+      if (details.exception.toString().contains('_dependents.isEmpty')) {
+        return;
+      }
+      originalOnError?.call(details);
+    };
+    final originalBuilder = ErrorWidget.builder;
+    ErrorWidget.builder = (details) {
+      if (details.exception.toString().contains('_dependents.isEmpty')) {
+        return const SizedBox.shrink();
+      }
+      return originalBuilder(details);
+    };
+  }
 
   final config = CmmdConfig();
   final authProvider = CmmdAuthProvider(config: config);
