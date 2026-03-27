@@ -33,7 +33,10 @@ void main() {
         final option = command.argParser.options['theme'];
         expect(option, isNotNull);
         expect(option!.abbr, equals('t'));
-        expect(option.allowed, containsAll(['dark', 'light', 'ios', 'premium']));
+        expect(
+          option.allowed,
+          containsAll(['dark', 'light', 'ios', 'premium']),
+        );
       });
     });
   });
