@@ -258,9 +258,7 @@ class _FlaiSidebarDrawerState extends State<FlaiSidebarDrawer> {
                   onTap: () {
                     if (item.page != null) {
                       Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => item.page!,
-                        ),
+                        MaterialPageRoute<void>(builder: (_) => item.page!),
                       );
                     }
                   },
@@ -277,15 +275,13 @@ class _FlaiSidebarDrawerState extends State<FlaiSidebarDrawer> {
                 children: [
                   // Starred section
                   if (filteredStarred.isNotEmpty) ...[
-                    _SectionHeader(
-                      label: 'Starred',
-                      theme: theme,
-                    ),
+                    _SectionHeader(label: 'Starred', theme: theme),
                     ...filteredStarred.map(
                       (item) => ChatListItem(
                         item: item,
                         isSelected: item.id == widget.selectedConversationId,
-                        onTap: () => widget.config.onConversationTap?.call(item),
+                        onTap: () =>
+                            widget.config.onConversationTap?.call(item),
                         onStar: () =>
                             widget.config.onConversationStar?.call(item),
                         onRename: () =>
@@ -322,53 +318,53 @@ class _FlaiSidebarDrawerState extends State<FlaiSidebarDrawer> {
             // ── Sticky user profile footer ───────────────────────────
             Divider(color: theme.colors.border, height: 1),
             GestureDetector(
-                onTap: () => _openSettings(context),
-                behavior: HitTestBehavior.opaque,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: theme.spacing.md,
-                    vertical: theme.spacing.md,
-                  ),
-                  child: Row(
-                    children: [
-                      // Avatar
-                      _buildAvatar(theme),
-                      SizedBox(width: theme.spacing.sm),
-                      // Name + workspace
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
+              onTap: () => _openSettings(context),
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: theme.spacing.md,
+                  vertical: theme.spacing.md,
+                ),
+                child: Row(
+                  children: [
+                    // Avatar
+                    _buildAvatar(theme),
+                    SizedBox(width: theme.spacing.sm),
+                    // Name + workspace
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            widget.userProfile?.name ?? 'User',
+                            style: theme.typography.base.copyWith(
+                              color: theme.colors.foreground,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (widget.userProfile?.workspaceLabel != null)
                             Text(
-                              widget.userProfile?.name ?? 'User',
-                              style: theme.typography.base.copyWith(
-                                color: theme.colors.foreground,
-                                fontWeight: FontWeight.w500,
+                              widget.userProfile!.workspaceLabel!,
+                              style: theme.typography.sm.copyWith(
+                                color: theme.colors.mutedForeground,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
-                            if (widget.userProfile?.workspaceLabel != null)
-                              Text(
-                                widget.userProfile!.workspaceLabel!,
-                                style: theme.typography.sm.copyWith(
-                                  color: theme.colors.mutedForeground,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                          ],
-                        ),
+                        ],
                       ),
-                      // Settings cog hint
-                      if (widget.config.settingsConfig != null)
-                        Icon(
-                          Icons.settings_rounded,
-                          size: 18,
-                          color: theme.colors.mutedForeground,
-                        ),
-                    ],
-                  ),
+                    ),
+                    // Settings cog hint
+                    if (widget.config.settingsConfig != null)
+                      Icon(
+                        Icons.settings_rounded,
+                        size: 18,
+                        color: theme.colors.mutedForeground,
+                      ),
+                  ],
                 ),
+              ),
             ),
           ],
         ),

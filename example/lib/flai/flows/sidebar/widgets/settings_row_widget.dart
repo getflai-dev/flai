@@ -15,37 +15,36 @@ class SettingsRowWidget extends StatelessWidget {
   final VoidCallback? onNavigate;
 
   /// Creates a [SettingsRowWidget].
-  const SettingsRowWidget({
-    super.key,
-    required this.row,
-    this.onNavigate,
-  });
+  const SettingsRowWidget({super.key, required this.row, this.onNavigate});
 
   @override
   Widget build(BuildContext context) {
     final theme = FlaiTheme.of(context);
 
     return switch (row) {
-      NavigationRow(:final icon, :final label, :final onTap) =>
-        ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: theme.spacing.md),
-          leading: icon != null
-              ? Icon(icon, color: theme.colors.foreground, size: 20)
-              : null,
-          title: Text(
-            label,
-            style: theme.typography.base.copyWith(
-              color: theme.colors.foreground,
-            ),
-          ),
-          trailing: Icon(
-            Icons.chevron_right_rounded,
-            color: theme.colors.mutedForeground,
-            size: 20,
-          ),
-          onTap: onTap ?? onNavigate,
+      NavigationRow(:final icon, :final label, :final onTap) => ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: theme.spacing.md),
+        leading: icon != null
+            ? Icon(icon, color: theme.colors.foreground, size: 20)
+            : null,
+        title: Text(
+          label,
+          style: theme.typography.base.copyWith(color: theme.colors.foreground),
         ),
-      DropdownRow(:final icon, :final label, :final value, :final options, :final onChanged) =>
+        trailing: Icon(
+          Icons.chevron_right_rounded,
+          color: theme.colors.mutedForeground,
+          size: 20,
+        ),
+        onTap: onTap ?? onNavigate,
+      ),
+      DropdownRow(
+        :final icon,
+        :final label,
+        :final value,
+        :final options,
+        :final onChanged,
+      ) =>
         Padding(
           padding: EdgeInsets.symmetric(
             horizontal: theme.spacing.md,
@@ -67,10 +66,9 @@ class SettingsRowWidget extends StatelessWidget {
               DropdownButton<String>(
                 value: value,
                 items: options
-                    .map((o) => DropdownMenuItem<String>(
-                          value: o,
-                          child: Text(o),
-                        ))
+                    .map(
+                      (o) => DropdownMenuItem<String>(value: o, child: Text(o)),
+                    )
                     .toList(),
                 onChanged: onChanged != null
                     ? (v) {
@@ -118,34 +116,33 @@ class SettingsRowWidget extends StatelessWidget {
             ],
           ),
         ),
-      InfoRow(:final icon, :final label, :final value) =>
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: theme.spacing.md,
-            vertical: theme.spacing.sm,
-          ),
-          child: Row(
-            children: [
-              if (icon != null) ...[
-                Icon(icon, color: theme.colors.foreground, size: 20),
-                SizedBox(width: theme.spacing.sm),
-              ],
-              Text(
-                label,
-                style: theme.typography.base.copyWith(
-                  color: theme.colors.foreground,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                value,
-                style: theme.typography.base.copyWith(
-                  color: theme.colors.mutedForeground,
-                ),
-              ),
-            ],
-          ),
+      InfoRow(:final icon, :final label, :final value) => Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: theme.spacing.md,
+          vertical: theme.spacing.sm,
         ),
+        child: Row(
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: theme.colors.foreground, size: 20),
+              SizedBox(width: theme.spacing.sm),
+            ],
+            Text(
+              label,
+              style: theme.typography.base.copyWith(
+                color: theme.colors.foreground,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              value,
+              style: theme.typography.base.copyWith(
+                color: theme.colors.mutedForeground,
+              ),
+            ),
+          ],
+        ),
+      ),
       CustomRow(:final builder) => builder(context),
     };
   }

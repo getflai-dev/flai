@@ -51,11 +51,7 @@ class PillChip extends StatelessWidget {
               ),
               SizedBox(width: theme.spacing.xs),
             ] else if (icon != null) ...[
-              Icon(
-                icon,
-                size: 16,
-                color: theme.colors.mutedForeground,
-              ),
+              Icon(icon, size: 16, color: theme.colors.mutedForeground),
               SizedBox(width: theme.spacing.xs),
             ],
             Text(

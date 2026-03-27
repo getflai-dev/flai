@@ -124,10 +124,7 @@ class CmmdStorageProvider with CmmdClientBase implements StorageProvider {
 
   @override
   Future<void> renameConversation(String id, String newTitle) async {
-    await cmmdPatch(
-      '/api/ai/conversations/$id',
-      body: {'title': newTitle},
-    );
+    await cmmdPatch('/api/ai/conversations/$id', body: {'title': newTitle});
   }
 
   // ── Parsing ────────────────────────────────────────────────────────
@@ -136,8 +133,12 @@ class CmmdStorageProvider with CmmdClientBase implements StorageProvider {
     return Conversation(
       id: (json['id'] ?? json['_id'] ?? '').toString(),
       title: json['title'] as String?,
-      createdAt: CmmdClientBase.parseDateTime(json['createdAt'] ?? json['updatedAt']),
-      updatedAt: CmmdClientBase.parseDateTime(json['updatedAt'] ?? json['createdAt']),
+      createdAt: CmmdClientBase.parseDateTime(
+        json['createdAt'] ?? json['updatedAt'],
+      ),
+      updatedAt: CmmdClientBase.parseDateTime(
+        json['updatedAt'] ?? json['createdAt'],
+      ),
       model: json['model'] as String?,
       metadata: {
         if (json['lastMessage'] != null) 'lastMessage': json['lastMessage'],
@@ -159,7 +160,9 @@ class CmmdStorageProvider with CmmdClientBase implements StorageProvider {
       id: (json['id'] ?? json['_id'] ?? '').toString(),
       role: role,
       content: json['content'] as String? ?? '',
-      timestamp: CmmdClientBase.parseDateTime(json['createdAt'] ?? json['timestamp']),
+      timestamp: CmmdClientBase.parseDateTime(
+        json['createdAt'] ?? json['timestamp'],
+      ),
       thinkingContent: json['thinking'] as String?,
       status: MessageStatus.complete,
     );

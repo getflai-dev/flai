@@ -14,11 +14,7 @@ class WorkspaceSwitcher extends StatelessWidget {
   final VoidCallback? onTap;
 
   /// Creates a [WorkspaceSwitcher].
-  const WorkspaceSwitcher({
-    super.key,
-    this.workspaceLabel,
-    this.onTap,
-  });
+  const WorkspaceSwitcher({super.key, this.workspaceLabel, this.onTap});
 
   @override
   Widget build(BuildContext context) {

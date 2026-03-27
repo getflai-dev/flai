@@ -14,11 +14,7 @@ class NavItem {
   final Widget? page;
 
   /// Creates a [NavItem].
-  const NavItem({
-    required this.icon,
-    required this.label,
-    this.page,
-  });
+  const NavItem({required this.icon, required this.label, this.page});
 }
 
 /// Profile information for the signed-in user.

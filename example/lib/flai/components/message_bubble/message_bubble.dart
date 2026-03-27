@@ -36,22 +36,22 @@ class MessageBubble extends StatelessWidget {
 
     return switch (message.role) {
       MessageRole.system => _SystemLayout(
-          message: message,
-          theme: theme,
-          onLongPress: onLongPress,
-        ),
+        message: message,
+        theme: theme,
+        onLongPress: onLongPress,
+      ),
       MessageRole.tool => _ToolLayout(
-          message: message,
-          theme: theme,
-          onLongPress: onLongPress,
-        ),
+        message: message,
+        theme: theme,
+        onLongPress: onLongPress,
+      ),
       _ => _ChatLayout(
-          message: message,
-          theme: theme,
-          onTapCitation: onTapCitation,
-          onRetry: onRetry,
-          onLongPress: onLongPress,
-        ),
+        message: message,
+        theme: theme,
+        onTapCitation: onTapCitation,
+        onRetry: onRetry,
+        onLongPress: onLongPress,
+      ),
     };
   }
 }
@@ -86,122 +86,117 @@ class _ChatLayout extends StatelessWidget {
       child: Align(
         alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
         child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.78,
-        ),
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: isUser ? theme.spacing.xl : theme.spacing.md,
-            right: isUser ? theme.spacing.md : theme.spacing.xl,
-            bottom: theme.spacing.sm,
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.78,
           ),
-          child: Column(
-            crossAxisAlignment:
-                isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-            children: [
-              // Thinking block
-              if (message.hasThinking) ...[
-                _ThinkingBlock(
-                  content: message.thinkingContent!,
-                  theme: theme,
-                ),
-                SizedBox(height: theme.spacing.xs),
-              ],
-
-              // Tool call chips (shown above the bubble for assistant messages)
-              if (!isUser && message.hasToolCalls) ...[
-                _ToolCallChips(
-                  toolCalls: message.toolCalls!,
-                  theme: theme,
-                ),
-                SizedBox(height: theme.spacing.xs),
-              ],
-
-              // Main bubble
-              GestureDetector(
-                onLongPress: onLongPress != null
-                    ? () => onLongPress!(message)
-                    : () {
-                        Clipboard.setData(
-                          ClipboardData(text: message.content),
-                        );
-                        HapticFeedback.lightImpact();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Copied to clipboard'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: theme.spacing.md,
-                    vertical: theme.spacing.sm + 2,
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: isUser ? theme.spacing.xl : theme.spacing.md,
+              right: isUser ? theme.spacing.md : theme.spacing.xl,
+              bottom: theme.spacing.sm,
+            ),
+            child: Column(
+              crossAxisAlignment: isUser
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+              children: [
+                // Thinking block
+                if (message.hasThinking) ...[
+                  _ThinkingBlock(
+                    content: message.thinkingContent!,
+                    theme: theme,
                   ),
-                  decoration: BoxDecoration(
-                    color: isUser
-                        ? theme.colors.userBubble
-                        : theme.colors.assistantBubble,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(theme.radius.lg),
-                      topRight: Radius.circular(theme.radius.lg),
-                      bottomLeft: Radius.circular(
-                        isUser ? theme.radius.lg : theme.radius.sm,
-                      ),
-                      bottomRight: Radius.circular(
-                        isUser ? theme.radius.sm : theme.radius.lg,
+                  SizedBox(height: theme.spacing.xs),
+                ],
+
+                // Tool call chips (shown above the bubble for assistant messages)
+                if (!isUser && message.hasToolCalls) ...[
+                  _ToolCallChips(toolCalls: message.toolCalls!, theme: theme),
+                  SizedBox(height: theme.spacing.xs),
+                ],
+
+                // Main bubble
+                GestureDetector(
+                  onLongPress: onLongPress != null
+                      ? () => onLongPress!(message)
+                      : () {
+                          Clipboard.setData(
+                            ClipboardData(text: message.content),
+                          );
+                          HapticFeedback.lightImpact();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Copied to clipboard'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: theme.spacing.md,
+                      vertical: theme.spacing.sm + 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isUser
+                          ? theme.colors.userBubble
+                          : theme.colors.assistantBubble,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(theme.radius.lg),
+                        topRight: Radius.circular(theme.radius.lg),
+                        bottomLeft: Radius.circular(
+                          isUser ? theme.radius.lg : theme.radius.sm,
+                        ),
+                        bottomRight: Radius.circular(
+                          isUser ? theme.radius.sm : theme.radius.lg,
+                        ),
                       ),
                     ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Message content with optional streaming cursor
-                      _MessageContent(
-                        content: message.content,
-                        isStreaming: message.isStreaming,
-                        style: theme.typography.bodyBase(
-                          color: isUser
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Message content with optional streaming cursor
+                        _MessageContent(
+                          content: message.content,
+                          isStreaming: message.isStreaming,
+                          style: theme.typography.bodyBase(
+                            color: isUser
+                                ? theme.colors.userBubbleForeground
+                                : theme.colors.assistantBubbleForeground,
+                          ),
+                          cursorColor: isUser
                               ? theme.colors.userBubbleForeground
                               : theme.colors.assistantBubbleForeground,
                         ),
-                        cursorColor: isUser
-                            ? theme.colors.userBubbleForeground
-                            : theme.colors.assistantBubbleForeground,
-                      ),
 
-                      // Citations
-                      if (message.hasCitations) ...[
-                        SizedBox(height: theme.spacing.sm),
-                        ...message.citations!.map(
-                          (c) => _CitationCard(
-                            citation: c,
-                            theme: theme,
-                            onTap: onTapCitation != null
-                                ? () => onTapCitation!(c)
-                                : null,
+                        // Citations
+                        if (message.hasCitations) ...[
+                          SizedBox(height: theme.spacing.sm),
+                          ...message.citations!.map(
+                            (c) => _CitationCard(
+                              citation: c,
+                              theme: theme,
+                              onTap: onTapCitation != null
+                                  ? () => onTapCitation!(c)
+                                  : null,
+                            ),
                           ),
-                        ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
-              ),
 
-              // Error state with retry
-              if (message.status == MessageStatus.error &&
-                  onRetry != null) ...[
-                SizedBox(height: theme.spacing.xs),
-                _RetryButton(
-                  theme: theme,
-                  onTap: () => onRetry!(message),
-                ),
+                // Error state with retry
+                if (message.status == MessageStatus.error &&
+                    onRetry != null) ...[
+                  SizedBox(height: theme.spacing.xs),
+                  _RetryButton(theme: theme, onTap: () => onRetry!(message)),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 }
@@ -225,8 +220,7 @@ class _SystemLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: GestureDetector(
-        onLongPress:
-            onLongPress != null ? () => onLongPress!(message) : null,
+        onLongPress: onLongPress != null ? () => onLongPress!(message) : null,
         child: Container(
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.65,
@@ -279,8 +273,7 @@ class _ToolLayout extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: GestureDetector(
-        onLongPress:
-            onLongPress != null ? () => onLongPress!(message) : null,
+        onLongPress: onLongPress != null ? () => onLongPress!(message) : null,
         child: Container(
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.78,
@@ -359,9 +352,10 @@ class _ThinkingBlockState extends State<_ThinkingBlock>
       parent: _controller,
       curve: Curves.easeOutCubic,
     );
-    _rotationAnimation = Tween<double>(begin: 0.0, end: 0.5).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    _rotationAnimation = Tween<double>(
+      begin: 0.0,
+      end: 0.5,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
   @override
@@ -392,9 +386,7 @@ class _ThinkingBlockState extends State<_ThinkingBlock>
         decoration: BoxDecoration(
           color: theme.colors.muted.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(theme.radius.md),
-          border: Border.all(
-            color: theme.colors.border.withValues(alpha: 0.5),
-          ),
+          border: Border.all(color: theme.colors.border.withValues(alpha: 0.5)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -460,7 +452,9 @@ class _ToolCallChips extends StatelessWidget {
     return Wrap(
       spacing: theme.spacing.xs,
       runSpacing: theme.spacing.xs,
-      children: toolCalls.map((tc) => _ToolCallChip(toolCall: tc, theme: theme)).toList(),
+      children: toolCalls
+          .map((tc) => _ToolCallChip(toolCall: tc, theme: theme))
+          .toList(),
     );
   }
 }
@@ -483,9 +477,7 @@ class _ToolCallChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colors.muted.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(theme.radius.sm),
-        border: Border.all(
-          color: theme.colors.border.withValues(alpha: 0.5),
-        ),
+        border: Border.all(color: theme.colors.border.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -547,11 +539,7 @@ class _CitationCard extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.link_rounded,
-                size: 13,
-                color: theme.colors.accent,
-              ),
+              Icon(Icons.link_rounded, size: 13, color: theme.colors.accent),
               SizedBox(width: theme.spacing.xs),
               Flexible(
                 child: Column(
@@ -622,9 +610,7 @@ class _MessageContent extends StatelessWidget {
           ),
           codeblockPadding: const EdgeInsets.fromLTRB(12, 32, 12, 12),
         ),
-        builders: {
-          'code': _CodeBlockBuilder(codeColor: style.color),
-        },
+        builders: {'code': _CodeBlockBuilder(codeColor: style.color)},
         selectable: true,
         shrinkWrap: true,
       );
@@ -663,10 +649,7 @@ class _BlinkingCursorState extends State<_BlinkingCursor>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     )..repeat(reverse: true);
-    _opacity = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
   }
 
   @override
@@ -772,11 +755,7 @@ class _CodeBlockWidget extends StatelessWidget {
   final String? language;
   final Color? codeColor;
 
-  const _CodeBlockWidget({
-    required this.code,
-    this.language,
-    this.codeColor,
-  });
+  const _CodeBlockWidget({required this.code, this.language, this.codeColor});
 
   @override
   Widget build(BuildContext context) {
@@ -792,7 +771,9 @@ class _CodeBlockWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: codeColor?.withValues(alpha: 0.05),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(8),
+              ),
             ),
             child: Row(
               children: [
@@ -820,9 +801,19 @@ class _CodeBlockWidget extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.copy_rounded, size: 13, color: codeColor?.withValues(alpha: 0.5)),
+                      Icon(
+                        Icons.copy_rounded,
+                        size: 13,
+                        color: codeColor?.withValues(alpha: 0.5),
+                      ),
                       const SizedBox(width: 4),
-                      Text('Copy', style: TextStyle(fontSize: 11, color: codeColor?.withValues(alpha: 0.5))),
+                      Text(
+                        'Copy',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: codeColor?.withValues(alpha: 0.5),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -833,7 +824,11 @@ class _CodeBlockWidget extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: SelectableText(
               code,
-              style: TextStyle(fontFamily: 'monospace', fontSize: 13, color: codeColor),
+              style: TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 13,
+                color: codeColor,
+              ),
             ),
           ),
         ],
@@ -841,4 +836,3 @@ class _CodeBlockWidget extends StatelessWidget {
     );
   }
 }
-

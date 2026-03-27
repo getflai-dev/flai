@@ -9,10 +9,7 @@ import '../widgets/auth_text_field.dart';
 /// In sign up mode, the heading reads "Create a password".
 /// In login mode, the heading reads "Enter your password".
 class FlaiPasswordEntry extends StatefulWidget {
-  const FlaiPasswordEntry({
-    super.key,
-    required this.controller,
-  });
+  const FlaiPasswordEntry({super.key, required this.controller});
 
   final AuthController controller;
 
@@ -74,9 +71,8 @@ class _FlaiPasswordEntryState extends State<FlaiPasswordEntry> {
                         else
                           const SizedBox(width: 24),
                         IconButton(
-                          onPressed: () => widget.controller.goTo(
-                            AuthScreen.loginLanding,
-                          ),
+                          onPressed: () =>
+                              widget.controller.goTo(AuthScreen.loginLanding),
                           icon: Icon(
                             Icons.close,
                             color: theme.colors.mutedForeground,
@@ -146,7 +142,9 @@ class _FlaiPasswordEntryState extends State<FlaiPasswordEntry> {
                         foregroundColor: theme.colors.background,
                         disabledBackgroundColor: theme.colors.muted,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(theme.radius.full),
+                          borderRadius: BorderRadius.circular(
+                            theme.radius.full,
+                          ),
                         ),
                       ),
                       child: widget.controller.isLoading
@@ -166,9 +164,8 @@ class _FlaiPasswordEntryState extends State<FlaiPasswordEntry> {
                   if (!isSignUp) ...[
                     SizedBox(height: theme.spacing.md),
                     TextButton(
-                      onPressed: () => widget.controller.goTo(
-                        AuthScreen.forgotPassword,
-                      ),
+                      onPressed: () =>
+                          widget.controller.goTo(AuthScreen.forgotPassword),
                       child: Text(
                         'Forgot password?',
                         style: theme.typography.base.copyWith(

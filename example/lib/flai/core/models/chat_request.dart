@@ -36,8 +36,5 @@ class ChatResponse {
   final Message message;
   final UsageInfo? usage;
 
-  const ChatResponse({
-    required this.message,
-    this.usage,
-  });
+  const ChatResponse({required this.message, this.usage});
 }

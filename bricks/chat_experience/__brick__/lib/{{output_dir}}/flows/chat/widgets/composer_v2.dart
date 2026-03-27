@@ -157,10 +157,7 @@ class _FlaiComposerV2State extends State<FlaiComposerV2> {
       decoration: BoxDecoration(
         color: theme.colors.muted,
         borderRadius: BorderRadius.circular(theme.radius.xl),
-        border: Border.all(
-          color: theme.colors.border,
-          width: 0.5,
-        ),
+        border: Border.all(color: theme.colors.border, width: 0.5),
       ),
       padding: EdgeInsets.symmetric(
         horizontal: theme.spacing.sm,
@@ -226,8 +223,7 @@ class _FlaiComposerV2State extends State<FlaiComposerV2> {
         if (widget.config.availableModels.isNotEmpty) ...[
           SizedBox(width: theme.spacing.xs),
           _ModelChip(
-            name: _currentModelName ??
-                widget.config.availableModels.first.name,
+            name: _currentModelName ?? widget.config.availableModels.first.name,
             onTap: _openModelSelector,
           ),
         ],
@@ -546,8 +542,10 @@ class _AttachmentPreviewRow extends StatelessWidget {
 
   bool _isImage(PickedAttachment a) {
     final mime = a.mimeType ?? '';
-    return mime.startsWith('image/') || a.name.endsWith('.jpg') ||
-        a.name.endsWith('.jpeg') || a.name.endsWith('.png') ||
+    return mime.startsWith('image/') ||
+        a.name.endsWith('.jpg') ||
+        a.name.endsWith('.jpeg') ||
+        a.name.endsWith('.png') ||
         a.name.endsWith('.heic');
   }
 
@@ -597,7 +595,9 @@ class _AttachmentPreviewRow extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
                               child: Text(
                                 a.name,
                                 style: theme.typography.sm.copyWith(
@@ -666,8 +666,9 @@ class _AnimatedSendButton extends StatelessWidget {
     final theme = FlaiTheme.of(context);
     final filled = hasText;
     final bgColor = filled ? theme.colors.primary : theme.colors.background;
-    final fgColor =
-        filled ? theme.colors.primaryForeground : theme.colors.foreground;
+    final fgColor = filled
+        ? theme.colors.primaryForeground
+        : theme.colors.foreground;
 
     return GestureDetector(
       onTap: showMic ? onMicTap : (hasText ? onSendTap : null),
@@ -730,10 +731,10 @@ class _ComposerIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = FlaiTheme.of(context);
 
-    final bgColor =
-        filled ? theme.colors.primary : theme.colors.background;
-    final fgColor =
-        filled ? theme.colors.primaryForeground : theme.colors.foreground;
+    final bgColor = filled ? theme.colors.primary : theme.colors.background;
+    final fgColor = filled
+        ? theme.colors.primaryForeground
+        : theme.colors.foreground;
 
     return GestureDetector(
       onTap: onTap,

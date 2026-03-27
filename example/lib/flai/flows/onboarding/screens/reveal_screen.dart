@@ -51,9 +51,10 @@ class _FlaiRevealScreenState extends State<FlaiRevealScreen>
       CurvedAnimation(parent: _animController, curve: Curves.easeOutBack),
     );
 
-    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
+    _glowAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
 
     _animController.forward().then((_) {
       if (mounted) setState(() => _showName = true);
@@ -75,12 +76,12 @@ class _FlaiRevealScreenState extends State<FlaiRevealScreen>
     });
   }
 
-  String get _title =>
-      (widget.step.title ?? 'Meet {name}')
-          .replaceAll('{name}', widget.controller.assistantName);
+  String get _title => (widget.step.title ?? 'Meet {name}').replaceAll(
+    '{name}',
+    widget.controller.assistantName,
+  );
 
-  String get _subtitle =>
-      widget.step.subtitle ?? 'Your AI assistant is ready';
+  String get _subtitle => widget.step.subtitle ?? 'Your AI assistant is ready';
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +94,8 @@ class _FlaiRevealScreenState extends State<FlaiRevealScreen>
         : theme.colors.primary;
 
     // The logo widget to display.
-    final logoWidget = config.revealLogo ??
+    final logoWidget =
+        config.revealLogo ??
         config.splashLogo ??
         _DefaultRevealLogo(gradient: config.revealGradient);
 

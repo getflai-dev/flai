@@ -89,7 +89,8 @@ mixin CmmdClientBase {
     if (response.statusCode >= 200 && response.statusCode < 300) return;
     throw CmmdApiException(
       statusCode: response.statusCode,
-      message: extractErrorMessage(response.body) ??
+      message:
+          extractErrorMessage(response.body) ??
           'Request failed (${response.statusCode})',
     );
   }
@@ -118,7 +119,8 @@ mixin CmmdClientBase {
       return 'Connection error. Please try again.';
     }
     final text = error.toString();
-    if (text.contains('SocketException') || text.contains('Connection refused')) {
+    if (text.contains('SocketException') ||
+        text.contains('Connection refused')) {
       return 'Could not connect to server. Check your internet connection.';
     }
     if (!text.contains('Exception') && text.length < 120) {

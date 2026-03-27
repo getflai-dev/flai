@@ -53,8 +53,7 @@ class FlaiProviders extends InheritedWidget {
   /// Throws an assertion error in debug mode if no [FlaiProviders] ancestor
   /// is found.
   static FlaiProviders of(BuildContext context) {
-    final result =
-        context.dependOnInheritedWidgetOfExactType<FlaiProviders>();
+    final result = context.dependOnInheritedWidgetOfExactType<FlaiProviders>();
     assert(result != null, 'No FlaiProviders found in widget tree');
     return result!;
   }

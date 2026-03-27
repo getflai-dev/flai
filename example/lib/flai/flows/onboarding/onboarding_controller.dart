@@ -5,9 +5,7 @@ import 'onboarding_config.dart';
 ///
 /// Uses [ChangeNotifier] so screens can rebuild via [ListenableBuilder].
 class OnboardingController extends ChangeNotifier {
-  OnboardingController({
-    required OnboardingConfig config,
-  }) : _config = config;
+  OnboardingController({required OnboardingConfig config}) : _config = config;
 
   final OnboardingConfig _config;
 
@@ -33,8 +31,9 @@ class OnboardingController extends ChangeNotifier {
       _assistantName.isEmpty ? _defaultName : _assistantName;
 
   /// The current step, or `null` if the flow is complete.
-  OnboardingStep? get currentStep =>
-      _currentIndex < _config.steps.length ? _config.steps[_currentIndex] : null;
+  OnboardingStep? get currentStep => _currentIndex < _config.steps.length
+      ? _config.steps[_currentIndex]
+      : null;
 
   /// Whether there is a previous step to go back to.
   bool get canGoBack => _currentIndex > 0;
@@ -91,9 +90,11 @@ class OnboardingController extends ChangeNotifier {
   void _complete() {
     _isComplete = true;
     notifyListeners();
-    _config.onComplete(OnboardingResult(
-      assistantName: assistantName,
-      selectedOptions: _selectedOptions,
-    ));
+    _config.onComplete(
+      OnboardingResult(
+        assistantName: assistantName,
+        selectedOptions: _selectedOptions,
+      ),
+    );
   }
 }

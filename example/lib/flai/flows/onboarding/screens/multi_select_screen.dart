@@ -129,15 +129,18 @@ class _FlaiMultiSelectScreenState extends State<FlaiMultiSelectScreen>
                             children: List.generate(options.length, (i) {
                               final option = options[i];
                               final staggerEnd = 1.0;
-                              final staggerStart =
-                                  (i / options.length).clamp(0.0, 0.85);
+                              final staggerStart = (i / options.length).clamp(
+                                0.0,
+                                0.85,
+                              );
                               final interval = Interval(
                                 staggerStart,
                                 staggerEnd,
                                 curve: Curves.easeOut,
                               );
-                              final progress = interval
-                                  .transform(_staggerController.value);
+                              final progress = interval.transform(
+                                _staggerController.value,
+                              );
 
                               return Opacity(
                                 opacity: progress,
@@ -146,8 +149,9 @@ class _FlaiMultiSelectScreenState extends State<FlaiMultiSelectScreen>
                                   child: PillChip(
                                     label: option.label,
                                     icon: option.icon,
-                                    isSelected:
-                                        _selected.contains(option.label),
+                                    isSelected: _selected.contains(
+                                      option.label,
+                                    ),
                                     onTap: () => _toggle(option.label),
                                   ),
                                 ),
@@ -171,10 +175,7 @@ class _FlaiMultiSelectScreenState extends State<FlaiMultiSelectScreen>
                             minimumSize: const Size(0, 48),
                             foregroundColor: theme.colors.mutedForeground,
                           ),
-                          child: Text(
-                            'Skip',
-                            style: theme.typography.sm,
-                          ),
+                          child: Text('Skip', style: theme.typography.sm),
                         ),
 
                         const Spacer(),

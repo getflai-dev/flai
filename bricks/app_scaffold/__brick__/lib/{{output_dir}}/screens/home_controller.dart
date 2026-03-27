@@ -72,7 +72,12 @@ class HomeController extends ChangeNotifier {
     _lastUser = user;
     final name = user.displayName ?? user.email;
     final initials = name.isNotEmpty
-        ? name.split(' ').map((w) => w.isNotEmpty ? w[0] : '').take(2).join().toUpperCase()
+        ? name
+              .split(' ')
+              .map((w) => w.isNotEmpty ? w[0] : '')
+              .take(2)
+              .join()
+              .toUpperCase()
         : '?';
     _cachedProfile = UserProfile(
       name: name,
@@ -141,7 +146,10 @@ class HomeController extends ChangeNotifier {
     }
   }
 
-  Future<void> renameConversation(ConversationItem item, String newTitle) async {
+  Future<void> renameConversation(
+    ConversationItem item,
+    String newTitle,
+  ) async {
     try {
       await storage.renameConversation(item.id, newTitle);
       await loadConversations();
@@ -168,7 +176,9 @@ class HomeController extends ChangeNotifier {
   Future<void> shareConversation(ConversationItem item) async {
     try {
       final messages = await storage.loadMessages(item.id);
-      final buffer = StringBuffer()..writeln(item.title)..writeln();
+      final buffer = StringBuffer()
+        ..writeln(item.title)
+        ..writeln();
       for (final msg in messages) {
         final role = msg.role == MessageRole.user ? 'You' : 'Assistant';
         buffer.writeln('$role: ${msg.content}');
@@ -193,12 +203,14 @@ class HomeController extends ChangeNotifier {
     // from the empty state to the chat content view.
     if (isNewConversation) {
       _activeConversationId = localConvId;
-      await storage.saveConversation(Conversation(
-        id: localConvId,
-        title: text.length > 40 ? '${text.substring(0, 40)}...' : text,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ));
+      await storage.saveConversation(
+        Conversation(
+          id: localConvId,
+          title: text.length > 40 ? '${text.substring(0, 40)}...' : text,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
     }
 
     // Add user message.
@@ -242,7 +254,9 @@ class HomeController extends ChangeNotifier {
       }
 
       final request = ChatRequest(
-        messages: _messages.where((m) => m.status != MessageStatus.streaming).toList(),
+        messages: _messages
+            .where((m) => m.status != MessageStatus.streaming)
+            .toList(),
         metadata: metadata,
       );
 
@@ -273,11 +287,7 @@ class HomeController extends ChangeNotifier {
           case ChatError(:final error):
             _finalizeWithError(assistantId, error.toString());
           case ToolCallStart(:final id, :final name):
-            _pendingToolCalls[id] = ToolCall(
-              id: id,
-              name: name,
-              arguments: '',
-            );
+            _pendingToolCalls[id] = ToolCall(id: id, name: name, arguments: '');
             _updateStreamingMessage(assistantId);
           case ToolCallDelta(:final id, :final argumentsDelta):
             final existing = _pendingToolCalls[id];
@@ -349,7 +359,9 @@ class HomeController extends ChangeNotifier {
       ..._messages.sublist(0, _messages.length - 1),
       last.copyWith(
         content: _streamingText,
-        thinkingContent: _streamingThinking.isNotEmpty ? _streamingThinking : null,
+        thinkingContent: _streamingThinking.isNotEmpty
+            ? _streamingThinking
+            : null,
         toolCalls: _pendingToolCalls.isNotEmpty
             ? _pendingToolCalls.values.toList()
             : null,
@@ -368,7 +380,9 @@ class HomeController extends ChangeNotifier {
 
     final msg = last.copyWith(
       content: _streamingText,
-      thinkingContent: _streamingThinking.isNotEmpty ? _streamingThinking : null,
+      thinkingContent: _streamingThinking.isNotEmpty
+          ? _streamingThinking
+          : null,
       toolCalls: _pendingToolCalls.isNotEmpty
           ? _pendingToolCalls.values.toList()
           : null,
@@ -377,10 +391,7 @@ class HomeController extends ChangeNotifier {
           : null,
       status: MessageStatus.complete,
     );
-    _messages = [
-      ..._messages.sublist(0, _messages.length - 1),
-      msg,
-    ];
+    _messages = [..._messages.sublist(0, _messages.length - 1), msg];
 
     final convId = _activeConversationId;
     if (convId != null) {
@@ -394,16 +405,11 @@ class HomeController extends ChangeNotifier {
     final last = _messages.last;
     if (last.id != id) return;
 
-    final errorText = _streamingText.isNotEmpty
-        ? _streamingText
-        : error;
+    final errorText = _streamingText.isNotEmpty ? _streamingText : error;
 
     _messages = [
       ..._messages.sublist(0, _messages.length - 1),
-      last.copyWith(
-        content: errorText,
-        status: MessageStatus.error,
-      ),
+      last.copyWith(content: errorText, status: MessageStatus.error),
     ];
     onError?.call(error);
     notifyListeners();

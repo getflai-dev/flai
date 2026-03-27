@@ -68,9 +68,7 @@ class InMemoryStorageProvider implements StorageProvider {
 
   @override
   Future<List<Conversation>> loadStarredConversations() async {
-    return _conversations.values
-        .where((c) => _starred.contains(c.id))
-        .toList()
+    return _conversations.values.where((c) => _starred.contains(c.id)).toList()
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
   }
 

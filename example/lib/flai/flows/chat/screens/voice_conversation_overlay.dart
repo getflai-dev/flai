@@ -63,31 +63,19 @@ class _FlaiVoiceConversationOverlayState
   void _updateAnimation() {
     if (widget.isListening) {
       // Active pulse: scales between 0.85 and 1.15
-      _scaleAnimation = Tween<double>(
-        begin: 0.85,
-        end: 1.15,
-      ).animate(
-        CurvedAnimation(
-          parent: _animationController,
-          curve: Curves.easeInOut,
-        ),
+      _scaleAnimation = Tween<double>(begin: 0.85, end: 1.15).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
       );
     } else if (widget.isSpeaking) {
       // Subtle pulse: scales between 1.0 and 1.05
-      _scaleAnimation = Tween<double>(
-        begin: 1.0,
-        end: 1.05,
-      ).animate(
-        CurvedAnimation(
-          parent: _animationController,
-          curve: Curves.easeInOut,
-        ),
+      _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
       );
     } else {
       // Idle: static at 1.0
-      _scaleAnimation = ConstantTween<double>(1.0).animate(
-        _animationController,
-      );
+      _scaleAnimation = ConstantTween<double>(
+        1.0,
+      ).animate(_animationController);
     }
   }
 
@@ -113,11 +101,9 @@ class _FlaiVoiceConversationOverlayState
   Widget build(BuildContext context) {
     final theme = FlaiTheme.of(context);
 
-    final orbColors = widget.gradientColors ??
-        [
-          theme.colors.primary,
-          theme.colors.primary.withValues(alpha: 0.6),
-        ];
+    final orbColors =
+        widget.gradientColors ??
+        [theme.colors.primary, theme.colors.primary.withValues(alpha: 0.6)];
 
     return GestureDetector(
       onTap: widget.onEnd,

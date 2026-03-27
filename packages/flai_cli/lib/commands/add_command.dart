@@ -158,9 +158,7 @@ class AddCommand extends Command<int> {
     if (needsPermissions) {
       final platformActions = PlatformSetup(projectRoot: cwd).run();
       for (final action in platformActions) {
-        stdout.writeln(
-          '  \x1B[32m\u2713\x1B[0m $action',
-        );
+        stdout.writeln('  \x1B[32m\u2713\x1B[0m $action');
       }
     }
 
@@ -215,7 +213,11 @@ class AddCommand extends Command<int> {
   }
 
   /// Generates a ready-to-run `main.dart` using values from `flai.yaml`.
-  void _generateMainDart(String projectRoot, FlaiConfig config, String outputDir) {
+  void _generateMainDart(
+    String projectRoot,
+    FlaiConfig config,
+    String outputDir,
+  ) {
     final mainPath = p.join(projectRoot, 'lib', 'main.dart');
     final themeConstructor = switch (config.theme) {
       'light' => 'FlaiThemeData.light()',

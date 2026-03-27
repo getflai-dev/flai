@@ -87,8 +87,8 @@ class FlaiStreamingText extends StatefulWidget {
     this.animateText = false,
     this.onStreamDone,
     this.onTextChanged,
-  })  : text = null,
-        isStreaming = false;
+  }) : text = null,
+       isStreaming = false;
 
   @override
   State<FlaiStreamingText> createState() => _FlaiStreamingTextState();
@@ -192,7 +192,8 @@ class _FlaiStreamingTextState extends State<FlaiStreamingText> {
   @override
   Widget build(BuildContext context) {
     final theme = FlaiTheme.of(context);
-    final effectiveStyle = widget.style ??
+    final effectiveStyle =
+        widget.style ??
         theme.typography.bodyBase(color: theme.colors.foreground);
     final effectiveCursorColor = widget.cursorColor ?? theme.colors.primary;
     final shouldShowCursor = widget.showCursor && _isStreaming;
@@ -200,8 +201,9 @@ class _FlaiStreamingTextState extends State<FlaiStreamingText> {
     return RepaintBoundary(
       child: _StreamingTextContent(
         text: _displayText,
-        previousTextLength:
-            widget.animateText ? _previousTextLength : _displayText.length,
+        previousTextLength: widget.animateText
+            ? _previousTextLength
+            : _displayText.length,
         style: effectiveStyle,
         showCursor: shouldShowCursor,
         cursorColor: effectiveCursorColor,
@@ -339,10 +341,7 @@ class _AnimatedTextBlockState extends State<_AnimatedTextBlock>
       duration: const Duration(milliseconds: 100),
       vsync: this,
     );
-    _opacity = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     // Start fully visible if there's no new text to animate.
     if (widget.previousTextLength >= widget.text.length) {
       _controller.value = 1.0;
@@ -368,7 +367,10 @@ class _AnimatedTextBlockState extends State<_AnimatedTextBlock>
 
   @override
   Widget build(BuildContext context) {
-    final previousLength = widget.previousTextLength.clamp(0, widget.text.length);
+    final previousLength = widget.previousTextLength.clamp(
+      0,
+      widget.text.length,
+    );
     final stableText = widget.text.substring(0, previousLength);
     final newText = widget.text.substring(previousLength);
 
@@ -425,10 +427,7 @@ class _BlinkingCursorState extends State<_BlinkingCursor>
       duration: const Duration(milliseconds: 500),
       vsync: this,
     )..repeat(reverse: true);
-    _opacity = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
   }
 
   @override

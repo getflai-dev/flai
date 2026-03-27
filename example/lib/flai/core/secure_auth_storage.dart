@@ -13,7 +13,7 @@ class SecureAuthStorage {
   ///
   /// Accepts an optional [FlutterSecureStorage] instance for testing.
   SecureAuthStorage({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   final FlutterSecureStorage _storage;
 

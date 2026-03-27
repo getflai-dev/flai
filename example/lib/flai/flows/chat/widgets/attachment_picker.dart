@@ -55,9 +55,7 @@ class FlaiAttachmentPicker {
 
   /// Open the photo library and return the selected image.
   static Future<PickedAttachment?> openPhotos() async {
-    final image = await _imagePicker.pickImage(
-      source: ImageSource.gallery,
-    );
+    final image = await _imagePicker.pickImage(source: ImageSource.gallery);
     if (image == null) return null;
     return PickedAttachment(
       path: image.path,

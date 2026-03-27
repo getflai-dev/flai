@@ -9,10 +9,7 @@ import '../widgets/auth_text_field.dart';
 /// Shared for both sign-up verification and password reset flows.
 /// Shows email, code input, resend option, and password fallback.
 class FlaiVerificationCode extends StatefulWidget {
-  const FlaiVerificationCode({
-    super.key,
-    required this.controller,
-  });
+  const FlaiVerificationCode({super.key, required this.controller});
 
   final AuthController controller;
 
@@ -56,9 +53,8 @@ class _FlaiVerificationCodeState extends State<FlaiVerificationCode> {
                     child: Padding(
                       padding: EdgeInsets.only(top: theme.spacing.md),
                       child: IconButton(
-                        onPressed: () => widget.controller.goTo(
-                          AuthScreen.loginLanding,
-                        ),
+                        onPressed: () =>
+                            widget.controller.goTo(AuthScreen.loginLanding),
                         icon: Icon(
                           Icons.close,
                           color: theme.colors.mutedForeground,
@@ -120,7 +116,9 @@ class _FlaiVerificationCodeState extends State<FlaiVerificationCode> {
                         foregroundColor: theme.colors.background,
                         disabledBackgroundColor: theme.colors.muted,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(theme.radius.full),
+                          borderRadius: BorderRadius.circular(
+                            theme.radius.full,
+                          ),
                         ),
                       ),
                       child: widget.controller.isLoading
@@ -177,13 +175,14 @@ class _FlaiVerificationCodeState extends State<FlaiVerificationCode> {
                     width: double.infinity,
                     height: 48,
                     child: TextButton(
-                      onPressed: () => widget.controller.goTo(
-                        AuthScreen.passwordEntry,
-                      ),
+                      onPressed: () =>
+                          widget.controller.goTo(AuthScreen.passwordEntry),
                       style: TextButton.styleFrom(
                         foregroundColor: theme.colors.foreground,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(theme.radius.full),
+                          borderRadius: BorderRadius.circular(
+                            theme.radius.full,
+                          ),
                           side: BorderSide(color: theme.colors.border),
                         ),
                       ),

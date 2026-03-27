@@ -53,11 +53,7 @@ class FlaiAvatar extends StatelessWidget {
   final double? sizeOverride;
 
   /// Creates a [FlaiAvatar].
-  const FlaiAvatar({
-    super.key,
-    required this.config,
-    this.sizeOverride,
-  });
+  const FlaiAvatar({super.key, required this.config, this.sizeOverride});
 
   @override
   Widget build(BuildContext context) {
@@ -96,8 +92,8 @@ class FlaiAvatar extends StatelessWidget {
       color: config.gradient != null
           ? Colors.white
           : config.backgroundColor != null
-              ? Colors.white
-              : theme.colors.primaryForeground,
+          ? Colors.white
+          : theme.colors.primaryForeground,
     );
 
     Widget background;

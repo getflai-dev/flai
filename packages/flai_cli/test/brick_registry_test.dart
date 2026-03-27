@@ -143,21 +143,24 @@ void main() {
         expect(info!.category, equals(BrickCategory.flows));
       });
 
-      test('app_scaffold belongs to Flows category with dependencies and pub deps', () {
-        final info = BrickRegistry.lookup('app_scaffold');
-        expect(info, isNotNull);
-        expect(info!.category, equals(BrickCategory.flows));
-        expect(
-          info.dependencies,
-          unorderedEquals([
-            'auth_flow',
-            'onboarding_flow',
-            'chat_experience',
-            'sidebar_nav',
-          ]),
-        );
-        expect(info.pubDependencies, contains('go_router'));
-      });
+      test(
+        'app_scaffold belongs to Flows category with dependencies and pub deps',
+        () {
+          final info = BrickRegistry.lookup('app_scaffold');
+          expect(info, isNotNull);
+          expect(info!.category, equals(BrickCategory.flows));
+          expect(
+            info.dependencies,
+            unorderedEquals([
+              'auth_flow',
+              'onboarding_flow',
+              'chat_experience',
+              'sidebar_nav',
+            ]),
+          );
+          expect(info.pubDependencies, contains('go_router'));
+        },
+      );
 
       test('returns empty list for unknown category', () {
         expect(BrickRegistry.byCategory('Unknown'), isEmpty);

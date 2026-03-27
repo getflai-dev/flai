@@ -108,9 +108,7 @@ class _ToggleRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: theme.typography.base.copyWith(
-            color: theme.colors.foreground,
-          ),
+          style: theme.typography.base.copyWith(color: theme.colors.foreground),
         ),
         Switch.adaptive(
           value: value,

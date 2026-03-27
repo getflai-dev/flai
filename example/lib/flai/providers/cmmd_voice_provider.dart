@@ -178,10 +178,7 @@ class CmmdVoiceProvider implements VoiceProvider {
       final response = await http.post(
         Uri.parse('${config.baseUrl}/api/ai/tts'),
         headers: _headers,
-        body: jsonEncode({
-          'text': text,
-          'voice': ?voice,
-        }),
+        body: jsonEncode({'text': text, 'voice': ?voice}),
       );
 
       if (response.statusCode != 200) {
@@ -201,7 +198,7 @@ class CmmdVoiceProvider implements VoiceProvider {
 
   /// Fetch available TTS voices from the server.
   Future<List<({String id, String name, String? previewUrl})>>
-      getVoices() async {
+  getVoices() async {
     final response = await http.get(
       Uri.parse('${config.baseUrl}/api/ai/tts/voices'),
       headers: _headers,
