@@ -1,0 +1,79 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Rename Conversation E2E Test — Long-Press Context Menu
+#
+# Run:
+#   maestro test .maestro/rename_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Launch ────────────────────────────────────────────────────────────
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+
+# ── Login if needed ───────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+
+# ── Wait for home screen ─────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 25000
+
+# ── Send a message to create a conversation ──────────────────────────
+- tapOn: "Ask Assistant anything..."
+- inputText: "Rename test message"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# ── Open sidebar (10%,10% proven to work) ────────────────────────────
+- tapOn:
+    point: "10%,10%"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "RECENTS"
+    timeout: 30000
+- takeScreenshot: rename_00_sidebar
+
+# ── Long-press first conversation to open context menu ───────────────
+- longPressOn:
+    point: "40%,20%"
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible: "Rename"
+    timeout: 5000
+- takeScreenshot: rename_01_context_menu
+
+# ── Tap Rename in context menu ───────────────────────────────────────
+- tapOn: "Rename"
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible: "Rename conversation"
+    timeout: 5000
+- takeScreenshot: rename_02_dialog
+
+# ── Clear existing text, type new name, confirm ─────────────────────
+- eraseText: 50
+- inputText: "My Renamed Chat"
+- tapOn: "Rename"
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# ── Verify renamed title appears in sidebar ──────────────────────────
+- extendedWaitUntil:
+    visible: "My Renamed Chat"
+    timeout: 10000
+- takeScreenshot: rename_03_renamed

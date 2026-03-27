@@ -1,0 +1,48 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Markdown Rendering E2E Test
+#
+# Asks AI for a numbered list, verifies raw markdown syntax is NOT visible
+# (i.e., markdown is being rendered, not shown as plain text).
+#
+# Run:
+#   maestro test .maestro/markdown_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Launch ────────────────────────────────────────────────────────────
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+
+# ── Login if needed ───────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+
+# ── Wait for home screen ─────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 25000
+
+# ── Ask for markdown-formatted content ───────────────────────────────
+- tapOn: "Ask Assistant anything..."
+- inputText: "Give me a numbered list of 3 colors"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- waitForAnimationToEnd:
+    timeout: 10000
+- takeScreenshot: markdown_00_response
+
+# ── Verify markdown is rendered (raw syntax not visible) ─────────────
+# If markdown is working, we should NOT see raw "**" markers
+- assertNotVisible: "**1."
+- assertNotVisible: "**2."
+- assertNotVisible: "**3."
+- takeScreenshot: markdown_01_verified

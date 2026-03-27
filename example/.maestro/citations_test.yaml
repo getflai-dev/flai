@@ -1,0 +1,41 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Citations Rendering E2E Test
+#
+# Sends a web search query that should trigger citations/web_search_results
+# SSE events, verifies no errors and response renders.
+#
+# Run:
+#   maestro test .maestro/citations_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Launch ────────────────────────────────────────────────────────────
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+
+# ── Login if needed ───────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+
+# ── Wait for home screen ─────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 25000
+
+# ── Send query that triggers web search + citations ──────────────────
+- tapOn: "Ask Assistant anything..."
+- inputText: "Search the web for the latest Flutter release notes"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- waitForAnimationToEnd:
+    timeout: 10000
+- takeScreenshot: citations_00_response

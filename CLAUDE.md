@@ -23,6 +23,8 @@ bricks/                          Mason brick templates (one per component)
   code_block/                    Code display with copy
   citation_card/                 Source attribution
   image_preview/                 Image thumbnail with zoom
+  chat_screen/                   Full chat screen layout
+  input_bar/                     Text input bar component
   conversation_list/             Conversation history list
   model_selector/                AI model picker
   token_usage/                   Token count display
@@ -90,7 +92,7 @@ The `app_scaffold` brick ships fully wired. Developers only provide backend prov
 The scaffold transitions from empty state to active chat automatically when the user sends a message (sets a local conversation ID immediately, replaced by server ID after streaming completes).
 
 ### Streaming
-- `ChatEvent` is a sealed Dart class with subtypes: TextDelta, TextDone, ThinkingStart, ThinkingDelta, ThinkingEnd, ToolCallStart, ToolCallDelta, ToolCallEnd, UsageUpdate, ChatDone, ChatError
+- `ChatEvent` is a sealed Dart class with subtypes: TextDelta, TextDone, ThinkingStart, ThinkingDelta, ThinkingEnd, ToolCallStart, ToolCallDelta, ToolCallEnd, CitationsReceived, UsageUpdate, ChatDone, ChatError
 - Providers parse SSE byte streams from raw HTTP responses
 - HTTP send has 30s timeout; SSE stream has 60s per-event timeout (no infinite hangs)
 
@@ -140,6 +142,16 @@ flutter analyze                    # Analyze ONLY the example app (not brick tem
 flutter run
 ```
 
+### E2E Tests (Maestro)
+```bash
+cd example
+maestro test .maestro/chat_flow_test.yaml \
+  -e FLAI_TEST_EMAIL=<email> \
+  -e FLAI_TEST_PASSWORD=<password>
+maestro test .maestro/                    # Run ALL tests
+```
+Test files: `chat_flow_test`, `sidebar_test`, `logout_test`, `session_test`, `markdown_test`, `rename_test`, `voice_test`, `forgot_password_test`, `tool_calls_test`, `citations_test`. Shared helpers: `shared_login.yaml`, `assert_real_response.yaml`. Credentials in `.maestro/.env` (gitignored) but pass `-e` flags explicitly — auto-loading is unreliable.
+
 ### Brick Development
 - Bricks live in `bricks/<component_name>/`
 - Each has `brick.yaml` (metadata, vars) and `__brick__/` (template files)
@@ -160,7 +172,7 @@ flutter run
 
 ## Code Style
 
-- Dart 3.4+ features: sealed classes, pattern matching, records
+- Dart 3.11+ features: sealed classes, pattern matching, records
 - Follow `dart analyze --fatal-infos` with no warnings
 - `dart format` with default line length
 - Prefer `const` constructors where possible
@@ -187,3 +199,7 @@ When Claude runs via `@claude` mentions on issues/PRs:
 - **Example app base URL** — `main.dart` uses `CmmdConfig()` (production cmmd.ai). Change to `CmmdConfig.dev()` for localhost:3000 or `CmmdConfig.staging()` for staging.cmmd.ai.
 - **Simulator "Lost connection"** — Usually caused by a new `flutter run` killing the old process, not a crash. Boot simulator first: `xcrun simctl boot <UDID> && open -a Simulator`
 - **CMMD SSE format** — Uses standard SSE with `event:` field (NOT bare `data:` lines with a `type` field). Text arrives as `event: delta`, not `event: message`. See `.claude.local.md` for full protocol spec.
+- **Maestro hamburger tap** — Use `point: "10%,10%"` to open the sidebar drawer on iPhone 17 Pro. `12%,13%` misses the button and hits the title text. Confirm sidebar open with `extendedWaitUntil: visible: "RECENTS"` (not `"FlAI Chat"` which is also in the app bar). (2026-03-27)
+- **Maestro env vars** — Always pass `-e FLAI_TEST_EMAIL=... -e FLAI_TEST_PASSWORD=...` explicitly. The `.maestro/.env` auto-loading is unreliable. (2026-03-27)
+- **Bottom sheets from Drawer** — Any `showModalBottomSheet` called from within the Scaffold Drawer must use `useRootNavigator: true`, otherwise the sheet opens behind the drawer. `showDialog` already defaults to `useRootNavigator: true`. (2026-03-27)
+- **Drawer rebuild crash** — Calling `notifyListeners()` on `HomeController` while the Scaffold drawer is open can trigger `_dependents.isEmpty` assertion in debug mode. The rename flow hits this; delete does not. Root cause is InheritedElement lifecycle during drawer rebuild. (2026-03-27)

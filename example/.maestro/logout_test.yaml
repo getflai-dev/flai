@@ -1,0 +1,78 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Logout E2E Test — Sign Out via Settings Sheet
+#
+# Verifies that tapping "Sign Out" in the settings sheet logs the user
+# out and returns to the login screen.
+#
+# NOTE: iOS Keychain survives clearState, so the session may already be
+# restored. The test handles both "already logged in" and "need to log in"
+# paths by first checking for the home screen, then falling back to login.
+#
+# Run:
+#   maestro test .maestro/logout_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Launch app ────────────────────────────────────────────────────────
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 12000
+
+# ── Ensure we are logged in ──────────────────────────────────────────
+# If session was restored from Keychain, we land on home directly.
+# Otherwise, run the shared login sub-flow.
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+
+# ── Verify home screen ───────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 20000
+- takeScreenshot: logout_00_home
+
+# ══════════════════════════════════════════════════════════════════════
+# STEP 1: Open sidebar — tap hamburger menu (10%,10% proven to work)
+# ══════════════════════════════════════════════════════════════════════
+- tapOn:
+    point: "10%,10%"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "RECENTS"
+    timeout: 30000
+- takeScreenshot: logout_01_sidebar_open
+
+# ══════════════════════════════════════════════════════════════════════
+# STEP 2: Open settings — tap the user profile footer at bottom of drawer
+# ══════════════════════════════════════════════════════════════════════
+- tapOn:
+    point: "30%,93%"
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: logout_02_settings_sheet
+
+# ══════════════════════════════════════════════════════════════════════
+# STEP 3: Tap "Sign Out" in the settings sheet
+# ══════════════════════════════════════════════════════════════════════
+- extendedWaitUntil:
+    visible: "Sign Out"
+    timeout: 5000
+- tapOn: "Sign Out"
+- waitForAnimationToEnd:
+    timeout: 10000
+- takeScreenshot: logout_03_after_sign_out
+
+# ══════════════════════════════════════════════════════════════════════
+# STEP 4: Verify returned to login screen
+# ══════════════════════════════════════════════════════════════════════
+- extendedWaitUntil:
+    visible: "Log in"
+    timeout: 15000
+- assertVisible: "Log in"
+- assertNotVisible: "Ask Assistant anything..."
+- takeScreenshot: logout_04_login_screen

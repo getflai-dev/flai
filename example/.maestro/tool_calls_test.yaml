@@ -1,0 +1,41 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Tool Calls Rendering E2E Test
+#
+# Sends a query that triggers tool use (Brain search), verifies tool
+# call UI chips appear in the response.
+#
+# Run:
+#   maestro test .maestro/tool_calls_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Launch ────────────────────────────────────────────────────────────
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+
+# ── Login if needed ───────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+
+# ── Wait for home screen ─────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 25000
+
+# ── Send query that triggers tool use ────────────────────────────────
+- tapOn: "Ask Assistant anything..."
+- inputText: "Search my brain for any documents about meetings"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- waitForAnimationToEnd:
+    timeout: 10000
+- takeScreenshot: tool_calls_00_response
