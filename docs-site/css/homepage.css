@@ -83,6 +83,24 @@
   color: #d4d4d8;
 }
 
+.hero-term-output {
+  padding-left: 20px;
+  gap: 0;
+}
+
+.hero-term-dim {
+  color: #71717a;
+}
+
+.hero-term-val {
+  color: #a78bfa;
+}
+
+.hero-term-success {
+  color: #4ade80;
+  margin-right: 4px;
+}
+
 /* Hero actions */
 .hero-actions {
   display: flex;

@@ -23,13 +23,12 @@
       </div>
 
       <h1 class="page-title">Getting Started</h1>
-      <p class="page-desc">Get up and running with FlAI in under 2 minutes. Install the CLI, initialize your project, and add your first component.</p>
+      <p class="page-desc">From zero to a running AI chat app in 60 seconds. Three commands, zero boilerplate.</p>
 
       <h2 id="prerequisites">Prerequisites</h2>
       <ul>
-        <li><strong>Flutter</strong> 3.7 or later</li>
-        <li><strong>Dart</strong> 3.7 or later</li>
-        <li>An existing Flutter project (or create one with <code>flutter create my_app</code>)</li>
+        <li><strong>Flutter</strong> 3.7+ and <strong>Dart</strong> 3.7+</li>
+        <li>A Flutter project (<code>flutter create my_app</code>)</li>
       </ul>
 
       <h2 id="quick-start">Quick Start</h2>
@@ -37,8 +36,7 @@
       <div class="steps">
         <div class="step">
           <div class="step-content">
-            <h4>Install the FlAI CLI</h4>
-            <p>The CLI handles component installation, initialization, and updates.</p>
+            <h4>1. Install the CLI</h4>
             <div class="install-cmd">
               <span class="prompt">$</span>
               <span class="cmd-text">dart pub global activate flai_cli</span>
@@ -52,8 +50,8 @@
 
         <div class="step">
           <div class="step-content">
-            <h4>Initialize FlAI in your project</h4>
-            <p>This creates the core theme system, models, and provider interface in your project.</p>
+            <h4>2. Initialize and configure</h4>
+            <p>Interactive prompts set your app name, assistant name, and theme preset.</p>
             <div class="install-cmd">
               <span class="prompt">$</span>
               <span class="cmd-text">flai init</span>
@@ -62,94 +60,95 @@
                 Copy
               </button>
             </div>
-            <p>This generates:</p>
+            <p>You'll be asked:</p>
             <ul>
-              <li><code>lib/flai/core/theme/</code> — FlaiTheme, FlaiColors, FlaiTypography, FlaiSpacing, FlaiRadius</li>
-              <li><code>lib/flai/core/models/</code> — Message, Conversation, ChatEvent, ChatRequest</li>
-              <li><code>lib/flai/providers/</code> — Abstract AiProvider interface</li>
-              <li><code>lib/flai/flai.dart</code> — Barrel export file</li>
+              <li><strong>App name</strong> — Your app's display name (default: FlAI Chat)</li>
+              <li><strong>Assistant name</strong> — The AI assistant's name (default: Assistant)</li>
+              <li><strong>Theme</strong> — Choose from <code>dark</code>, <code>light</code>, <code>ios</code>, or <code>premium</code></li>
+            </ul>
+            <p>These values are stored in <code>flai.yaml</code> and automatically applied to all generated code.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-content">
+            <h4>3. Generate the complete app</h4>
+            <p>One command installs 7 bricks (83 source files) and generates a ready-to-run <code>main.dart</code>.</p>
+            <div class="install-cmd">
+              <span class="prompt">$</span>
+              <span class="cmd-text">flai add app_scaffold</span>
+              <button class="copy-btn">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <p>This installs:</p>
+            <ul>
+              <li><strong>auth_flow</strong> — Login, register, forgot password, verification, reset (6 screens)</li>
+              <li><strong>onboarding_flow</strong> — Splash, naming, multi-select pills, reveal animation</li>
+              <li><strong>chat_experience</strong> — Composer with voice, model selector, attachments</li>
+              <li><strong>sidebar_nav</strong> — Drawer, conversation list with grouping, settings</li>
+              <li><strong>message_bubble</strong> — Markdown rendering, code copy, thinking blocks</li>
+              <li><strong>typing_indicator</strong> — Animated loading dots</li>
+              <li><strong>app_scaffold</strong> — GoRouter wiring, session persistence, home controller</li>
             </ul>
           </div>
         </div>
 
         <div class="step">
           <div class="step-content">
-            <h4>Add your first component</h4>
-            <p>Install the full chat screen (includes message bubble, input bar, and typing indicator).</p>
+            <h4>4. Run</h4>
             <div class="install-cmd">
               <span class="prompt">$</span>
-              <span class="cmd-text">flai add chat_screen</span>
+              <span class="cmd-text">flutter pub get && flutter run</span>
               <button class="copy-btn">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
                 Copy
               </button>
             </div>
+            <p>Your app is running with mock auth. No <code>main.dart</code> to write — it was generated for you with your chosen theme and branding.</p>
           </div>
         </div>
       </div>
 
-      <h2 id="basic-usage">Basic Usage</h2>
-      <p>Wrap your app (or a subtree) with <code>FlaiTheme</code> and use the components:</p>
+      <h2 id="connect-backend">Connect a Backend</h2>
+      <p>When you're ready for production, connect to a real AI backend:</p>
+      <div class="install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd-text">flai connect cmmd</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <p>This automatically rewrites your <code>main.dart</code> to swap mock providers with real ones — authentication, AI streaming, conversation persistence, and voice. Zero manual wiring.</p>
 
-<pre><code class="language-dart">import 'package:flutter/material.dart';
-import 'package:my_app/flai/flai.dart';
+      <h2 id="cli-flags">Non-Interactive Mode</h2>
+      <p>For CI/CD or scripting, skip the prompts:</p>
+<pre><code class="language-bash">flai init --no-interactive --app-name "My App" --assistant-name "Nova" --theme ios
+flai add app_scaffold</code></pre>
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: FlaiTheme(
-        data: FlaiThemeData.dark(),
-        child: Scaffold(
-          body: FlaiChatScreen(
-            controller: ChatScreenController(
-              provider: myAiProvider,
-            ),
-            title: 'AI Assistant',
-            subtitle: 'Claude 3.5 Sonnet',
-          ),
-        ),
-      ),
-    );
-  }
-}</code></pre>
-
-      <h2 id="project-structure">Project Structure</h2>
-      <p>After initialization and adding components, your project will look like:</p>
-
-<pre><code class="language-text">lib/
-  flai/
-    core/
-      theme/
-        flai_theme.dart
-        flai_colors.dart
-        flai_typography.dart
-        flai_spacing.dart
-        flai_radius.dart
-      models/
-        message.dart
-        conversation.dart
-        chat_event.dart
-        chat_request.dart
-    providers/
-      ai_provider.dart
-    components/
-      chat_screen/
-        chat_screen.dart
-        chat_screen_controller.dart
-      message_bubble/
-        message_bubble.dart
-      input_bar/
-        input_bar.dart
-      typing_indicator/
-        typing_indicator.dart
-    flai.dart</code></pre>
+      <h2 id="whats-included">What's in the Box</h2>
+      <p>After <code>flai add app_scaffold</code>, your app includes:</p>
+      <ul>
+        <li>Auth flow with email, Apple, and Google sign-in</li>
+        <li>Configurable onboarding with splash and reveal animations</li>
+        <li>Chat with markdown rendering, code blocks with copy, and thinking panels</li>
+        <li>Sidebar with conversation history, grouping, search, and settings</li>
+        <li>Share conversation via system share sheet</li>
+        <li>Animated send button (mic/arrow morph)</li>
+        <li>Attachment menu (camera, photos, files)</li>
+        <li>Voice input (speech-to-text)</li>
+        <li>Model selector (switch AI models per-conversation)</li>
+        <li>Session persistence (stay logged in across restarts)</li>
+        <li>Scroll-to-bottom FAB and regenerate response</li>
+      </ul>
 
       <h2 id="whats-next">What's Next?</h2>
       <ul>
-        <li><a href="installation.html">Installation</a> — Detailed CLI usage and manual installation</li>
+        <li><a href="installation.html">Installation</a> — Detailed CLI options and manual setup</li>
         <li><a href="theming.html">Theming</a> — Customize colors, typography, and spacing</li>
-        <li><a href="components/chat-screen.html">Chat Screen</a> — Full-page chat component reference</li>
+        <li><a href="flows/app-scaffold.html">App Scaffold</a> — Full architecture reference</li>
         <li><a href="providers/openai.html">Providers</a> — Connect to OpenAI or Anthropic</li>
       </ul>
 

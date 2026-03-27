@@ -42,22 +42,34 @@
             <span class="hero-badge-dot"></span>
             <span class="hero-badge-text">Open Source</span>
           </div>
-          <h1 class="hero-h1">Beautiful AI interfaces.<br>Delivered as source code.</h1>
-          <p class="hero-sub">18 Flutter components for AI chat. CLI-installed into your project — no packages, no lock-in. Edit everything.</p>
+          <h1 class="hero-h1">Production AI chat app.<br>Three commands.</h1>
+          <p class="hero-sub">Complete Flutter chat UI with auth, streaming, voice, and markdown. CLI-installed as source code you own. Zero boilerplate.</p>
 
           <!-- Install right in the hero -->
           <div class="hero-terminal">
             <div class="hero-term-line">
               <span class="hero-term-prompt">$</span>
-              <span class="hero-term-cmd">dart pub global activate flai_cli</span>
-            </div>
-            <div class="hero-term-line">
-              <span class="hero-term-prompt">$</span>
               <span class="hero-term-cmd">flai init</span>
             </div>
+            <div class="hero-term-line hero-term-output">
+              <span class="hero-term-dim">  App name: </span><span class="hero-term-val">Acme AI</span>
+            </div>
+            <div class="hero-term-line hero-term-output">
+              <span class="hero-term-dim">  Assistant: </span><span class="hero-term-val">Aria</span>
+            </div>
+            <div class="hero-term-line hero-term-output">
+              <span class="hero-term-dim">  Theme: </span><span class="hero-term-val">premium</span>
+            </div>
             <div class="hero-term-line">
               <span class="hero-term-prompt">$</span>
-              <span class="hero-term-cmd">flai add chat_screen</span>
+              <span class="hero-term-cmd">flai add app_scaffold</span>
+            </div>
+            <div class="hero-term-line hero-term-output">
+              <span class="hero-term-success">&#10003;</span><span class="hero-term-dim"> Generated 83 files + main.dart</span>
+            </div>
+            <div class="hero-term-line">
+              <span class="hero-term-prompt">$</span>
+              <span class="hero-term-cmd">flutter run</span>
             </div>
           </div>
 
@@ -105,28 +117,28 @@
       <section class="how-section">
         <div class="how-header">
           <h2 class="section-label">How it works</h2>
-          <p class="section-desc">Three commands. Full chat UI. Your code.</p>
+          <p class="section-desc">From zero to running AI chat app. No boilerplate.</p>
         </div>
         <div class="how-steps">
           <div class="how-step">
             <div class="how-step-num">1</div>
             <div class="how-step-content">
-              <h3>Initialize</h3>
-              <p><code>flai init</code> scaffolds the core: theme system, data models, and the provider interface. Creates <code>lib/flai/</code> in your project.</p>
+              <h3>Configure</h3>
+              <p><code>flai init</code> asks for your app name, assistant name, and theme. Creates the core foundation in <code>lib/flai/</code> with your branding baked in.</p>
             </div>
           </div>
           <div class="how-step">
             <div class="how-step-num">2</div>
             <div class="how-step-content">
-              <h3>Add components</h3>
-              <p><code>flai add chat_screen</code> installs the component and its dependencies as source files. Not a package — actual <code>.dart</code> files you can read and edit.</p>
+              <h3>Generate</h3>
+              <p><code>flai add app_scaffold</code> installs 83 source files: auth, onboarding, chat with markdown and voice, sidebar with settings — plus a ready-to-run <code>main.dart</code>.</p>
             </div>
           </div>
           <div class="how-step">
             <div class="how-step-num">3</div>
             <div class="how-step-content">
-              <h3>Ship</h3>
-              <p>Wrap with <code>FlaiTheme</code>, connect an AI provider, and you have a production chat UI. Customize any component — it's your code now.</p>
+              <h3>Connect &amp; ship</h3>
+              <p><code>flutter run</code> and your app is live. When ready for production, <code>flai connect</code> rewrites your app to use real AI providers — zero manual wiring.</p>
             </div>
           </div>
         </div>
