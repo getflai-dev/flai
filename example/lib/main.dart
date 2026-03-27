@@ -8,16 +8,14 @@ import 'flai/providers/cmmd_providers.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Suppress _dependents.isEmpty assertion (Flutter framework bug #106549)
-  // that fires when notifyListeners() rebuilds the widget tree while a
-  // Drawer overlay's InheritedWidget dependents haven't fully cleaned up.
-  // Debug-only — does not affect release builds.
+  // Suppress _dependents.isEmpty debug assertion (Flutter bug #106549).
+  // This fires when notifyListeners() rebuilds the widget tree after the
+  // Scaffold drawer has been open. Only affects debug builds — release
+  // builds strip assert() and work fine.
   if (kDebugMode) {
     final originalOnError = FlutterError.onError;
     FlutterError.onError = (details) {
-      if (details.exception.toString().contains('_dependents.isEmpty')) {
-        return;
-      }
+      if (details.exception.toString().contains('_dependents.isEmpty')) return;
       originalOnError?.call(details);
     };
     final originalBuilder = ErrorWidget.builder;

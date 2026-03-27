@@ -127,8 +127,11 @@ class SidebarConfig {
   /// Called when the user stars or unstars a conversation.
   final void Function(ConversationItem)? onConversationStar;
 
-  /// Called when the user renames a conversation.
-  final void Function(ConversationItem, String newTitle)? onConversationRename;
+  /// Called when the user requests to rename a conversation.
+  /// The consumer is responsible for showing a rename dialog and performing
+  /// the rename. This callback just signals the intent — no dialog is shown
+  /// inside the drawer (which would trigger a Flutter framework crash).
+  final void Function(ConversationItem)? onConversationRename;
 
   /// Called when the user shares a conversation.
   final void Function(ConversationItem)? onConversationShare;

@@ -20,8 +20,9 @@ class ChatListItem extends StatelessWidget {
   /// Called when the user stars or unstars this conversation.
   final VoidCallback? onStar;
 
-  /// Called when the user renames this conversation.
-  final void Function(String newTitle)? onRename;
+  /// Called when the user requests to rename this conversation.
+  /// The parent is responsible for showing the rename dialog.
+  final VoidCallback? onRename;
 
   /// Called when the user shares this conversation.
   final VoidCallback? onShare;
@@ -55,37 +56,6 @@ class ChatListItem extends StatelessWidget {
       return days[timestamp.weekday - 1];
     } else {
       return '${timestamp.day}/${timestamp.month}/${timestamp.year % 100}';
-    }
-  }
-
-  Future<void> _showRenameDialog(BuildContext context) async {
-    final scaffoldContext = Scaffold.of(context).context;
-    final controller = TextEditingController(text: item.title);
-    final result = await showDialog<String>(
-      context: scaffoldContext,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Rename conversation'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'Conversation name'),
-          onSubmitted: (value) => Navigator.of(ctx).pop(value.trim()),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
-            child: const Text('Rename'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (result != null && result.isNotEmpty) {
-      onRename?.call(result);
     }
   }
 
@@ -130,7 +100,10 @@ class ChatListItem extends StatelessWidget {
       case 'star':
         onStar?.call();
       case 'rename':
-        _showRenameDialog(context);
+        // Close the drawer BEFORE signaling rename intent.
+        // The parent shows the rename dialog from outside the drawer.
+        Scaffold.of(context).closeDrawer();
+        onRename?.call();
       case 'share':
         onShare?.call();
       case 'delete':
