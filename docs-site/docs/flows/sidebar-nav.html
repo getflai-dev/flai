@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sidebar Nav — FlAI Docs</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body data-layout="docs">
+
+  <header id="site-header" class="site-header"></header>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <aside id="toc" class="toc"></aside>
+
+  <main class="main-content">
+    <div class="content-inner">
+
+      <div class="breadcrumb">
+        <a href="../../index.html">FlAI</a>
+        <span class="sep">/</span>
+        <a href="../index.html">Docs</a>
+        <span class="sep">/</span>
+        <span>Sidebar Nav</span>
+      </div>
+
+      <h1 class="page-title">Sidebar Nav</h1>
+      <p class="page-desc">Slide-out sidebar drawer with workspace switcher, conversation list, search, settings sheet, and sub-pages.</p>
+
+      <h2 id="installation">Installation</h2>
+      <div class="install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd-text">flai add sidebar_nav</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <h2 id="widgets">Widgets</h2>
+      <p>The sidebar nav flow includes these widgets:</p>
+      <table class="props-table">
+        <thead>
+          <tr><th>Widget</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">FlaiSidebarDrawer</td>
+            <td>Main slide-out drawer containing the workspace switcher, conversation list, and settings entry point.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">FlaiTopNavBar</td>
+            <td>Top navigation bar with hamburger menu button, new chat button, and current model display.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">ChatListItem</td>
+            <td>Conversation list item with swipe-to-delete, long-press context menu, and inline rename support.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">WorkspaceSwitcher</td>
+            <td>Dropdown to switch between workspaces or team accounts.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">SettingsDrawer</td>
+            <td>Settings sheet with configurable rows and navigation to sub-pages.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="settings-system">Settings System</h2>
+      <p><code>SettingsConfig</code> defines the settings rows using a sealed <code>SettingsRow</code> class with these types:</p>
+      <table class="props-table">
+        <thead>
+          <tr><th>Row Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">NavigationRow</td>
+            <td>Tap to navigate to a sub-page. Shows a chevron indicator.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">DropdownRow</td>
+            <td>Inline dropdown with string options (e.g., theme selection, language).</td>
+          </tr>
+          <tr>
+            <td class="prop-name">ToggleRow</td>
+            <td>Switch toggle for boolean settings (e.g., notifications, dark mode).</td>
+          </tr>
+          <tr>
+            <td class="prop-name">InfoRow</td>
+            <td>Display-only row showing a label and value (e.g., version number, account email).</td>
+          </tr>
+          <tr>
+            <td class="prop-name">CustomRow</td>
+            <td>Builder callback for fully custom row content.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>The flow includes 6 pre-built sub-pages: <strong>Profile</strong>, <strong>Billing</strong>, <strong>Usage</strong>, <strong>Connectors</strong>, <strong>Notifications</strong>, and <strong>Privacy</strong>.</p>
+
+      <h2 id="configuration">Configuration</h2>
+      <p><code>SidebarConfig</code> controls the sidebar content and behavior:</p>
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">navItems</td>
+            <td class="prop-type">List&lt;NavItem&gt;</td>
+            <td class="prop-default">[]</td>
+            <td>Navigation items displayed in the sidebar (e.g., Explore, Library).</td>
+          </tr>
+          <tr>
+            <td class="prop-name">userProfile</td>
+            <td class="prop-type">UserProfile</td>
+            <td class="prop-required">required</td>
+            <td>Current user's profile information (name, email, avatar).</td>
+          </tr>
+          <tr>
+            <td class="prop-name">conversations</td>
+            <td class="prop-type">List&lt;Conversation&gt;</td>
+            <td class="prop-default">[]</td>
+            <td>Conversation history displayed in the list.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">onNewChat</td>
+            <td class="prop-type">VoidCallback?</td>
+            <td class="prop-default">null</td>
+            <td>Called when the new chat button is tapped.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">onConversationTap</td>
+            <td class="prop-type">Function(Conversation)?</td>
+            <td class="prop-default">null</td>
+            <td>Called when a conversation in the list is tapped.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="usage">Usage</h2>
+
+<pre><code class="language-dart">FlaiSidebarDrawer(
+  config: SidebarConfig(
+    userProfile: UserProfile(
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+    ),
+    conversations: conversations,
+    onNewChat: () =&gt; controller.createConversation(),
+  ),
+)</code></pre>
+
+      <div class="page-nav">
+        <a href="chat-experience.html">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">&larr; Chat Experience</span>
+        </a>
+        <a href="app-scaffold.html" class="nav-next">
+          <span class="nav-label">Next</span>
+          <span class="nav-title">App Scaffold &rarr;</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-dart.min.js"></script>
+  <script src="../../js/main.js"></script>
+</body>
+</html>

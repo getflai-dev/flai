@@ -544,32 +544,40 @@ abstract class StorageProvider {
 
 *Completed 2026-03-26. See CHANGELOG [Unreleased] section.*
 
-### Phase 2: Onboarding Flow
-- `OnboardingController` with step pipeline
-- Splash, naming, multi-select pills, reveal animation screens
-- Custom step support
-- `onboarding_flow` brick
+### Phase 2: Onboarding Flow ✅
+- ~~`OnboardingController` with step pipeline~~
+- ~~Splash, naming, multi-select pills, reveal animation screens~~
+- ~~Custom step support~~
+- ~~`onboarding_flow` brick~~
 
-### Phase 3: Chat Experience
-- Composer v2 (sectioned + menu, mode/model selector, voice UI)
-- Empty chat state with configurable greeting + avatar
-- Ghost mode (temporary chat) with visual treatment
-- Voice recording UI (push-to-talk inline, conversation mode overlay)
-- `chat_experience` brick
+*Completed 2026-03-26. See CHANGELOG [Unreleased] section.*
 
-### Phase 4: Sidebar Nav
-- Top nav bar (left-aligned app name + hamburger, configurable right actions)
-- Sidebar drawer (search, static nav items, starred, recents, sticky user profile)
-- Chat list interactions (tap, long press context menu, swipe actions)
-- Settings bottom drawer with sub-page navigation
-- Default settings rows (Profile, Billing, Usage, Connectors, Appearance, Notifications, Privacy, Haptic, Info)
-- `sidebar_nav` brick
+### Phase 3: Chat Experience ✅
+- ~~Composer v2 (sectioned + menu, mode/model selector, voice UI)~~
+- ~~Empty chat state with configurable greeting + avatar~~
+- ~~Ghost mode (temporary chat) with visual treatment~~
+- ~~Voice recording UI (push-to-talk inline, conversation mode overlay)~~
+- ~~`chat_experience` brick~~
 
-### Phase 5: App Scaffold
-- Shell brick that wires all 4 flow bricks together
-- Routing: splash → auth → onboarding → chat
-- Provider injection points for all 4 interfaces
-- `app_scaffold` brick with auto-install of flow dependencies
+*Completed 2026-03-26. See CHANGELOG [Unreleased] section.*
+
+### ~~Phase 4: Sidebar Nav~~ ✅
+- ~~Top nav bar (left-aligned app name + hamburger, configurable right actions)~~
+- ~~Sidebar drawer (search, static nav items, starred, recents, sticky user profile)~~
+- ~~Chat list interactions (tap, long press context menu, swipe actions)~~
+- ~~Settings bottom drawer with sub-page navigation~~
+- ~~Default settings rows (Profile, Billing, Usage, Connectors, Appearance, Notifications, Privacy, Haptic, Info)~~
+- ~~`sidebar_nav` brick~~
+
+*Completed 2026-03-26. See CHANGELOG [Unreleased] section.*
+
+### ~~Phase 5: App Scaffold~~ ✅
+- ~~Shell brick that wires all 4 flow bricks together~~
+- ~~Routing: splash → auth → onboarding → chat~~
+- ~~Provider injection points for all 4 interfaces~~
+- ~~`app_scaffold` brick with auto-install of flow dependencies~~
+
+*Completed 2026-03-26. See CHANGELOG [Unreleased] section.*
 
 ---
 

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Experience — FlAI Docs</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body data-layout="docs">
+
+  <header id="site-header" class="site-header"></header>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <aside id="toc" class="toc"></aside>
+
+  <main class="main-content">
+    <div class="content-inner">
+
+      <div class="breadcrumb">
+        <a href="../../index.html">FlAI</a>
+        <span class="sep">/</span>
+        <a href="../index.html">Docs</a>
+        <span class="sep">/</span>
+        <span>Chat Experience</span>
+      </div>
+
+      <h1 class="page-title">Chat Experience</h1>
+      <p class="page-desc">AI chat experience with composer v2, model selector, voice modes, ghost mode, and animated empty state.</p>
+
+      <h2 id="installation">Installation</h2>
+      <div class="install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd-text">flai add chat_experience</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <h2 id="widgets">Widgets</h2>
+      <p>The chat experience flow includes these widgets:</p>
+      <table class="props-table">
+        <thead>
+          <tr><th>Widget</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">FlaiComposerV2</td>
+            <td>Pill-shaped text input with embedded model chip, mic/send toggle button, and attachment menu trigger.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">ModelSelectorSheet</td>
+            <td>Bottom sheet displaying available AI models with selection state and model details.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">AttachmentMenuSheet</td>
+            <td>Bottom sheet with configurable attachment sections (camera, photo library, files, etc.).</td>
+          </tr>
+          <tr>
+            <td class="prop-name">VoiceRecorder</td>
+            <td>Inline push-to-talk widget with live waveform visualization during recording.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">FlaiVoiceConversationOverlay</td>
+            <td>Full-screen voice conversation overlay with animated orb visualization.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">GhostModeBanner</td>
+            <td>Dismissible banner indicating ghost/incognito mode where conversations are not saved.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">FlaiEmptyChatState</td>
+            <td>Animated greeting screen with assistant avatar and name, shown when no messages exist.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="avatar-system">Avatar System</h2>
+      <p><code>AvatarConfig</code> supports 5 rendering modes, all rendered by the <code>FlaiAvatar</code> widget:</p>
+      <table class="props-table">
+        <thead>
+          <tr><th>Mode</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">iconGradient</td>
+            <td>Icon rendered on a gradient background circle.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">iconSolid</td>
+            <td>Icon rendered on a solid color background circle.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">image</td>
+            <td>Network or asset image clipped to a circle.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">custom</td>
+            <td>Builder callback for fully custom avatar widgets.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">defaultAvatar</td>
+            <td>Fallback avatar with a generic AI icon and theme-based colors.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="configuration">Configuration</h2>
+      <p><code>ChatExperienceConfig</code> controls the assistant identity, available models, and enabled features:</p>
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">assistantName</td>
+            <td class="prop-type">String</td>
+            <td class="prop-required">required</td>
+            <td>Display name of the AI assistant.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">avatar</td>
+            <td class="prop-type">AvatarConfig</td>
+            <td class="prop-default">defaultAvatar</td>
+            <td>Avatar configuration for the assistant.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">greeting</td>
+            <td class="prop-type">String?</td>
+            <td class="prop-default">null</td>
+            <td>Greeting text displayed on the empty chat state.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">composerSections</td>
+            <td class="prop-type">List&lt;AttachmentSection&gt;</td>
+            <td class="prop-default">[]</td>
+            <td>Sections displayed in the attachment menu bottom sheet.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">models</td>
+            <td class="prop-type">List&lt;ModelOption&gt;</td>
+            <td class="prop-default">[]</td>
+            <td>Available AI models shown in the model selector.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">enableVoice</td>
+            <td class="prop-type">bool</td>
+            <td class="prop-default">false</td>
+            <td>Enable voice recording and conversation modes.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">enableGhostMode</td>
+            <td class="prop-type">bool</td>
+            <td class="prop-default">false</td>
+            <td>Enable ghost/incognito mode toggle.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="usage">Usage</h2>
+
+<pre><code class="language-dart">FlaiComposerV2(
+  config: ChatExperienceConfig(
+    assistantName: 'Atlas',
+    avatar: AvatarConfig.iconGradient(Icons.bolt),
+    models: [
+      ModelOption(id: 'gpt-4o', label: 'GPT-4o'),
+      ModelOption(id: 'claude-sonnet', label: 'Claude Sonnet'),
+    ],
+    enableVoice: true,
+  ),
+  onSend: (text) =&gt; controller.sendMessage(text),
+)</code></pre>
+
+      <div class="page-nav">
+        <a href="onboarding-flow.html">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">&larr; Onboarding Flow</span>
+        </a>
+        <a href="sidebar-nav.html" class="nav-next">
+          <span class="nav-label">Next</span>
+          <span class="nav-title">Sidebar Nav &rarr;</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-dart.min.js"></script>
+  <script src="../../js/main.js"></script>
+</body>
+</html>

@@ -16,9 +16,9 @@ class FlaiTypography {
   const FlaiTypography({
     this.fontFamily = '.SF Pro Text',
     this.monoFontFamily = 'JetBrains Mono',
-    this.smSize = 12.0,
-    this.baseSize = 14.0,
-    this.lgSize = 16.0,
+    this.smSize = 13.0,
+    this.baseSize = 16.0,
+    this.lgSize = 17.0,
     this.xlSize = 20.0,
     this.xxlSize = 24.0,
     this.regular = FontWeight.w400,
@@ -29,21 +29,21 @@ class FlaiTypography {
 
   // Shadcn-style TextStyle getters (short names for convenience)
 
-  /// Body small text style (12pt).
+  /// Body small text style (13pt — iOS Footnote).
   TextStyle get sm => TextStyle(
         fontFamily: fontFamily,
         fontSize: smSize,
         fontWeight: regular,
       );
 
-  /// Body base text style (14pt).
+  /// Body base text style (16pt — iOS Callout).
   TextStyle get base => TextStyle(
         fontFamily: fontFamily,
         fontSize: baseSize,
         fontWeight: regular,
       );
 
-  /// Body large text style (16pt).
+  /// Body large text style (17pt — iOS Body).
   TextStyle get lg => TextStyle(
         fontFamily: fontFamily,
         fontSize: lgSize,

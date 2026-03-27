@@ -45,13 +45,19 @@ class FlaiTopNavBar extends StatelessWidget implements PreferredSizeWidget {
           GestureDetector(
             onTap: onMenuTap,
             behavior: HitTestBehavior.opaque,
-            child: Icon(
-              Icons.menu_rounded,
-              size: 24,
-              color: theme.colors.foreground,
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: Center(
+                child: Icon(
+                  Icons.menu_rounded,
+                  size: 24,
+                  color: theme.colors.foreground,
+                ),
+              ),
             ),
           ),
-          SizedBox(width: theme.spacing.sm),
+          SizedBox(width: theme.spacing.xs),
           Text(
             appName,
             style: theme.typography.lg.copyWith(

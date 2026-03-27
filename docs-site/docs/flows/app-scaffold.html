@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Scaffold — FlAI Docs</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body data-layout="docs">
+
+  <header id="site-header" class="site-header"></header>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <aside id="toc" class="toc"></aside>
+
+  <main class="main-content">
+    <div class="content-inner">
+
+      <div class="breadcrumb">
+        <a href="../../index.html">FlAI</a>
+        <span class="sep">/</span>
+        <a href="../index.html">Docs</a>
+        <span class="sep">/</span>
+        <span>App Scaffold</span>
+      </div>
+
+      <h1 class="page-title">App Scaffold</h1>
+      <p class="page-desc">Production app shell wiring auth, onboarding, chat, and sidebar flows with GoRouter. One command installs everything.</p>
+
+      <h2 id="installation">Installation</h2>
+      <div class="install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd-text">flai add app_scaffold</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <h2 id="what-gets-installed">What Gets Installed</h2>
+      <p>Running <code>flai add app_scaffold</code> auto-installs 5 bricks and the <code>go_router</code> dependency:</p>
+      <div class="dep-list">
+        <span class="dep-chip"><span class="dep-icon"></span> auth_flow</span>
+        <span class="dep-chip"><span class="dep-icon"></span> onboarding_flow</span>
+        <span class="dep-chip"><span class="dep-icon"></span> chat_experience</span>
+        <span class="dep-chip"><span class="dep-icon"></span> sidebar_nav</span>
+        <span class="dep-chip"><span class="dep-icon"></span> app_scaffold</span>
+      </div>
+      <p>The full dependency tree:</p>
+
+<pre><code class="language-dart">// app_scaffold
+//   ├── auth_flow
+//   ├── onboarding_flow
+//   ├── chat_experience
+//   ├── sidebar_nav
+//   └── go_router (added to pubspec.yaml)</code></pre>
+
+      <h2 id="architecture">Architecture</h2>
+      <p><code>FlaiApp</code> is a <code>StatefulWidget</code> that sets up the entire app shell with GoRouter navigation:</p>
+
+<pre><code class="language-dart">// FlaiApp
+//   └── FlaiProviders (InheritedWidget)
+//       └── FlaiTheme
+//           └── MaterialApp.router
+//               └── GoRouter
+//                   ├── /splash     → SplashScreen
+//                   ├── /auth       → AuthFlowScreen
+//                   ├── /onboarding → OnboardingFlowScreen
+//                   └── /home       → HomeScreen (chat + sidebar)</code></pre>
+
+      <p>Auth state redirects are handled by <code>AuthStateNotifier</code>, which listens to <code>AuthProvider.authStateChanges</code> and triggers GoRouter redirects:</p>
+      <ul>
+        <li>Unauthenticated users are redirected to <code>/auth</code></li>
+        <li>New users (first login) are redirected to <code>/onboarding</code></li>
+        <li>Authenticated users land on <code>/home</code></li>
+      </ul>
+
+      <h2 id="configuration">Configuration</h2>
+      <p><code>AppScaffoldConfig</code> composes all flow configurations into a single entry point:</p>
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">authProvider</td>
+            <td class="prop-type">AuthProvider</td>
+            <td class="prop-required">required</td>
+            <td>Authentication provider implementation.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">aiProvider</td>
+            <td class="prop-type">AiProvider?</td>
+            <td class="prop-default">null</td>
+            <td>AI chat streaming provider.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">storageProvider</td>
+            <td class="prop-type">StorageProvider?</td>
+            <td class="prop-default">InMemoryStorageProvider</td>
+            <td>Conversation persistence provider.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">voiceProvider</td>
+            <td class="prop-type">VoiceProvider?</td>
+            <td class="prop-default">null</td>
+            <td>Voice transcription and synthesis provider.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">theme</td>
+            <td class="prop-type">FlaiThemeData</td>
+            <td class="prop-default">FlaiThemeData.dark()</td>
+            <td>Theme data applied to the entire app.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">authFlowConfig</td>
+            <td class="prop-type">AuthFlowConfig?</td>
+            <td class="prop-default">null</td>
+            <td>Configuration for the auth flow screens.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">onboardingConfig</td>
+            <td class="prop-type">OnboardingConfig?</td>
+            <td class="prop-default">null</td>
+            <td>Configuration for the onboarding pipeline.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">chatExperienceConfig</td>
+            <td class="prop-type">ChatExperienceConfig?</td>
+            <td class="prop-default">null</td>
+            <td>Configuration for the chat experience widgets.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">sidebarConfig</td>
+            <td class="prop-type">SidebarConfig?</td>
+            <td class="prop-default">null</td>
+            <td>Configuration for the sidebar navigation.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="providers">Providers</h2>
+      <p><code>FlaiProviders</code> is an <code>InheritedWidget</code> that exposes all 4 provider interfaces from anywhere in the widget tree:</p>
+
+<pre><code class="language-dart">// Access providers from any widget
+final providers = FlaiProviders.of(context);
+
+providers.authProvider;     // AuthProvider
+providers.aiProvider;       // AiProvider?
+providers.storageProvider;  // StorageProvider
+providers.voiceProvider;    // VoiceProvider?</code></pre>
+
+      <h2 id="usage">Usage</h2>
+
+<pre><code class="language-dart">void main() {
+  runApp(FlaiApp(
+    config: AppScaffoldConfig(
+      authProvider: MyAuthProvider(),
+      aiProvider: MyAiProvider(),
+      theme: FlaiThemeData.dark(),
+      authFlowConfig: AuthFlowConfig(
+        showApple: true,
+        showGoogle: true,
+      ),
+      onboardingConfig: OnboardingConfig(steps: [
+        OnboardingStep.naming(suggestions: ['Nova', 'Atlas']),
+        OnboardingStep.reveal(),
+      ]),
+    ),
+  ));
+}</code></pre>
+
+      <div class="page-nav">
+        <a href="sidebar-nav.html">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">&larr; Sidebar Nav</span>
+        </a>
+        <a href="../components/chat-screen.html" class="nav-next">
+          <span class="nav-label">Next</span>
+          <span class="nav-title">Components &rarr;</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-dart.min.js"></script>
+  <script src="../../js/main.js"></script>
+</body>
+</html>

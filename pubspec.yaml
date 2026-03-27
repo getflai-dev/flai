@@ -7,3 +7,5 @@ environment:
 
 dev_dependencies:
   melos: ^6.3.2
+dependencies:
+  go_router: ^17.1.0

@@ -45,9 +45,18 @@ const NAV = {
       ],
     },
     {
+      title: 'Flows',
+      links: [
+        { label: 'Auth Flow', href: 'docs/flows/auth-flow.html' },
+        { label: 'Onboarding Flow', href: 'docs/flows/onboarding-flow.html' },
+        { label: 'Chat Experience', href: 'docs/flows/chat-experience.html' },
+        { label: 'Sidebar Nav', href: 'docs/flows/sidebar-nav.html' },
+        { label: 'App Scaffold', href: 'docs/flows/app-scaffold.html' },
+      ],
+    },
+    {
       title: 'Integrations',
       links: [
-        { label: 'App Scaffolds', href: 'docs/scaffolds.html' },
         { label: 'MCP Server', href: 'docs/mcp.html' },
         { label: 'Agent Skill', href: 'docs/skill.html' },
       ],

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onboarding Flow — FlAI Docs</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body data-layout="docs">
+
+  <header id="site-header" class="site-header"></header>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <aside id="toc" class="toc"></aside>
+
+  <main class="main-content">
+    <div class="content-inner">
+
+      <div class="breadcrumb">
+        <a href="../../index.html">FlAI</a>
+        <span class="sep">/</span>
+        <a href="../index.html">Docs</a>
+        <span class="sep">/</span>
+        <span>Onboarding Flow</span>
+      </div>
+
+      <h1 class="page-title">Onboarding Flow</h1>
+      <p class="page-desc">Configurable onboarding pipeline with splash, naming, multi-select pills, custom steps, and reveal animation screens.</p>
+
+      <h2 id="installation">Installation</h2>
+      <div class="install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd-text">flai add onboarding_flow</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <h2 id="screen-types">Screen Types</h2>
+      <p><code>OnboardingStep</code> is a sealed class with 5 variants that define the screens in your onboarding pipeline:</p>
+      <table class="props-table">
+        <thead>
+          <tr><th>Step Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">naming</td>
+            <td>Name input screen with animated suggestion pills the user can tap to auto-fill.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">multiSelect</td>
+            <td>Grid of selectable option pills with staggered entrance animation. Collects multiple choices.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">custom</td>
+            <td>Builder callback for arbitrary content. Use this for screens that don't fit the other types.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">reveal</td>
+            <td>Gradient glow animation with typing effect that reveals the selected assistant name.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">splash</td>
+            <td>Animated splash screen with pulse animation, typically used as the first step.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="configuration">Configuration</h2>
+      <p><code>OnboardingConfig</code> accepts a list of <code>OnboardingStep</code> entries that define the pipeline order:</p>
+
+<pre><code class="language-dart">final config = OnboardingConfig(
+  steps: [
+    OnboardingStep.splash(
+      title: 'Welcome to Atlas',
+      subtitle: 'Your AI assistant',
+    ),
+    OnboardingStep.naming(
+      prompt: 'Give your assistant a name',
+      suggestions: ['Nova', 'Atlas', 'Sage', 'Echo'],
+    ),
+    OnboardingStep.multiSelect(
+      title: 'What do you need help with?',
+      options: ['Coding', 'Writing', 'Research', 'Math', 'Creative'],
+      minSelections: 1,
+      maxSelections: 3,
+    ),
+    OnboardingStep.custom(
+      builder: (context, controller) =&gt; MyCustomWidget(),
+    ),
+    OnboardingStep.reveal(),
+  ],
+);</code></pre>
+
+      <h2 id="state-management">State Management</h2>
+      <p><code>OnboardingController</code> is the step navigation state machine. It tracks the current step index, collects results from each step (selected name, chosen options), and exposes navigation controls:</p>
+
+<pre><code class="language-dart">final controller = OnboardingController(config: config);
+
+// Navigation
+controller.currentStepIndex;  // int
+controller.currentStep;       // OnboardingStep
+controller.canGoBack;         // bool
+controller.isLastStep;        // bool
+controller.next();
+controller.back();
+
+// Collected results
+controller.selectedName;      // String?
+controller.selectedOptions;   // List&lt;String&gt;
+controller.results;           // Map&lt;int, dynamic&gt;</code></pre>
+
+      <h2 id="usage">Usage</h2>
+
+<pre><code class="language-dart">final controller = OnboardingController(
+  config: OnboardingConfig(steps: [
+    OnboardingStep.naming(suggestions: ['Nova', 'Atlas', 'Sage']),
+    OnboardingStep.multiSelect(
+      title: 'What do you need help with?',
+      options: ['Coding', 'Writing', 'Research'],
+    ),
+    OnboardingStep.reveal(),
+  ]),
+);
+
+OnboardingFlowScreen(controller: controller)</code></pre>
+
+      <div class="page-nav">
+        <a href="auth-flow.html">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">&larr; Auth Flow</span>
+        </a>
+        <a href="chat-experience.html" class="nav-next">
+          <span class="nav-label">Next</span>
+          <span class="nav-title">Chat Experience &rarr;</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-dart.min.js"></script>
+  <script src="../../js/main.js"></script>
+</body>
+</html>

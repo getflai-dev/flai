@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -42,6 +43,8 @@ class CmmdAuthProvider implements AuthProvider {
 
   String? _accessToken;
   String? _refreshToken;
+  String? _csrfToken;
+  String? _sessionCookie;
   AuthUser? _currentUser;
   String? _lastEmail;
   final StreamController<AuthUser?> _authStateController =
@@ -70,6 +73,7 @@ class CmmdAuthProvider implements AuthProvider {
   @override
   Future<AuthResult> signInWithEmail(String email, String password) async {
     try {
+      await _ensureCsrfToken();
       final response = await http.post(
         Uri.parse('${config.baseUrl}/api/login'),
         headers: {
@@ -101,7 +105,7 @@ class CmmdAuthProvider implements AuthProvider {
 
       return AuthSuccess(user);
     } catch (e) {
-      return AuthFailure(e.toString());
+      return AuthFailure(_friendlyError(e));
     }
   }
 
@@ -150,18 +154,23 @@ class CmmdAuthProvider implements AuthProvider {
   @override
   Future<void> sendResetEmail(String email) async {
     _lastEmail = email;
-    final response = await http.post(
-      Uri.parse('${config.baseUrl}/api/forgot-password'),
-      headers: _baseHeaders,
-      body: jsonEncode({'email': email}),
-    );
-
-    if (response.statusCode != 200) {
-      final body = _tryDecodeBody(response.body);
-      throw Exception(
-        body?['message'] as String? ??
-            'Failed to send reset email (${response.statusCode})',
+    try {
+      await _ensureCsrfToken();
+      final response = await http.post(
+        Uri.parse('${config.baseUrl}/api/forgot-password'),
+        headers: _baseHeaders,
+        body: jsonEncode({'email': email}),
       );
+
+      if (response.statusCode != 200) {
+        final body = _tryDecodeBody(response.body);
+        throw Exception(
+          body?['message'] as String? ??
+              'Failed to send reset email (${response.statusCode})',
+        );
+      }
+    } catch (e) {
+      throw Exception(_friendlyError(e));
     }
   }
 
@@ -196,6 +205,7 @@ class CmmdAuthProvider implements AuthProvider {
   @override
   Future<AuthResult> verifyCode(String email, String code) async {
     try {
+      await _ensureCsrfToken();
       final response = await http.post(
         Uri.parse('${config.baseUrl}/api/verify-login-code'),
         headers: _baseHeaders,
@@ -227,7 +237,7 @@ class CmmdAuthProvider implements AuthProvider {
 
       return const AuthFailure('Verification succeeded but no token returned.');
     } catch (e) {
-      return AuthFailure(e.toString());
+      return AuthFailure(_friendlyError(e));
     }
   }
 
@@ -245,6 +255,7 @@ class CmmdAuthProvider implements AuthProvider {
     }
 
     try {
+      await _ensureCsrfToken();
       final response = await http.post(
         Uri.parse('${config.baseUrl}/api/verify-mfa'),
         headers: _baseHeaders,
@@ -272,7 +283,7 @@ class CmmdAuthProvider implements AuthProvider {
 
       return AuthSuccess(user);
     } catch (e) {
-      return AuthFailure(e.toString());
+      return AuthFailure(_friendlyError(e));
     }
   }
 
@@ -284,6 +295,8 @@ class CmmdAuthProvider implements AuthProvider {
   Future<void> signOut() async {
     _setTokens(null, null);
     _setUser(null);
+    _csrfToken = null;
+    _sessionCookie = null;
     _lastEmail = null;
   }
 
@@ -315,9 +328,44 @@ class CmmdAuthProvider implements AuthProvider {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         if (_accessToken != null) 'Authorization': 'Bearer $_accessToken',
+        if (_csrfToken != null) ...{
+          'X-XSRF-TOKEN': _csrfToken!,
+          'Cookie': 'XSRF-TOKEN=$_csrfToken${_sessionCookie ?? ''}',
+        },
         if (config.organizationId != null)
           'X-Organization-ID': config.organizationId!,
       };
+
+  /// Fetch a CSRF token from the CMMD API.
+  ///
+  /// The server uses a double-submit cookie pattern: it sets an
+  /// `XSRF-TOKEN` cookie and expects the same value back as the
+  /// `X-XSRF-TOKEN` header. We also forward the raw cookie so
+  /// the server can verify both match.
+  Future<void> _ensureCsrfToken() async {
+    if (_csrfToken != null) return;
+    try {
+      final response = await http.get(
+        Uri.parse('${config.baseUrl}/api/csrf-token'),
+        headers: {'Accept': 'application/json'},
+      );
+      final setCookie = response.headers['set-cookie'] ?? '';
+      // Extract XSRF token
+      final xsrfMatch =
+          RegExp(r'XSRF-TOKEN=([^;]+)').firstMatch(setCookie);
+      if (xsrfMatch != null) {
+        _csrfToken = xsrfMatch.group(1);
+      }
+      // Capture any session cookie the server sends alongside XSRF
+      final sessionMatch =
+          RegExp(r'(connect\.sid=[^;]+)').firstMatch(setCookie);
+      if (sessionMatch != null) {
+        _sessionCookie = '; ${sessionMatch.group(1)}';
+      }
+    } catch (_) {
+      // CSRF fetch failed — proceed without it; server may not require it.
+    }
+  }
 
   void _setTokens(String? access, String? refresh) {
     _accessToken = access;
@@ -344,6 +392,43 @@ class CmmdAuthProvider implements AuthProvider {
           'defaultOrganizationId': json['defaultOrganizationId'],
       },
     );
+  }
+
+  /// Convert a raw exception into a user-friendly error message.
+  String _friendlyError(Object e) {
+    if (e is SocketException) {
+      return 'Could not connect to server. Check your internet connection.';
+    }
+    if (e is TimeoutException) {
+      return 'Request timed out. Please try again.';
+    }
+    if (e is http.ClientException) {
+      final msg = e.message;
+      if (msg.contains('SocketException') ||
+          msg.contains('Connection refused')) {
+        return 'Could not connect to server. Check your internet connection.';
+      }
+      if (msg.contains('timed out') || msg.contains('TimeoutException')) {
+        return 'Request timed out. Please try again.';
+      }
+      return 'Network error. Please try again.';
+    }
+    if (e is FormatException) {
+      return 'Unexpected server response. Please try again.';
+    }
+    final text = e.toString();
+    if (text.contains('SocketException') ||
+        text.contains('Connection refused')) {
+      return 'Could not connect to server. Check your internet connection.';
+    }
+    if (text.contains('timed out') || text.contains('TimeoutException')) {
+      return 'Request timed out. Please try again.';
+    }
+    // Already a user-friendly message (e.g. from API JSON response)
+    if (!text.contains('Exception') && text.length < 120) {
+      return text;
+    }
+    return 'Something went wrong. Please try again.';
   }
 
   /// Attempt to decode a JSON response body, returning `null` on failure.

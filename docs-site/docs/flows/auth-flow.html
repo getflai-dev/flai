@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Flow — FlAI Docs</title>
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body data-layout="docs">
+
+  <header id="site-header" class="site-header"></header>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+  <aside id="toc" class="toc"></aside>
+
+  <main class="main-content">
+    <div class="content-inner">
+
+      <div class="breadcrumb">
+        <a href="../../index.html">FlAI</a>
+        <span class="sep">/</span>
+        <a href="../index.html">Docs</a>
+        <span class="sep">/</span>
+        <span>Auth Flow</span>
+      </div>
+
+      <h1 class="page-title">Auth Flow</h1>
+      <p class="page-desc">Complete authentication flow with 6 screens: login landing, email entry, password entry, forgot password, verification code, and reset password.</p>
+
+      <h2 id="installation">Installation</h2>
+      <div class="install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd-text">flai add auth_flow</span>
+        <button class="copy-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <h2 id="screens">Screens</h2>
+      <p>The auth flow includes 6 screens that handle the complete authentication lifecycle:</p>
+      <table class="props-table">
+        <thead>
+          <tr><th>Screen</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">Login Landing</td>
+            <td>Social auth buttons (Apple, Google, Microsoft) with animated typing taglines and email sign-in entry point.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">Email Entry</td>
+            <td>Email input with validation. Routes to password entry for existing accounts or sign-up for new ones.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">Password Entry</td>
+            <td>Handles both login and sign-up modes. Includes forgot password link and password strength indicator for sign-up.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">Forgot Password</td>
+            <td>Email input to send a password reset code.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">Verification Code</td>
+            <td>6-digit code entry with auto-advance between fields and resend functionality.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">Reset Password</td>
+            <td>New password entry with confirmation field and strength validation.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="configuration">Configuration</h2>
+      <p><code>AuthFlowConfig</code> controls which social providers appear, branding, and behavior:</p>
+      <table class="props-table">
+        <thead>
+          <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="prop-name">showApple</td>
+            <td class="prop-type">bool</td>
+            <td class="prop-default">false</td>
+            <td>Show Sign in with Apple button.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">showGoogle</td>
+            <td class="prop-type">bool</td>
+            <td class="prop-default">false</td>
+            <td>Show Sign in with Google button.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">showMicrosoft</td>
+            <td class="prop-type">bool</td>
+            <td class="prop-default">false</td>
+            <td>Show Sign in with Microsoft button.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">taglines</td>
+            <td class="prop-type">List&lt;String&gt;</td>
+            <td class="prop-default">[]</td>
+            <td>Animated typing taglines on the login landing screen.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">logo</td>
+            <td class="prop-type">Widget?</td>
+            <td class="prop-default">null</td>
+            <td>Custom logo widget displayed on the landing screen.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">legalLinks</td>
+            <td class="prop-type">LegalLinks?</td>
+            <td class="prop-default">null</td>
+            <td>Terms of service and privacy policy URLs shown at the bottom.</td>
+          </tr>
+          <tr>
+            <td class="prop-name">guestMode</td>
+            <td class="prop-type">bool</td>
+            <td class="prop-default">false</td>
+            <td>Enable a "Continue as Guest" option on the landing screen.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="provider-interface">Provider Interface</h2>
+      <p><code>AuthProvider</code> is the abstract interface your backend must implement:</p>
+
+<pre><code class="language-dart">abstract class AuthProvider {
+  /// Sign in with email and password.
+  Future&lt;AuthResult&gt; signInWithEmail(String email, String password);
+
+  /// Create a new account with email and password.
+  Future&lt;AuthResult&gt; signUp(String email, String password);
+
+  /// Sign in with Apple.
+  Future&lt;AuthResult&gt; signInWithApple();
+
+  /// Sign in with Google.
+  Future&lt;AuthResult&gt; signInWithGoogle();
+
+  /// Sign in with Microsoft.
+  Future&lt;AuthResult&gt; signInWithMicrosoft();
+
+  /// Send a password reset email.
+  Future&lt;void&gt; sendResetEmail(String email);
+
+  /// Confirm a reset code and set a new password.
+  Future&lt;void&gt; confirmResetCode(String code, String newPassword);
+
+  /// Verify a 6-digit code (e.g., email verification).
+  Future&lt;void&gt; verifyCode(String code);
+
+  /// Sign out the current user.
+  Future&lt;void&gt; signOut();
+
+  /// Stream of authentication state changes.
+  Stream&lt;AuthState&gt; get authStateChanges;
+}</code></pre>
+
+      <h2 id="state-management">State Management</h2>
+      <p><code>AuthController</code> extends <code>ChangeNotifier</code> and manages the flow navigation state machine. It tracks which screen is active, handles loading states during async operations, and propagates errors from the provider.</p>
+
+<pre><code class="language-dart">final auth = AuthController(authProvider: MockAuthProvider());
+
+// Current screen in the flow
+auth.currentScreen;   // AuthScreen enum
+
+// Loading and error state
+auth.isLoading;       // bool
+auth.error;           // String?
+
+// Navigate between screens
+auth.goToEmailEntry();
+auth.goToForgotPassword();
+auth.goBack();</code></pre>
+
+      <h2 id="usage">Usage</h2>
+
+<pre><code class="language-dart">final auth = AuthController(authProvider: MockAuthProvider());
+
+AuthFlowScreen(
+  controller: auth,
+  config: AuthFlowConfig(
+    showApple: true,
+    showGoogle: true,
+    taglines: ['Write code faster', 'Debug smarter'],
+  ),
+)</code></pre>
+
+      <div class="page-nav">
+        <a href="../index.html">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">&larr; Docs</span>
+        </a>
+        <a href="onboarding-flow.html" class="nav-next">
+          <span class="nav-label">Next</span>
+          <span class="nav-title">Onboarding Flow &rarr;</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-dart.min.js"></script>
+  <script src="../../js/main.js"></script>
+</body>
+</html>

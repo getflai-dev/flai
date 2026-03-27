@@ -40,9 +40,9 @@
         <div class="bp-filters">
           <button class="bp-filter active" data-filter="all">All</button>
           <button class="bp-filter" data-filter="auth">Auth</button>
+          <button class="bp-filter" data-filter="onboarding">Onboarding</button>
           <button class="bp-filter" data-filter="chat">Chat</button>
-          <button class="bp-filter" data-filter="settings">Settings</button>
-          <button class="bp-filter" data-filter="profile">Profile</button>
+          <button class="bp-filter" data-filter="sidebar">Sidebar</button>
         </div>
       </section>
 
@@ -115,6 +115,118 @@
             <div class="bp-label-name">Password Entry</div>
             <div class="bp-label-desc">Login/signup modes, visibility toggle, forgot password link</div>
             <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add auth_flow</div>
+          </div>
+        </div>
+
+        <!-- (c) Onboarding Flow -->
+        <div class="bp-card bp-onboarding" data-category="onboarding">
+          <div class="bp-phone">
+            <div class="bp-phone-notch"></div>
+            <div class="bp-phone-screen">
+              <div class="bp-screen" style="justify-content:center;text-align:center;">
+                <div style="width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#6366F1,#8B5CF6);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+                <div class="bp-screen-heading" style="font-size:14px;margin-bottom:4px;">Name your assistant</div>
+                <div style="color:#a1a1aa;font-size:9px;margin-bottom:12px;">Give it a personality</div>
+                <div class="bp-input" style="margin-bottom:8px;">
+                  <span style="flex:1;color:#71717A;">e.g. Atlas</span>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:12px;">
+                  <span style="padding:3px 8px;border-radius:12px;background:#27272A;color:#A1A1AA;font-size:8px;">Nova</span>
+                  <span style="padding:3px 8px;border-radius:12px;background:#312E81;color:#818CF8;font-size:8px;border:1px solid #4338CA;">Atlas</span>
+                  <span style="padding:3px 8px;border-radius:12px;background:#27272A;color:#A1A1AA;font-size:8px;">Sage</span>
+                  <span style="padding:3px 8px;border-radius:12px;background:#27272A;color:#A1A1AA;font-size:8px;">Echo</span>
+                </div>
+                <div class="bp-btn-primary">Continue</div>
+              </div>
+            </div>
+          </div>
+          <div class="bp-label">
+            <div class="bp-label-name">Onboarding Flow — 5 Screens</div>
+            <div class="bp-label-desc">Splash, naming, multi-select pills, custom steps, reveal animation. Fully configurable pipeline.</div>
+            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add onboarding_flow</div>
+          </div>
+        </div>
+
+        <!-- (d) Chat Experience -->
+        <div class="bp-card bp-chatexp" data-category="chat">
+          <div class="bp-phone">
+            <div class="bp-phone-notch"></div>
+            <div class="bp-phone-screen">
+              <div class="bp-appbar">
+                <div class="bp-appbar-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </div>
+                <div class="bp-appbar-title">AI Assistant</div>
+                <div class="bp-appbar-badge" style="font-size:7px;">GPT-4o</div>
+              </div>
+              <div class="bp-chat-body" style="justify-content:flex-end;">
+                <div class="bp-bubble bp-bubble-user">Write a function to parse JSON</div>
+                <div class="bp-bubble bp-bubble-ai">Here's a type-safe JSON parser using pattern matching:<span class="bp-cursor"></span></div>
+              </div>
+              <div style="padding:6px 8px;">
+                <div style="display:flex;align-items:center;gap:6px;background:#18181B;border:1px solid #27272A;border-radius:20px;padding:8px 12px;">
+                  <span style="color:#52525B;font-size:9px;flex:1;">Message...</span>
+                  <span style="background:#27272A;border-radius:12px;padding:2px 6px;font-size:7px;color:#818CF8;">GPT-4o</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bp-label">
+            <div class="bp-label-name">Chat Experience</div>
+            <div class="bp-label-desc">Composer V2 with model chip, voice toggle, attachment menu, ghost mode, and empty state.</div>
+            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add chat_experience</div>
+          </div>
+        </div>
+
+        <!-- (e) Sidebar Nav -->
+        <div class="bp-card bp-sidebar" data-category="sidebar">
+          <div class="bp-phone">
+            <div class="bp-phone-notch"></div>
+            <div class="bp-phone-screen">
+              <div class="bp-screen" style="padding:0;">
+                <div style="background:#111113;height:100%;display:flex;flex-direction:column;">
+                  <div style="padding:12px;border-bottom:1px solid #27272A;display:flex;align-items:center;gap:8px;">
+                    <div style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#6366F1,#8B5CF6);display:flex;align-items:center;justify-content:center;font-size:10px;color:white;">A</div>
+                    <div style="font-size:11px;font-weight:500;color:#FAFAFA;flex:1;">Acme Team</div>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </div>
+                  <div style="padding:8px 12px;">
+                    <div style="background:#18181B;border:1px solid #27272A;border-radius:6px;padding:6px 8px;font-size:9px;color:#52525B;">Search conversations...</div>
+                  </div>
+                  <div style="flex:1;padding:0 8px;overflow:hidden;">
+                    <div style="padding:6px 8px;border-radius:6px;background:#1E1E21;margin-bottom:2px;display:flex;align-items:center;gap:6px;">
+                      <div style="font-size:9px;color:#FAFAFA;flex:1;">Flutter state management</div>
+                      <div style="font-size:7px;color:#52525B;">2m</div>
+                    </div>
+                    <div style="padding:6px 8px;border-radius:6px;margin-bottom:2px;display:flex;align-items:center;gap:6px;">
+                      <div style="font-size:9px;color:#A1A1AA;flex:1;">REST API integration</div>
+                      <div style="font-size:7px;color:#52525B;">1h</div>
+                    </div>
+                    <div style="padding:6px 8px;border-radius:6px;margin-bottom:2px;display:flex;align-items:center;gap:6px;">
+                      <div style="font-size:9px;color:#A1A1AA;flex:1;">Database design</div>
+                      <div style="font-size:7px;color:#52525B;">3h</div>
+                    </div>
+                    <div style="padding:6px 8px;border-radius:6px;margin-bottom:2px;display:flex;align-items:center;gap:6px;">
+                      <div style="font-size:9px;color:#A1A1AA;flex:1;">Custom animations</div>
+                      <div style="font-size:7px;color:#52525B;">1d</div>
+                    </div>
+                  </div>
+                  <div style="padding:8px 12px;border-top:1px solid #27272A;display:flex;align-items:center;gap:8px;">
+                    <div style="width:20px;height:20px;border-radius:50%;background:#27272A;display:flex;align-items:center;justify-content:center;font-size:8px;color:#A1A1AA;">JD</div>
+                    <div style="font-size:9px;color:#A1A1AA;flex:1;">Jane Doe</div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bp-label">
+            <div class="bp-label-name">Sidebar Navigation</div>
+            <div class="bp-label-desc">Slide-out drawer with workspace switcher, conversation list, search, settings sheet, and sub-pages.</div>
+            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add sidebar_nav</div>
           </div>
         </div>
 
@@ -408,8 +520,8 @@
             </div>
           </div>
           <div class="bp-label">
-            <div class="bp-label-name">Complete App — Login, Chat, Settings, Profile</div>
-            <div class="bp-label-desc">Full app scaffold with navigation, conversation list, chat detail, settings, and profile screens</div>
+            <div class="bp-label-name">Complete App — Auth, Onboarding, Chat, Sidebar</div>
+            <div class="bp-label-desc">Production app shell wiring 4 flow bricks with GoRouter: auth → onboarding → chat + sidebar. One command.</div>
             <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add app_scaffold</div>
           </div>
         </div>
