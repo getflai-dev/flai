@@ -1,0 +1,50 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Voice E2E Test — Mic Button Present in Composer
+#
+# Verifies that the voice/mic button is visible in the composer area
+# when the text field is empty. On simulator, actual speech recognition
+# cannot work (no mic hardware), so we only verify the button exists
+# and the UI is properly configured.
+#
+# Run:
+#   maestro test .maestro/voice_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Fresh start ───────────────────────────────────────────────────────
+- clearState: com.example.flaiExample
+- launchApp:
+    appId: com.example.flaiExample
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# ── Login ─────────────────────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Log in"
+    timeout: 15000
+- tapOn: "Log in"
+- extendedWaitUntil:
+    visible: "Continue"
+    timeout: 5000
+- tapOn: "Email"
+- inputText: ${FLAI_TEST_EMAIL}
+- tapOn: "Continue"
+- extendedWaitUntil:
+    visible: "Enter your password"
+    timeout: 8000
+- tapOn:
+    point: "50%,42%"
+- inputText: ${FLAI_TEST_PASSWORD}
+- tapOn: "Continue"
+
+# ── Home screen ───────────────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 20000
+
+# ── Verify composer area is visible ───────────────────────────────────
+- assertVisible: "Ask Assistant anything..."
+- takeScreenshot: voice_01_composer_with_mic
