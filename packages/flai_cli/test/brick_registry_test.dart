@@ -3,8 +3,8 @@ import 'package:test/test.dart';
 
 void main() {
   group('BrickRegistry', () {
-    test('contains exactly 15 components', () {
-      expect(BrickRegistry.components, hasLength(15));
+    test('contains exactly 20 components', () {
+      expect(BrickRegistry.components, hasLength(20));
     });
 
     test('allComponents keys match their BrickInfo names', () {
@@ -30,13 +30,14 @@ void main() {
     });
 
     group('categories', () {
-      test('returns 4 categories in display order', () {
-        expect(BrickRegistry.categories, hasLength(4));
+      test('returns 5 categories in display order', () {
+        expect(BrickRegistry.categories, hasLength(5));
         expect(BrickRegistry.categories, [
           BrickCategory.chatEssentials,
           BrickCategory.aiWidgets,
           BrickCategory.conversation,
           BrickCategory.providers,
+          BrickCategory.flows,
         ]);
       });
 
@@ -100,6 +101,62 @@ void main() {
         expect(bricks, hasLength(2));
         final names = bricks.map((b) => b.name).toSet();
         expect(names, containsAll(['openai_provider', 'anthropic_provider']));
+      });
+
+      test('Flows contains 5 components', () {
+        final bricks = BrickRegistry.byCategory(BrickCategory.flows);
+        expect(bricks, hasLength(5));
+        final names = bricks.map((b) => b.name).toSet();
+        expect(
+          names,
+          containsAll([
+            'auth_flow',
+            'onboarding_flow',
+            'chat_experience',
+            'sidebar_nav',
+            'app_scaffold',
+          ]),
+        );
+      });
+
+      test('auth_flow belongs to Flows category', () {
+        final info = BrickRegistry.lookup('auth_flow');
+        expect(info, isNotNull);
+        expect(info!.category, equals(BrickCategory.flows));
+      });
+
+      test('onboarding_flow belongs to Flows category', () {
+        final info = BrickRegistry.lookup('onboarding_flow');
+        expect(info, isNotNull);
+        expect(info!.category, equals(BrickCategory.flows));
+      });
+
+      test('chat_experience belongs to Flows category', () {
+        final info = BrickRegistry.lookup('chat_experience');
+        expect(info, isNotNull);
+        expect(info!.category, equals(BrickCategory.flows));
+      });
+
+      test('sidebar_nav belongs to Flows category', () {
+        final info = BrickRegistry.lookup('sidebar_nav');
+        expect(info, isNotNull);
+        expect(info!.category, equals(BrickCategory.flows));
+      });
+
+      test('app_scaffold belongs to Flows category with dependencies and pub deps', () {
+        final info = BrickRegistry.lookup('app_scaffold');
+        expect(info, isNotNull);
+        expect(info!.category, equals(BrickCategory.flows));
+        expect(
+          info.dependencies,
+          unorderedEquals([
+            'auth_flow',
+            'onboarding_flow',
+            'chat_experience',
+            'sidebar_nav',
+          ]),
+        );
+        expect(info.pubDependencies, contains('go_router'));
       });
 
       test('returns empty list for unknown category', () {
@@ -190,6 +247,10 @@ void main() {
 
     test('providers value', () {
       expect(BrickCategory.providers, equals('Providers'));
+    });
+
+    test('flows value', () {
+      expect(BrickCategory.flows, equals('Flows'));
     });
   });
 }

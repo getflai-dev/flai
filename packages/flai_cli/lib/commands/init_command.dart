@@ -5,6 +5,7 @@ import 'package:mason/mason.dart';
 import 'package:path/path.dart' as p;
 
 import '../config.dart';
+import '../platform_setup.dart';
 
 /// `flai init` — initialise FlAI in the current Flutter project.
 class InitCommand extends Command<int> {
@@ -100,6 +101,16 @@ class InitCommand extends Command<int> {
     } on Exception catch (e) {
       stderr.writeln('\x1B[31mError:\x1B[0m Failed to generate files: $e');
       return 1;
+    }
+
+    // 5. Configure iOS and Android platform permissions.
+    stdout.writeln('\x1B[36m>\x1B[0m Configuring platform permissions...');
+    final platformActions = PlatformSetup(projectRoot: cwd).run();
+    for (final action in platformActions) {
+      stdout.writeln('  \x1B[32m\u2713\x1B[0m $action');
+    }
+    if (platformActions.isEmpty) {
+      stdout.writeln('  \x1B[32m\u2713\x1B[0m Permissions already configured');
     }
 
     stdout.writeln('');

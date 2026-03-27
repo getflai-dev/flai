@@ -9,6 +9,7 @@ import 'package:yaml_edit/yaml_edit.dart';
 import '../brick_registry.dart';
 import '../config.dart';
 import '../dependency_resolver.dart';
+import '../platform_setup.dart';
 
 /// `flai add <component>` — install a component and its dependencies.
 class AddCommand extends Command<int> {
@@ -150,7 +151,20 @@ class AddCommand extends Command<int> {
       _addPubDependencies(cwd, pubDeps);
     }
 
-    // 8. Update flai.yaml.
+    // 8. Configure platform permissions if needed.
+    final needsPermissions = installOrder.any(
+      (name) => const {'chat_experience', 'app_scaffold'}.contains(name),
+    );
+    if (needsPermissions) {
+      final platformActions = PlatformSetup(projectRoot: cwd).run();
+      for (final action in platformActions) {
+        stdout.writeln(
+          '  \x1B[32m\u2713\x1B[0m $action',
+        );
+      }
+    }
+
+    // 9. Update flai.yaml.
     configManager.markInstalled(installOrder);
 
     stdout.writeln('');

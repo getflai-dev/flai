@@ -93,6 +93,38 @@ void main() {
           reason: 'Result should not contain duplicate entries',
         );
       });
+
+      test('resolves app_scaffold with all 4 flow dependencies', () {
+        final result = resolver.resolve('app_scaffold');
+        expect(result, contains('auth_flow'));
+        expect(result, contains('onboarding_flow'));
+        expect(result, contains('chat_experience'));
+        expect(result, contains('sidebar_nav'));
+        expect(result, contains('app_scaffold'));
+
+        // app_scaffold must appear last (after all its dependencies).
+        final scaffoldIndex = result.indexOf('app_scaffold');
+        expect(result.indexOf('auth_flow'), lessThan(scaffoldIndex));
+        expect(result.indexOf('onboarding_flow'), lessThan(scaffoldIndex));
+        expect(result.indexOf('chat_experience'), lessThan(scaffoldIndex));
+        expect(result.indexOf('sidebar_nav'), lessThan(scaffoldIndex));
+      });
+
+      test('resolves flow bricks with no dependencies', () {
+        for (final flow in [
+          'auth_flow',
+          'onboarding_flow',
+          'chat_experience',
+          'sidebar_nav',
+        ]) {
+          final result = resolver.resolve(flow);
+          expect(
+            result,
+            equals([flow]),
+            reason: '$flow should resolve to only itself',
+          );
+        }
+      });
     });
 
     group('collectPubDependencies', () {
@@ -149,6 +181,12 @@ void main() {
       test('returns empty list for empty input', () {
         final deps = resolver.collectPubDependencies([]);
         expect(deps, isEmpty);
+      });
+
+      test('collects go_router pub dependency for app_scaffold', () {
+        final resolved = resolver.resolve('app_scaffold');
+        final deps = resolver.collectPubDependencies(resolved);
+        expect(deps, contains('go_router'));
       });
     });
   });

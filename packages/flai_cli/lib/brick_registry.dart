@@ -145,6 +145,12 @@ abstract final class BrickRegistry {
       description:
           'AI chat experience with composer v2, model selector, voice modes, ghost mode, and empty state.',
       category: BrickCategory.flows,
+      pubDependencies: [
+        'image_picker',
+        'file_picker',
+        'record',
+        'path_provider',
+      ],
     ),
     'sidebar_nav': BrickInfo(
       name: 'sidebar_nav',
