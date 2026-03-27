@@ -21,18 +21,18 @@ class AttachItem {
   });
 
   /// Preset for opening the device camera.
-  AttachItem.camera({this.onTap})
+  const AttachItem.camera({this.onTap})
       : icon = Icons.camera_alt_rounded,
         label = 'Camera';
 
   /// Preset for opening the photo library.
-  AttachItem.photos({this.onTap})
+  const AttachItem.photos({this.onTap})
       : icon = Icons.photo_library_rounded,
         label = 'Photos';
 
   /// Preset for attaching a file.
-  AttachItem.files({this.onTap})
-      : icon = Icons.attach_file_rounded,
+  const AttachItem.files({this.onTap})
+      : icon = Icons.upload_file_rounded,
         label = 'Files';
 }
 
@@ -119,12 +119,27 @@ class ModelOption {
 /// Configuration for the message composer.
 class ComposerConfig {
   /// The sections shown in the attachment picker.
+  ///
+  /// Defaults to [defaultAttachmentSections] which includes Camera, Photos,
+  /// and Files — the standard iOS upload options. Override to customise.
   final List<AttachmentSection> attachmentSections;
 
   /// Creates a [ComposerConfig].
   const ComposerConfig({
-    this.attachmentSections = const [],
+    this.attachmentSections = defaultAttachmentSections,
   });
+
+  /// The standard iOS attachment options: Camera, Photos, Files.
+  ///
+  /// Shown as rounded-rectangle cards at the top of the attachment sheet.
+  /// Developers can replace or extend these with additional sections.
+  static const defaultAttachmentSections = <AttachmentSection>[
+    AttachSection(items: [
+      AttachItem.camera(),
+      AttachItem.photos(),
+      AttachItem.files(),
+    ]),
+  ];
 }
 
 /// Top-level configuration for the chat experience.
@@ -152,7 +167,11 @@ class ChatExperienceConfig {
   /// The list of AI models available in the model selector.
   final List<ModelOption> availableModels;
 
-  /// Whether voice input/output is enabled.
+  /// Whether voice input/output is enabled in the composer.
+  ///
+  /// When true, a microphone button appears in the composer. When tapped,
+  /// it replaces the text field with the [VoiceRecorder] widget.
+  /// Requires a [VoiceProvider] to be configured in [AppScaffoldConfig].
   final bool enableVoice;
 
   /// Whether ghost mode (temporary, unsaved chats) is enabled.

@@ -75,17 +75,23 @@ class _VoiceRecorderState extends State<VoiceRecorder>
       ),
       child: Row(
         children: [
-          // Cancel button
+          // Cancel button (44x44 touch target)
           if (widget.onCancel != null)
             GestureDetector(
               onTap: widget.onCancel,
-              child: Icon(
-                Icons.close,
-                color: theme.colors.mutedForeground,
-                size: 20,
+              behavior: HitTestBehavior.opaque,
+              child: SizedBox(
+                width: 44,
+                height: 44,
+                child: Center(
+                  child: Icon(
+                    Icons.close,
+                    color: theme.colors.mutedForeground,
+                    size: 20,
+                  ),
+                ),
               ),
             ),
-          if (widget.onCancel != null) SizedBox(width: theme.spacing.sm),
 
           // Animated waveform bars
           AnimatedBuilder(
@@ -127,20 +133,27 @@ class _VoiceRecorderState extends State<VoiceRecorder>
 
           const Spacer(),
 
-          // Stop button (red circle)
+          // Stop button (44x44 touch target, 36x36 visual)
           GestureDetector(
             onTap: widget.onStop,
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: const BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.stop,
-                color: Colors.white,
-                size: 18,
+            behavior: HitTestBehavior.opaque,
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: Center(
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.stop,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ),
               ),
             ),
           ),
