@@ -44,6 +44,7 @@ dependencies:
   url_launcher: any
   speech_to_text: any
   flutter_markdown: ^0.7.7+1
+  markdown: any
   share_plus: any
 
 dev_dependencies:

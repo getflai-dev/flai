@@ -48,7 +48,7 @@ abstract final class BrickRegistry {
       name: 'message_bubble',
       description: 'Styled message bubble supporting markdown content.',
       category: BrickCategory.chatEssentials,
-      pubDependencies: ['flutter_markdown'],
+      pubDependencies: ['flutter_markdown', 'markdown'],
     ),
     'input_bar': BrickInfo(
       name: 'input_bar',
@@ -166,6 +166,8 @@ abstract final class BrickRegistry {
         'onboarding_flow',
         'chat_experience',
         'sidebar_nav',
+        'message_bubble',
+        'typing_indicator',
       ],
       pubDependencies: ['go_router', 'flutter_secure_storage', 'share_plus'],
     ),
