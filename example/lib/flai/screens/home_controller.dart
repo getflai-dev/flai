@@ -50,6 +50,8 @@ class HomeController extends ChangeNotifier {
 
   String _streamingText = '';
   String _streamingThinking = '';
+  final Map<String, ToolCall> _pendingToolCalls = {};
+  List<Citation> _pendingCitations = [];
 
   /// Server-assigned chat ID, captured from the AI provider after streaming.
   String? _serverChatId;
@@ -172,6 +174,8 @@ class HomeController extends ChangeNotifier {
     _isStreaming = true;
     _streamingText = '';
     _streamingThinking = '';
+    _pendingToolCalls.clear();
+    _pendingCitations = [];
 
     final assistantId = '${DateTime.now().millisecondsSinceEpoch}-assistant';
     _messages = [
@@ -227,6 +231,29 @@ class HomeController extends ChangeNotifier {
             }
           case ChatError(:final error):
             _finalizeWithError(assistantId, error.toString());
+          case ToolCallStart(:final id, :final name):
+            _pendingToolCalls[id] = ToolCall(
+              id: id,
+              name: name,
+              arguments: '',
+            );
+            _updateStreamingMessage(assistantId);
+          case ToolCallDelta(:final id, :final argumentsDelta):
+            final existing = _pendingToolCalls[id];
+            if (existing != null) {
+              _pendingToolCalls[id] = existing.copyWith(
+                arguments: existing.arguments + argumentsDelta,
+              );
+            }
+          case ToolCallEnd(:final id):
+            final existing = _pendingToolCalls[id];
+            if (existing != null) {
+              _pendingToolCalls[id] = existing.copyWith(isComplete: true);
+              _updateStreamingMessage(assistantId);
+            }
+          case CitationsReceived(:final citations):
+            _pendingCitations.addAll(citations);
+            _updateStreamingMessage(assistantId);
           default:
             break;
         }
@@ -282,6 +309,12 @@ class HomeController extends ChangeNotifier {
       last.copyWith(
         content: _streamingText,
         thinkingContent: _streamingThinking.isNotEmpty ? _streamingThinking : null,
+        toolCalls: _pendingToolCalls.isNotEmpty
+            ? _pendingToolCalls.values.toList()
+            : null,
+        citations: _pendingCitations.isNotEmpty
+            ? _pendingCitations.toList()
+            : null,
       ),
     ];
     notifyListeners();
@@ -295,6 +328,12 @@ class HomeController extends ChangeNotifier {
     final msg = last.copyWith(
       content: _streamingText,
       thinkingContent: _streamingThinking.isNotEmpty ? _streamingThinking : null,
+      toolCalls: _pendingToolCalls.isNotEmpty
+          ? _pendingToolCalls.values.toList()
+          : null,
+      citations: _pendingCitations.isNotEmpty
+          ? _pendingCitations.toList()
+          : null,
       status: MessageStatus.complete,
     );
     _messages = [

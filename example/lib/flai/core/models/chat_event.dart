@@ -1,3 +1,5 @@
+import 'message.dart';
+
 sealed class ChatEvent {
   const ChatEvent();
 }
@@ -63,4 +65,9 @@ class ChatError extends ChatEvent {
   final Object error;
   final StackTrace? stackTrace;
   const ChatError(this.error, [this.stackTrace]);
+}
+
+class CitationsReceived extends ChatEvent {
+  final List<Citation> citations;
+  const CitationsReceived(this.citations);
 }

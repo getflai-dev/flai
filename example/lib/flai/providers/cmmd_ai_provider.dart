@@ -149,9 +149,32 @@ class CmmdAiProvider implements AiProvider {
             // Summary event after all tools — informational.
             break;
 
-          case 'citations' || 'web_search_results':
-            // TODO: Parse into citation events.
-            break;
+          case 'citations':
+            final citationsList = data['citations'] as List? ?? [];
+            final citations = citationsList.map((c) {
+              final map = c as Map<String, dynamic>;
+              return Citation(
+                title: map['title'] as String? ?? '',
+                url: map['url'] as String?,
+                snippet: map['cited_text'] as String?,
+              );
+            }).toList();
+            if (citations.isNotEmpty) {
+              yield CitationsReceived(citations);
+            }
+
+          case 'web_search_results':
+            final results = data['results'] as List? ?? [];
+            final citations = results.map((r) {
+              final map = r as Map<String, dynamic>;
+              return Citation(
+                title: map['title'] as String? ?? '',
+                url: map['url'] as String?,
+              );
+            }).toList();
+            if (citations.isNotEmpty) {
+              yield CitationsReceived(citations);
+            }
 
           case 'worker_result':
             // Worker dispatch result — informational.

@@ -43,7 +43,7 @@ dependencies:
   google_sign_in: any
   url_launcher: any
   speech_to_text: any
-  flutter_markdown: any
+  flutter_markdown: ^0.7.7+1
 
 dev_dependencies:
   flutter_test:

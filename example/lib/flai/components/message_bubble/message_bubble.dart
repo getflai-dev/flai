@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../../core/models/message.dart';
 import '../../core/theme/flai_theme.dart';
@@ -602,7 +603,23 @@ class _MessageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!isStreaming) {
-      return Text(content, style: style);
+      return MarkdownBody(
+        data: content,
+        styleSheet: MarkdownStyleSheet(
+          p: style,
+          listBullet: style,
+          code: style.copyWith(
+            fontFamily: 'monospace',
+            backgroundColor: Colors.transparent,
+          ),
+          codeblockDecoration: BoxDecoration(
+            color: style.color?.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        selectable: true,
+        shrinkWrap: true,
+      );
     }
 
     return Row(
