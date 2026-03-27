@@ -591,7 +591,7 @@ class CmmdAuthProvider implements AuthProvider {
           'X-XSRF-TOKEN': _csrfToken!,
           'Cookie': 'XSRF-TOKEN=$_csrfToken${_sessionCookie ?? ''}',
         },
-        if (organizationId != null) 'X-Organization-ID': organizationId!,
+        'X-Organization-ID': ?organizationId,
       };
 
   Map<String, String> _authHeaders(String token) => {
@@ -600,7 +600,7 @@ class CmmdAuthProvider implements AuthProvider {
         'User-Agent': 'FlAI/1.0 (cmmd_providers)',
         'Authorization': 'Bearer $token',
         'X-Auth-Type': 'jwt',
-        if (organizationId != null) 'X-Organization-ID': organizationId!,
+        'X-Organization-ID': ?organizationId,
       };
 
   Future<void> _ensureCsrfToken() async {

@@ -436,12 +436,14 @@ class _WiredHomePageState extends State<_WiredHomePage> {
         onConversationTap: baseSidebar.onConversationTap,
         onConversationStar: baseSidebar.onConversationStar ?? (item) => ctrl.starConversation(item),
         onConversationRename: baseSidebar.onConversationRename ?? (item) async {
+          // Capture context before the async gap.
+          final ctx = context;
           // The drawer is already closing (ChatListItem calls closeDrawer).
           // Wait for the close animation, then show rename as a bottom
           // sheet (not a dialog — showDialog triggers _dependents.isEmpty).
           await Future<void>.delayed(const Duration(milliseconds: 400));
-          if (!mounted) return;
-          final newTitle = await _showRenameSheet(context, item.title);
+          if (!ctx.mounted) return;
+          final newTitle = await _showRenameSheet(ctx, item.title);
           if (newTitle != null && newTitle.isNotEmpty) {
             await ctrl.renameConversation(item, newTitle);
           }
