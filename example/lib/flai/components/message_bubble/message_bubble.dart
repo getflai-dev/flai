@@ -76,9 +76,13 @@ class _ChatLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUser = message.isUser;
 
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: ConstrainedBox(
+    final isError = message.status == MessageStatus.error;
+
+    return Semantics(
+      label: isError ? 'error_message_bubble' : null,
+      child: Align(
+        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+        child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.78,
         ),
@@ -193,6 +197,7 @@ class _ChatLayout extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

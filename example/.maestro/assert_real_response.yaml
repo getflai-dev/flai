@@ -1,0 +1,40 @@
+appId: com.example.flaiExample
+---
+
+# Assert Real AI Response — strict assertion flow
+#
+# Checks BOTH negative (no errors) AND positive (real content exists).
+# Runs after each send+wait cycle.
+
+# ── DETECT: Error-status message bubbles ──────────────────────────────
+# MessageBubble tags error-status messages with semantic label.
+- assertNotVisible:
+    text: "error_message_bubble"
+
+# ── DETECT: FlAI error states in bubbles ──────────────────────────────
+- assertNotVisible: "No response received"
+- assertNotVisible: "Could not connect to server"
+- assertNotVisible: "Request timed out"
+- assertNotVisible: "CmmdApiException"
+
+# ── DETECT: CMMD HTTP errors surfaced in bubbles ─────────────────────
+- assertNotVisible: "Failed to send message"
+
+# ── DETECT: CMMD canned AI fallbacks ─────────────────────────────────
+- assertNotVisible: "Hit a snag"
+- assertNotVisible: "trouble connecting"
+- assertNotVisible: "thinking engine"
+- assertNotVisible: "I apologize, but I encountered"
+- assertNotVisible: "Unable to process your request"
+- assertNotVisible: "I apologize, but I had trouble"
+- assertNotVisible: "Response generation failed"
+- assertNotVisible: "Streaming failed"
+- assertNotVisible: "I need a little context first"
+
+# ── DETECT: Rate limiting / budget ───────────────────────────────────
+- assertNotVisible: "Monthly AI budget exceeded"
+- assertNotVisible: "Too many requests"
+- assertNotVisible: "request is already in progress"
+
+# ── POSITIVE: Composer is ready (not stuck streaming) ────────────────
+- assertVisible: "Ask Assistant anything..."

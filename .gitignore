@@ -2,9 +2,16 @@
 .claude.local.md
 
 # Test credentials (NEVER commit real credentials)
-.maestro/.env
 **/.maestro/.env
 !**/.maestro/.env.example
+
+# Maestro test screenshots (generated, not source)
+*.png
+!docs-site/**/*.png
+!bricks/**/*.png
+
+# Misc personal files
+mac-mini-agent-setup.md
 
 # Personal/business files
 *.xlsx

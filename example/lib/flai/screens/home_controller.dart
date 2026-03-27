@@ -51,6 +51,9 @@ class HomeController extends ChangeNotifier {
   String _streamingText = '';
   String _streamingThinking = '';
 
+  /// Server-assigned chat ID, captured from the AI provider after streaming.
+  String? _serverChatId;
+
   UserProfile? _cachedProfile;
   AuthUser? _lastUser;
 
@@ -185,8 +188,12 @@ class HomeController extends ChangeNotifier {
 
     try {
       final metadata = <String, dynamic>{};
-      if (!isNewConversation) {
-        metadata['conversationId'] = _activeConversationId;
+      // For follow-up messages, use the server-assigned chatId from the
+      // AI provider (set from the first SSE event's conversationId field).
+      // Don't send our local ID — the server won't recognize it.
+      final serverChatId = _serverChatId;
+      if (!isNewConversation && serverChatId != null) {
+        metadata['conversationId'] = serverChatId;
       }
 
       final request = ChatRequest(
@@ -230,13 +237,27 @@ class HomeController extends ChangeNotifier {
 
     _isStreaming = false;
 
-    // For new conversations, reload to pick up the server-assigned ID.
-    if (isNewConversation) {
+    // Capture server-assigned chatId from the AI provider if available.
+    // CmmdAiProvider exposes lastChatId; other providers may not.
+    try {
+      final chatId = (ai as dynamic).lastChatId as String?;
+      if (chatId != null) {
+        _serverChatId = chatId;
+        _activeConversationId = chatId;
+      }
+    } catch (_) {
+      // AI provider doesn't expose lastChatId — use storage fallback.
+    }
+
+    // For new conversations without a server chatId, reload from storage.
+    if (isNewConversation && _serverChatId == null) {
       await loadConversations();
       if (_conversations.isNotEmpty) {
         _activeConversationId = _conversations.first.id;
       }
     }
+
+    await loadConversations();
 
     notifyListeners();
   }
