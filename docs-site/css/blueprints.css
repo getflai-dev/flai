@@ -330,6 +330,7 @@
 .bp-conv-content {
   flex: 1;
   min-width: 0;
+  text-align: left;
 }
 
 .bp-conv-title {
@@ -634,6 +635,7 @@
   border-right: 1px solid #1F1F23;
   display: flex;
   flex-direction: column;
+  text-align: left;
 }
 
 .bp-split-left .bp-appbar {
