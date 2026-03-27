@@ -519,15 +519,16 @@ class CmmdAuthProvider implements AuthProvider {
   @override
   Future<bool> tryRestoreSession(
     String accessToken,
-    String refreshToken,
+    String? refreshToken,
   ) async {
     _accessToken = accessToken;
     _refreshToken = refreshToken;
 
     try {
+      await _ensureCsrfToken();
       final response = await http.post(
         Uri.parse('${config.baseUrl}/api/auth/validate'),
-        headers: _authHeaders(accessToken),
+        headers: _baseHeaders,
       );
 
       if (response.statusCode == 200) {

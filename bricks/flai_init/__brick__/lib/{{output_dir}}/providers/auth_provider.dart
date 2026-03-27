@@ -105,7 +105,7 @@ abstract class AuthProvider {
   /// Returns `true` if restoration succeeded and the user is now authenticated.
   Future<bool> tryRestoreSession(
     String accessToken,
-    String refreshToken,
+    String? refreshToken,
   ) async =>
       false;
 

@@ -75,7 +75,7 @@ class _FlaiAppState extends State<FlaiApp> {
   /// Subscribe to the auth provider's token stream to persist changes.
   void _listenToTokenChanges() {
     _tokenSub = widget.config.authProvider.tokenChanges.listen((tokens) async {
-      if (tokens.accessToken != null && tokens.refreshToken != null) {
+      if (tokens.accessToken != null) {
         await _authStorage.saveTokens(
           accessToken: tokens.accessToken,
           refreshToken: tokens.refreshToken,
@@ -85,7 +85,7 @@ class _FlaiAppState extends State<FlaiApp> {
           await _authStorage.saveUser(user);
         }
       } else {
-        // Null tokens indicate sign-out — clear persisted session.
+        // Null access token indicates sign-out — clear persisted session.
         await _authStorage.clear();
       }
     });
@@ -94,12 +94,17 @@ class _FlaiAppState extends State<FlaiApp> {
   /// Attempt to restore a previously persisted session from secure storage.
   Future<void> _tryRestoreSession() async {
     try {
-      final tokens = await _authStorage.readTokens();
-      if (tokens != null) {
-        await widget.config.authProvider.tryRestoreSession(
-          tokens.accessToken,
-          tokens.refreshToken,
+      final stored = await _authStorage.readTokens();
+      if (stored != null) {
+        final restored = await widget.config.authProvider.tryRestoreSession(
+          stored.accessToken,
+          stored.refreshToken,
         );
+        if (!restored) {
+          // Validation failed (expired, revoked, etc.) — clear stale tokens
+          // so the next launch doesn't retry with the same dead credentials.
+          await _authStorage.clear();
+        }
       }
     } catch (_) {
       // Restoration failed — user will see the login screen.
