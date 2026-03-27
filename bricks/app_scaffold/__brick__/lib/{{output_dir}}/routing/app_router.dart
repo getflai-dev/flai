@@ -298,8 +298,10 @@ class _WiredHomePageState extends State<_WiredHomePage> {
     _controller!.loadConversations();
   }
 
+  bool _suppressRebuild = false;
+
   void _onChanged() {
-    if (mounted) setState(() {});
+    if (mounted && !_suppressRebuild) setState(() {});
   }
 
   @override
@@ -377,7 +379,16 @@ class _WiredHomePageState extends State<_WiredHomePage> {
         onNewChat: baseSidebar.onNewChat,
         onConversationTap: baseSidebar.onConversationTap,
         onConversationStar: baseSidebar.onConversationStar ?? (item) => ctrl.starConversation(item),
-        onConversationRename: baseSidebar.onConversationRename ?? (item, title) => ctrl.renameConversation(item, title),
+        onConversationRename: baseSidebar.onConversationRename ?? (item, title) async {
+          // Suppress rebuilds during rename to prevent _dependents.isEmpty
+          // assertion (Flutter framework bug in drawer InheritedElement lifecycle).
+          _suppressRebuild = true;
+          await ctrl.renameConversation(item, title);
+          _suppressRebuild = false;
+          // Delay rebuild until dialog element tree is fully disposed.
+          await Future<void>.delayed(const Duration(seconds: 1));
+          if (mounted) setState(() {});
+        },
         onConversationShare: baseSidebar.onConversationShare,
         onConversationDelete: baseSidebar.onConversationDelete ?? (item) => ctrl.deleteConversation(item),
       ),

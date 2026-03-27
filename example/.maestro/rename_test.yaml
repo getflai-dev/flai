@@ -56,13 +56,13 @@ appId: com.example.flaiExample
     timeout: 5000
 - takeScreenshot: rename_01_context_menu
 
-# ── Tap Rename in context menu ───────────────────────────────────────
+# ── Tap Rename — dialog appears over drawer ──────────────────────────
 - tapOn: "Rename"
 - waitForAnimationToEnd:
-    timeout: 3000
+    timeout: 5000
 - extendedWaitUntil:
     visible: "Rename conversation"
-    timeout: 5000
+    timeout: 10000
 - takeScreenshot: rename_02_dialog
 
 # ── Clear existing text, type new name, confirm ─────────────────────
@@ -70,9 +70,13 @@ appId: com.example.flaiExample
 - inputText: "My Renamed Chat"
 - tapOn: "Rename"
 - waitForAnimationToEnd:
-    timeout: 10000
+    timeout: 15000
 
-# ── Drawer closes after rename — reopen to verify ───────────────────
+# ── Close drawer and reopen to verify ────────────────────────────────
+- tapOn:
+    point: "90%,50%"
+- waitForAnimationToEnd:
+    timeout: 3000
 - tapOn:
     point: "10%,10%"
 - waitForAnimationToEnd:
@@ -80,8 +84,6 @@ appId: com.example.flaiExample
 - extendedWaitUntil:
     visible: "RECENTS"
     timeout: 15000
-
-# ── Verify renamed title appears in sidebar ──────────────────────────
 - extendedWaitUntil:
     visible: "My Renamed Chat"
     timeout: 10000

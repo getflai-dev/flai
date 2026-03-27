@@ -59,11 +59,7 @@ class ChatListItem extends StatelessWidget {
   }
 
   Future<void> _showRenameDialog(BuildContext context) async {
-    // Use the Scaffold's context (outside the drawer) for the dialog.
-    // Using the drawer's context causes _dependents.isEmpty assertion
-    // when the dialog's InheritedWidget references outlive the drawer.
     final scaffoldContext = Scaffold.of(context).context;
-
     final controller = TextEditingController(text: item.title);
     final result = await showDialog<String>(
       context: scaffoldContext,
@@ -89,18 +85,12 @@ class ChatListItem extends StatelessWidget {
     );
     controller.dispose();
     if (result != null && result.isNotEmpty) {
-      // Close the drawer before triggering the rename callback.
-      // HomeController.renameConversation → notifyListeners() causes a
-      // _dependents.isEmpty assertion if the drawer is still mounted.
-      if (context.mounted) {
-        Navigator.of(context).pop(); // close drawer
-      }
       onRename?.call(result);
     }
   }
 
-  void _showContextMenu(BuildContext context) {
-    showModalBottomSheet<void>(
+  void _showContextMenu(BuildContext context) async {
+    final action = await showModalBottomSheet<String>(
       context: context,
       builder: (ctx) {
         return SafeArea(
@@ -112,40 +102,40 @@ class ChatListItem extends StatelessWidget {
                   item.isStarred ? Icons.star_rounded : Icons.star_border_rounded,
                 ),
                 title: Text(item.isStarred ? 'Unstar' : 'Star'),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  onStar?.call();
-                },
+                onTap: () => Navigator.of(ctx).pop('star'),
               ),
               ListTile(
                 leading: const Icon(Icons.edit_rounded),
                 title: const Text('Rename'),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  _showRenameDialog(context);
-                },
+                onTap: () => Navigator.of(ctx).pop('rename'),
               ),
               ListTile(
                 leading: const Icon(Icons.share_rounded),
                 title: const Text('Share'),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  onShare?.call();
-                },
+                onTap: () => Navigator.of(ctx).pop('share'),
               ),
               ListTile(
                 leading: const Icon(Icons.delete_rounded, color: Colors.red),
                 title: const Text('Delete', style: TextStyle(color: Colors.red)),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  onDelete?.call();
-                },
+                onTap: () => Navigator.of(ctx).pop('delete'),
               ),
             ],
           ),
         );
       },
     );
+    // Handle action AFTER bottom sheet is fully dismissed
+    if (action == null || !context.mounted) return;
+    switch (action) {
+      case 'star':
+        onStar?.call();
+      case 'rename':
+        _showRenameDialog(context);
+      case 'share':
+        onShare?.call();
+      case 'delete':
+        onDelete?.call();
+    }
   }
 
   @override
