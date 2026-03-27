@@ -11,32 +11,17 @@ appId: com.example.flaiExample
 #     -e FLAI_TEST_EMAIL=you@example.com \
 #     -e FLAI_TEST_PASSWORD=yourpassword
 
-# ── Fresh start ───────────────────────────────────────────────────────
-- clearState: com.example.flaiExample
+# ── Launch ────────────────────────────────────────────────────────────
 - launchApp:
     appId: com.example.flaiExample
-    clearState: true
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 20000
 
-# ── Login ─────────────────────────────────────────────────────────────
-- extendedWaitUntil:
-    visible: "Log in"
-    timeout: 15000
-- tapOn: "Log in"
-- extendedWaitUntil:
-    visible: "Continue"
-    timeout: 5000
-- tapOn: "Email"
-- inputText: ${FLAI_TEST_EMAIL}
-- tapOn: "Continue"
-- extendedWaitUntil:
-    visible: "Enter your password"
-    timeout: 8000
-- tapOn:
-    point: "50%,42%"
-- inputText: ${FLAI_TEST_PASSWORD}
-- tapOn: "Continue"
+# ── Login if needed ───────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
 
 # ── Home screen ───────────────────────────────────────────────────────
 - extendedWaitUntil:

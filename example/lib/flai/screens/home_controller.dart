@@ -45,6 +45,9 @@ class HomeController extends ChangeNotifier {
   List<Message> _messages = [];
   List<Message> get messages => _messages;
 
+  bool _isLoadingConversations = false;
+  bool get isLoadingConversations => _isLoadingConversations;
+
   bool _isStreaming = false;
   bool get isStreaming => _isStreaming;
 
@@ -83,6 +86,8 @@ class HomeController extends ChangeNotifier {
   // ── Init / Dispose ─────────────────────────────────────────────────
 
   Future<void> loadConversations() async {
+    _isLoadingConversations = true;
+    notifyListeners();
     try {
       final results = await Future.wait([
         storage.loadConversations(),
@@ -90,9 +95,12 @@ class HomeController extends ChangeNotifier {
       ]);
       _conversations = results[0].map(_toItem).toList();
       _starred = results[1].map((c) => _toItem(c, isStarred: true)).toList();
-      notifyListeners();
     } catch (e) {
+      onError?.call('Failed to load conversations');
       debugPrint('Failed to load conversations: $e');
+    } finally {
+      _isLoadingConversations = false;
+      notifyListeners();
     }
   }
 
@@ -119,25 +127,41 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> starConversation(ConversationItem item) async {
-    if (item.isStarred) {
-      await storage.unstarConversation(item.id);
-    } else {
-      await storage.starConversation(item.id);
+    try {
+      if (item.isStarred) {
+        await storage.unstarConversation(item.id);
+      } else {
+        await storage.starConversation(item.id);
+      }
+      await loadConversations();
+    } catch (e) {
+      onError?.call('Failed to update star');
+      debugPrint('Failed to star conversation: $e');
     }
-    await loadConversations();
   }
 
   Future<void> renameConversation(ConversationItem item, String newTitle) async {
-    await storage.renameConversation(item.id, newTitle);
-    await loadConversations();
+    try {
+      await storage.renameConversation(item.id, newTitle);
+      await loadConversations();
+    } catch (e) {
+      onError?.call('Failed to rename conversation');
+      debugPrint('Failed to rename conversation: $e');
+    }
   }
 
   Future<void> deleteConversation(ConversationItem item) async {
-    await storage.deleteConversation(item.id);
-    if (_activeConversationId == item.id) {
-      newChat();
+    try {
+      await storage.deleteConversation(item.id);
+      if (_activeConversationId == item.id) {
+        newChat();
+      }
+      await loadConversations();
+    } catch (e) {
+      onError?.call('Failed to delete conversation');
+      debugPrint('Failed to delete conversation: $e');
+      await loadConversations(); // reload to restore UI state
     }
-    await loadConversations();
   }
 
   // ── Send Message ────────────────────────────────────────────────────
