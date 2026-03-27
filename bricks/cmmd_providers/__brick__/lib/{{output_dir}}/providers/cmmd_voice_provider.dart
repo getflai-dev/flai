@@ -180,7 +180,7 @@ class CmmdVoiceProvider implements VoiceProvider {
         headers: _headers,
         body: jsonEncode({
           'text': text,
-          if (voice != null) 'voice': voice,
+          'voice': ?voice,
         }),
       );
 
@@ -257,7 +257,7 @@ class CmmdVoiceProvider implements VoiceProvider {
       'User-Agent': 'FlAI/1.0 (cmmd_providers)',
       'Authorization': 'Bearer ${accessTokenProvider()}',
       'X-Auth-Type': 'jwt',
-      if (orgId != null) 'X-Organization-ID': orgId,
+      'X-Organization-ID': ?orgId,
       ...?csrfHeadersProvider?.call(),
     };
   }
