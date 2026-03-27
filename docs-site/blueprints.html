@@ -43,6 +43,7 @@
           <button class="bp-filter" data-filter="onboarding">Onboarding</button>
           <button class="bp-filter" data-filter="chat">Chat</button>
           <button class="bp-filter" data-filter="sidebar">Sidebar</button>
+          <button class="bp-filter" data-filter="scaffold">Scaffold</button>
         </div>
       </section>
 
@@ -197,6 +198,7 @@
                     <div style="background:#18181B;border:1px solid #27272A;border-radius:6px;padding:6px 8px;font-size:9px;color:#52525B;">Search conversations...</div>
                   </div>
                   <div style="flex:1;padding:0 8px;overflow:hidden;">
+                    <div style="padding:4px 8px 2px;font-size:7px;color:#52525B;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Today</div>
                     <div style="padding:6px 8px;border-radius:6px;background:#1E1E21;margin-bottom:2px;display:flex;align-items:center;gap:6px;">
                       <div style="font-size:9px;color:#FAFAFA;flex:1;">Flutter state management</div>
                       <div style="font-size:7px;color:#52525B;">2m</div>
@@ -205,13 +207,14 @@
                       <div style="font-size:9px;color:#A1A1AA;flex:1;">REST API integration</div>
                       <div style="font-size:7px;color:#52525B;">1h</div>
                     </div>
+                    <div style="padding:4px 8px 2px;font-size:7px;color:#52525B;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Yesterday</div>
                     <div style="padding:6px 8px;border-radius:6px;margin-bottom:2px;display:flex;align-items:center;gap:6px;">
                       <div style="font-size:9px;color:#A1A1AA;flex:1;">Database design</div>
-                      <div style="font-size:7px;color:#52525B;">3h</div>
+                      <div style="font-size:7px;color:#52525B;">1d</div>
                     </div>
                     <div style="padding:6px 8px;border-radius:6px;margin-bottom:2px;display:flex;align-items:center;gap:6px;">
                       <div style="font-size:9px;color:#A1A1AA;flex:1;">Custom animations</div>
-                      <div style="font-size:7px;color:#52525B;">1d</div>
+                      <div style="font-size:7px;color:#52525B;">2d</div>
                     </div>
                   </div>
                   <div style="padding:8px 12px;border-top:1px solid #27272A;display:flex;align-items:center;gap:8px;">
@@ -347,65 +350,8 @@
           </div>
         </div>
 
-        <!-- (e) Settings Screen -->
-        <div class="bp-card bp-settings" data-category="settings">
-          <div class="bp-phone">
-            <div class="bp-phone-notch"></div>
-            <div class="bp-phone-screen">
-              <div class="bp-appbar">
-                <div class="bp-appbar-title">Settings</div>
-              </div>
-              <div class="bp-screen">
-                <div class="bp-settings-section">
-                  <div class="bp-settings-label">Theme</div>
-                  <div class="bp-theme-swatches">
-                    <div class="bp-swatch bp-swatch-light"></div>
-                    <div class="bp-swatch bp-swatch-dark bp-swatch-active"></div>
-                    <div class="bp-swatch bp-swatch-ios"></div>
-                    <div class="bp-swatch bp-swatch-premium"></div>
-                  </div>
-                </div>
-
-                <div class="bp-settings-section">
-                  <div class="bp-settings-label">Model</div>
-                  <div class="bp-model-chip">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    Claude Sonnet 4
-                    <span style="color:#52525B;">&#9662;</span>
-                  </div>
-                </div>
-
-                <div class="bp-settings-section">
-                  <div class="bp-settings-label">API Key</div>
-                  <div class="bp-api-field">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-                    sk-&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;vK3m
-                  </div>
-                </div>
-
-                <div class="bp-settings-section">
-                  <div class="bp-settings-label">About</div>
-                  <div class="bp-about-row">
-                    <span>Version</span>
-                    <span class="bp-about-val">1.0.0</span>
-                  </div>
-                  <div class="bp-about-row">
-                    <span>Build</span>
-                    <span class="bp-about-val">2026.03.26</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="bp-label">
-            <div class="bp-label-name">Settings Screen</div>
-            <div class="bp-label-desc">Theme picker, model selector, API key management</div>
-            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add settings_screen</div>
-          </div>
-        </div>
-
-        <!-- (f) Profile Screen -->
-        <div class="bp-card bp-profile" data-category="profile">
+        <!-- (e) Markdown Chat — Message Bubble -->
+        <div class="bp-card bp-markdown" data-category="chat">
           <div class="bp-phone">
             <div class="bp-phone-notch"></div>
             <div class="bp-phone-screen">
@@ -413,27 +359,48 @@
                 <div class="bp-appbar-icon">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg>
                 </div>
-                <div class="bp-appbar-title">Profile</div>
+                <div>
+                  <div class="bp-appbar-title">AI Assistant</div>
+                </div>
+                <div class="bp-appbar-badge">Claude Sonnet 4</div>
               </div>
-              <div class="bp-screen">
-                <div class="bp-avatar">JD</div>
-                <div class="bp-profile-name">Jane Doe</div>
-                <div class="bp-profile-email">jane@example.com</div>
-                <div class="bp-profile-since">Member since Mar 2026</div>
-                <div class="bp-btn-outline">Edit Profile</div>
-                <div class="bp-btn-destructive">Sign Out</div>
+              <div class="bp-chat-body">
+                <div class="bp-bubble bp-bubble-user">Show me a code example</div>
+                <div class="bp-bubble bp-bubble-ai" style="padding:0;background:none;">
+                  <div style="background:#1E1E21;border-radius:8px;overflow:hidden;margin-bottom:6px;">
+                    <div style="background:#27272A;padding:3px 8px;font-size:7px;color:#A1A1AA;display:flex;justify-content:space-between;align-items:center;">
+                      <span>dart</span>
+                      <span style="color:#52525B;cursor:pointer;">copy</span>
+                    </div>
+                    <div style="padding:6px 8px;font-family:monospace;font-size:8px;color:#C4B5FD;line-height:1.5;">
+                      <div><span style="color:#818CF8;">final</span> data = <span style="color:#818CF8;">await</span> fetch();</div>
+                      <div><span style="color:#818CF8;">final</span> parsed = json.decode(data);</div>
+                      <div><span style="color:#818CF8;">return</span> Model.fromJson(parsed);</div>
+                    </div>
+                  </div>
+                  <div style="background:#1E1E21;border-radius:8px;padding:6px 8px;">
+                    <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;cursor:pointer;">
+                      <span style="font-size:7px;color:#52525B;">&#9654;</span>
+                      <span style="font-size:8px;color:#A1A1AA;font-weight:500;">Reasoning</span>
+                    </div>
+                    <div style="font-size:8px;color:#52525B;line-height:1.4;">The user wants a typed JSON parsing example using Dart 3 patterns...</div>
+                  </div>
+                </div>
+                <div style="padding:0 8px;margin-top:2px;">
+                  <span style="font-size:7px;color:#52525B;cursor:pointer;">Regenerate</span>
+                </div>
               </div>
             </div>
           </div>
           <div class="bp-label">
-            <div class="bp-label-name">Profile Screen</div>
-            <div class="bp-label-desc">User avatar, info display, and account actions</div>
-            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add profile_screen</div>
+            <div class="bp-label-name">Message Bubble — Markdown & Thinking</div>
+            <div class="bp-label-desc">Markdown rendering, code blocks with copy, thinking panels, citations, tool call chips.</div>
+            <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add message_bubble</div>
           </div>
         </div>
 
-        <!-- (g) Full App Blueprint (wide) -->
-        <div class="bp-card bp-card-wide bp-fullapp" data-category="all">
+        <!-- (f) Full App Blueprint (wide) -->
+        <div class="bp-card bp-card-wide bp-fullapp" data-category="scaffold">
           <div class="bp-split-frame">
             <!-- Left: Chat list -->
             <div class="bp-split-left">
@@ -443,6 +410,7 @@
                 </div>
                 <div class="bp-appbar-title">Chats</div>
               </div>
+              <div style="padding:2px 8px 0;font-size:7px;color:#52525B;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Today</div>
               <div class="bp-conv-item bp-conv-item-selected">
                 <div class="bp-conv-avatar">AI</div>
                 <div class="bp-conv-content">
@@ -463,6 +431,7 @@
                   <div class="bp-conv-time">1h</div>
                 </div>
               </div>
+              <div style="padding:2px 8px 0;font-size:7px;color:#52525B;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Yesterday</div>
               <div class="bp-conv-item">
                 <div class="bp-conv-avatar">AI</div>
                 <div class="bp-conv-content">
@@ -470,7 +439,7 @@
                   <div class="bp-conv-preview">Normalizing data...</div>
                 </div>
                 <div class="bp-conv-meta">
-                  <div class="bp-conv-time">3h</div>
+                  <div class="bp-conv-time">1d</div>
                 </div>
               </div>
               <div class="bp-conv-item">
@@ -480,7 +449,7 @@
                   <div class="bp-conv-preview">Staggered fade-in...</div>
                 </div>
                 <div class="bp-conv-meta">
-                  <div class="bp-conv-time">1d</div>
+                  <div class="bp-conv-time">2d</div>
                 </div>
               </div>
               <div class="bp-conv-item">
@@ -490,7 +459,7 @@
                   <div class="bp-conv-preview">Widget vs integration...</div>
                 </div>
                 <div class="bp-conv-meta">
-                  <div class="bp-conv-time">2d</div>
+                  <div class="bp-conv-time">3d</div>
                 </div>
               </div>
             </div>
@@ -505,10 +474,18 @@
                 <div class="bp-appbar-badge">Claude Sonnet 4</div>
               </div>
               <div class="bp-chat-body">
-                <div class="bp-bubble bp-bubble-user">Can you explain async/await in Dart?</div>
-                <div class="bp-bubble bp-bubble-ai">In Dart, <strong>async/await</strong> is syntactic sugar for working with Futures. An async function returns a Future, and await pauses until it resolves.<span class="bp-cursor"></span></div>
-                <div class="bp-bubble bp-bubble-user">Show me an example?</div>
-                <div class="bp-bubble bp-bubble-ai">Sure! Here's a simple example that fetches data from an API and processes it step by step.</div>
+                <div class="bp-bubble bp-bubble-user">Show me a JSON parser in Dart?</div>
+                <div class="bp-bubble bp-bubble-ai" style="padding-bottom:0;">
+                  Here's a type-safe parser:
+                  <div style="background:#18181B;border-radius:6px;overflow:hidden;margin-top:4px;">
+                    <div style="padding:4px 6px;font-family:monospace;font-size:7px;color:#C4B5FD;line-height:1.4;">
+                      <div><span style="color:#818CF8;">final</span> res = <span style="color:#818CF8;">await</span> http.get(url);</div>
+                      <div><span style="color:#818CF8;">return</span> Model.fromJson(res.body);</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="bp-bubble bp-bubble-user">Can you explain the await?</div>
+                <div class="bp-bubble bp-bubble-ai">The <strong>await</strong> keyword pauses until the Future resolves, then unwraps the value.<span class="bp-cursor"></span></div>
               </div>
               <div class="bp-chat-input">
                 <span class="bp-chat-plus">+</span>
@@ -520,8 +497,8 @@
             </div>
           </div>
           <div class="bp-label">
-            <div class="bp-label-name">Complete App — Auth, Onboarding, Chat, Sidebar</div>
-            <div class="bp-label-desc">Production app shell wiring 4 flow bricks with GoRouter: auth → onboarding → chat + sidebar. One command.</div>
+            <div class="bp-label-name">Complete App Scaffold — 7 Bricks, 83 Files, One Command</div>
+            <div class="bp-label-desc">Production app shell with auth, onboarding, chat (markdown + voice + attachments), sidebar (conversation grouping + settings). Auto-generates main.dart with your branding.</div>
             <div class="bp-label-cmd"><span class="bp-prompt">$</span> flai add app_scaffold</div>
           </div>
         </div>
@@ -533,9 +510,11 @@
       <!-- ============================================ -->
       <section class="bp-cta">
         <h2 class="bp-cta-title" style="border:none;margin:0 0 8px;padding:0;">Get started with Blueprints</h2>
-        <p class="bp-cta-desc">Install the full app scaffold with a single command.</p>
+        <p class="bp-cta-desc">Three commands to a production AI chat app.</p>
         <div class="bp-cta-cmd">
-          <span class="bp-prompt">$</span> flai add app_scaffold
+          <div><span class="bp-prompt">$</span> flai init</div>
+          <div><span class="bp-prompt">$</span> flai add app_scaffold</div>
+          <div><span class="bp-prompt">$</span> flutter run</div>
         </div>
         <a href="docs/index.html" class="bp-cta-link">Read the docs &rarr;</a>
       </section>
@@ -577,7 +556,7 @@
             var category = card.getAttribute('data-category');
             if (filter === 'all') {
               card.style.display = '';
-            } else if (category === filter || category === 'all') {
+            } else if (category === filter) {
               card.style.display = '';
             } else {
               card.style.display = 'none';
