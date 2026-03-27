@@ -148,8 +148,6 @@ abstract final class BrickRegistry {
       pubDependencies: [
         'image_picker',
         'file_picker',
-        'record',
-        'path_provider',
       ],
     ),
     'sidebar_nav': BrickInfo(

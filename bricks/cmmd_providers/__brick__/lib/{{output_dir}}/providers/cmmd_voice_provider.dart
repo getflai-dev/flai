@@ -3,15 +3,20 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 import 'cmmd_config.dart';
 import 'voice_provider.dart';
 
-/// CMMD API implementation of [VoiceProvider].
+/// CMMD implementation of [VoiceProvider].
 ///
-/// Provides speech-to-text via `/api/ai/voice/transcribe` and
-/// text-to-speech via `/api/ai/tts`. CMMD does not support
-/// streaming TTS or continuous voice conversation mode.
+/// **STT (speech-to-text):** Uses the `speech_to_text` Flutter package for
+/// on-device recognition — no server API call. This provides faster results
+/// and works offline.
+///
+/// **TTS (text-to-speech):** Uses `POST /api/ai/tts` to synthesize speech
+/// via the CMMD backend (returns audio/mpeg binary).
 ///
 /// ```dart
 /// final voice = CmmdVoiceProvider(
@@ -19,17 +24,21 @@ import 'voice_provider.dart';
 ///   accessTokenProvider: () => authProvider.accessToken!,
 /// );
 ///
-/// final text = await voice.transcribe(audioBytes);
+/// // On-device transcription
+/// await voice.startListening();
+/// // ... user speaks ...
+/// final text = voice.lastTranscript;
+///
+/// // Server TTS
 /// final audio = await voice.synthesize('Hello, world!');
 /// ```
 class CmmdVoiceProvider implements VoiceProvider {
   /// Creates a [CmmdVoiceProvider].
-  ///
-  /// [config] specifies the CMMD API base URL and organization.
-  /// [accessTokenProvider] returns the current JWT access token.
   CmmdVoiceProvider({
     required this.config,
     required this.accessTokenProvider,
+    this.organizationIdProvider,
+    this.localeId = 'en_US',
   });
 
   /// The CMMD API configuration.
@@ -38,14 +47,26 @@ class CmmdVoiceProvider implements VoiceProvider {
   /// Returns the current JWT access token for authenticated requests.
   final String Function() accessTokenProvider;
 
+  /// Returns the current organization ID, if available.
+  final String? Function()? organizationIdProvider;
+
+  /// Locale for on-device speech recognition (e.g., 'en_US', 'es_ES').
+  final String localeId;
+
+  final SpeechToText _speechToText = SpeechToText();
   final StreamController<VoiceEvent> _eventController =
       StreamController<VoiceEvent>.broadcast();
 
   bool _isListening = false;
   bool _isSpeaking = false;
+  bool _isInitialized = false;
+  String _lastTranscript = '';
+
+  /// The most recent transcript from on-device recognition.
+  String get lastTranscript => _lastTranscript;
 
   // ---------------------------------------------------------------------------
-  // VoiceProvider capabilities
+  // VoiceProvider interface
   // ---------------------------------------------------------------------------
 
   @override
@@ -58,71 +79,104 @@ class CmmdVoiceProvider implements VoiceProvider {
   Stream<VoiceEvent> get conversationEvents => _eventController.stream;
 
   // ---------------------------------------------------------------------------
-  // Transcription (speech-to-text)
+  // Transcription (on-device speech_to_text)
   // ---------------------------------------------------------------------------
 
   @override
   Future<String> transcribe(Uint8List audio) async {
-    try {
-      _isListening = true;
+    // CMMD uses on-device STT, not server-side transcription.
+    // The audio bytes are ignored — use startListening() / stopListening()
+    // for real-time on-device recognition.
+    //
+    // This method is kept for VoiceProvider interface compatibility.
+    // If called directly, return the last transcript.
+    return _lastTranscript;
+  }
 
-      final uri = Uri.parse('${config.baseUrl}/api/ai/voice/transcribe');
-      final request = http.MultipartRequest('POST', uri);
+  /// Initialize the speech recognition engine.
+  ///
+  /// Must be called once before [startListening]. Returns `true` if
+  /// speech recognition is available on this device.
+  Future<bool> initialize() async {
+    if (_isInitialized) return true;
 
-      request.headers.addAll({
-        'Accept': 'application/json',
-        'Authorization': 'Bearer ${accessTokenProvider()}',
-        if (config.organizationId != null)
-          'X-Organization-ID': config.organizationId!,
-      });
+    _isInitialized = await _speechToText.initialize(
+      onStatus: _onStatus,
+      onError: (error) {
+        _eventController.add(VoiceError(error.errorMsg));
+        _isListening = false;
+      },
+    );
 
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'audio',
-          audio,
-          filename: 'recording.wav',
-        ),
-      );
+    return _isInitialized;
+  }
 
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      if (response.statusCode != 200) {
-        throw Exception(
-          'Transcription failed (${response.statusCode}): ${response.body}',
+  /// Start listening for speech using on-device recognition.
+  ///
+  /// Call [initialize] first. Emits [VoiceTranscript] events as the user
+  /// speaks. Call [stopListening] to stop and get the final transcript.
+  Future<void> startListening() async {
+    if (!_isInitialized) {
+      final available = await initialize();
+      if (!available) {
+        _eventController.add(
+          const VoiceError('Speech recognition not available on this device.'),
         );
+        return;
       }
+    }
 
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
-      final text = json['text'] as String? ?? json['transcript'] as String? ?? '';
+    _lastTranscript = '';
+    _isListening = true;
 
-      _eventController.add(VoiceTranscript(text));
-      return text;
-    } finally {
+    await _speechToText.listen(
+      onResult: _onResult,
+      localeId: localeId,
+      listenOptions: SpeechListenOptions(
+        listenMode: ListenMode.dictation,
+        cancelOnError: true,
+        partialResults: true,
+      ),
+    );
+  }
+
+  /// Stop listening and return the final transcript.
+  Future<String> stopListening() async {
+    await _speechToText.stop();
+    _isListening = false;
+    return _lastTranscript;
+  }
+
+  void _onResult(SpeechRecognitionResult result) {
+    _lastTranscript = result.recognizedWords;
+    _eventController.add(VoiceTranscript(_lastTranscript));
+
+    if (result.finalResult) {
+      _isListening = false;
+    }
+  }
+
+  void _onStatus(String status) {
+    if (status == 'notListening' || status == 'done') {
       _isListening = false;
     }
   }
 
   // ---------------------------------------------------------------------------
-  // Synthesis (text-to-speech)
+  // Synthesis (server-side TTS)
   // ---------------------------------------------------------------------------
 
   @override
-  Future<Uint8List> synthesize(String text) async {
+  Future<Uint8List> synthesize(String text, {String? voice}) async {
     try {
       _isSpeaking = true;
 
       final response = await http.post(
         Uri.parse('${config.baseUrl}/api/ai/tts'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/octet-stream',
-          'Authorization': 'Bearer ${accessTokenProvider()}',
-          if (config.organizationId != null)
-            'X-Organization-ID': config.organizationId!,
-        },
+        headers: _headers,
         body: jsonEncode({
           'text': text,
+          if (voice != null) 'voice': voice,
         }),
       );
 
@@ -132,6 +186,7 @@ class CmmdVoiceProvider implements VoiceProvider {
         );
       }
 
+      // Response is audio/mpeg binary.
       final audioBytes = Uint8List.fromList(response.bodyBytes);
       _eventController.add(VoiceAudio(audioBytes));
       return audioBytes;
@@ -140,24 +195,64 @@ class CmmdVoiceProvider implements VoiceProvider {
     }
   }
 
+  /// Fetch available TTS voices from the server.
+  Future<List<({String id, String name, String? previewUrl})>>
+      getVoices() async {
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/api/ai/tts/voices'),
+      headers: _headers,
+    );
+
+    if (response.statusCode != 200) {
+      return [];
+    }
+
+    final json = jsonDecode(response.body) as List<dynamic>;
+    return json.map((v) {
+      final map = v as Map<String, dynamic>;
+      return (
+        id: map['id'] as String? ?? '',
+        name: map['name'] as String? ?? '',
+        previewUrl: map['preview_url'] as String?,
+      );
+    }).toList();
+  }
+
   // ---------------------------------------------------------------------------
-  // Conversation mode (not supported by CMMD)
+  // Conversation mode
   // ---------------------------------------------------------------------------
 
   @override
   Future<void> startConversation() async {
-    // CMMD does not support real-time continuous voice conversation mode.
-    // Use transcribe() + synthesize() for push-to-talk workflows instead.
-    _eventController.add(
-      const VoiceError('Continuous voice conversation is not supported by CMMD. '
-          'Use push-to-talk mode instead.'),
-    );
+    // In push-to-talk mode, startConversation maps to startListening.
+    await startListening();
   }
 
   @override
   Future<void> stopConversation() async {
-    _isListening = false;
+    if (_isListening) {
+      final transcript = await stopListening();
+      // Emit the final transcript so the voice controller picks it up.
+      if (transcript.trim().isNotEmpty) {
+        _eventController.add(VoiceTranscript(transcript.trim()));
+      }
+    }
     _isSpeaking = false;
     _eventController.add(const VoiceConversationDone());
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+  // ---------------------------------------------------------------------------
+
+  Map<String, String> get _headers {
+    final orgId = organizationIdProvider?.call() ?? config.organizationId;
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/octet-stream',
+      'Authorization': 'Bearer ${accessTokenProvider()}',
+      'X-Auth-Type': 'jwt',
+      if (orgId != null) 'X-Organization-ID': orgId,
+    };
   }
 }

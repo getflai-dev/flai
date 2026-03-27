@@ -1,34 +1,34 @@
-import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:record/record.dart';
 
 import '../../providers/voice_provider.dart';
 
-/// Orchestrates the full push-to-talk voice pipeline:
-/// microphone capture → audio bytes → transcription → message send.
+/// Orchestrates the push-to-talk voice pipeline for the chat experience.
 ///
-/// Wraps the `record` package for microphone access and delegates
-/// transcription to the configured [VoiceProvider]. When recording stops,
-/// the transcribed text is delivered via [onTranscribed].
+/// Listens to [VoiceProvider.conversationEvents] for transcription results.
+/// When the provider emits a [VoiceTranscript], the text is captured in
+/// [lastTranscript] and [onTranscribed] fires so the composer can populate
+/// the text field for user review.
+///
+/// This controller is provider-agnostic: it works with both on-device STT
+/// providers (like CMMD's `speech_to_text`-based provider) and server-side
+/// transcription providers.
 ///
 /// ```dart
 /// final controller = FlaiVoiceController(
 ///   provider: cmmdVoiceProvider,
-///   onTranscribed: (text) => sendMessage(text),
+///   onTranscribed: (text) => composerController.text = text,
 /// );
 ///
-/// await controller.startRecording();  // mic starts
-/// await controller.stopRecording();   // mic stops → transcribes → fires onTranscribed
+/// await controller.startRecording();  // provider starts listening
+/// await controller.stopRecording();   // provider stops → transcript fires
 /// ```
 class FlaiVoiceController extends ChangeNotifier {
-  /// The voice provider that handles server-side transcription.
+  /// The voice provider that handles speech-to-text.
   final VoiceProvider provider;
 
-  /// Called with the transcribed text after recording stops successfully.
-  ///
-  /// Typically wired to send the text as a chat message.
+  /// Called with the transcribed text after recording stops.
   final ValueChanged<String>? onTranscribed;
 
   /// Called when an error occurs during recording or transcription.
@@ -39,89 +39,62 @@ class FlaiVoiceController extends ChangeNotifier {
     required this.provider,
     this.onTranscribed,
     this.onError,
-  });
+  }) {
+    _subscription = provider.conversationEvents.listen(_onVoiceEvent);
+  }
 
-  final AudioRecorder _recorder = AudioRecorder();
+  StreamSubscription<VoiceEvent>? _subscription;
 
   bool _isRecording = false;
   bool _isTranscribing = false;
   String? _lastTranscript;
 
-  /// Whether the microphone is actively recording.
+  /// Whether the microphone is actively listening.
   bool get isRecording => _isRecording;
 
-  /// Whether recorded audio is being transcribed to text.
+  /// Whether speech is being transcribed to text.
   bool get isTranscribing => _isTranscribing;
 
   /// The most recent transcription result.
   ///
-  /// Changes each time a recording is successfully transcribed. The home
-  /// screen passes this to [FlaiComposerV2.voiceTranscript] so the text
-  /// populates the input field for the user to review before sending.
+  /// The home screen passes this to [FlaiComposerV2.voiceTranscript] so the
+  /// text populates the input field for the user to review before sending.
   String? get lastTranscript => _lastTranscript;
 
-  /// Whether any voice operation is in progress (recording or transcribing).
+  /// Whether any voice operation is in progress.
   bool get isBusy => _isRecording || _isTranscribing;
 
-  /// Start recording audio from the device microphone.
+  /// Start listening for speech.
   ///
-  /// Checks for microphone permission first. If denied, fires [onError].
-  /// Records in WAV format for maximum transcription compatibility.
+  /// Delegates to [VoiceProvider.startConversation] which triggers
+  /// on-device or server-side speech recognition depending on the provider.
   Future<void> startRecording() async {
     if (_isRecording) return;
 
-    final hasPermission = await _recorder.hasPermission();
-    if (!hasPermission) {
-      onError?.call('Microphone permission denied');
-      return;
-    }
-
-    final dir = await getTemporaryDirectory();
-    final path = '${dir.path}/flai_voice_${DateTime.now().millisecondsSinceEpoch}.wav';
-
-    await _recorder.start(
-      const RecordConfig(encoder: AudioEncoder.wav),
-      path: path,
-    );
-
     _isRecording = true;
     notifyListeners();
+
+    try {
+      await provider.startConversation();
+    } catch (e) {
+      _isRecording = false;
+      notifyListeners();
+      onError?.call('Could not start voice recording');
+    }
   }
 
-  /// Stop recording and transcribe the audio.
-  ///
-  /// After recording stops, reads the audio file, sends it to the
-  /// [VoiceProvider] for transcription, and fires [onTranscribed] with
-  /// the resulting text. The audio file is deleted after transcription.
+  /// Stop listening and wait for the final transcript.
   Future<void> stopRecording() async {
     if (!_isRecording) return;
 
-    final path = await _recorder.stop();
     _isRecording = false;
-    notifyListeners();
-
-    if (path == null) return;
-
     _isTranscribing = true;
     notifyListeners();
 
     try {
-      final file = File(path);
-      final bytes = await file.readAsBytes();
-
-      final text = await provider.transcribe(bytes);
-
-      // Clean up the temp file.
-      if (await file.exists()) {
-        await file.delete();
-      }
-
-      if (text.trim().isNotEmpty) {
-        _lastTranscript = text.trim();
-        onTranscribed?.call(text.trim());
-      }
+      await provider.stopConversation();
     } catch (e) {
-      onError?.call('Could not transcribe audio');
+      onError?.call('Could not stop voice recording');
     } finally {
       _isTranscribing = false;
       notifyListeners();
@@ -132,22 +105,43 @@ class FlaiVoiceController extends ChangeNotifier {
   Future<void> cancelRecording() async {
     if (!_isRecording) return;
 
-    final path = await _recorder.stop();
     _isRecording = false;
     notifyListeners();
 
-    // Clean up the temp file.
-    if (path != null) {
-      final file = File(path);
-      if (await file.exists()) {
-        await file.delete();
-      }
+    try {
+      await provider.stopConversation();
+    } catch (_) {
+      // Ignore errors during cancel.
+    }
+  }
+
+  void _onVoiceEvent(VoiceEvent event) {
+    switch (event) {
+      case VoiceTranscript(:final text):
+        if (text.trim().isNotEmpty) {
+          _lastTranscript = text.trim();
+          _isTranscribing = false;
+          notifyListeners();
+          onTranscribed?.call(text.trim());
+        }
+      case VoiceError(:final message):
+        _isRecording = false;
+        _isTranscribing = false;
+        notifyListeners();
+        onError?.call(message);
+      case VoiceConversationDone():
+        _isRecording = false;
+        _isTranscribing = false;
+        notifyListeners();
+      case VoiceAudio():
+        // Audio playback is handled by the caller, not the controller.
+        break;
     }
   }
 
   @override
   void dispose() {
-    _recorder.dispose();
+    _subscription?.cancel();
     super.dispose();
   }
 }

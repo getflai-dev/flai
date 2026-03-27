@@ -130,3 +130,13 @@ flutter run --dart-define=OPENAI_API_KEY=sk-...
 - Prefer `const` constructors where possible
 - Use `///` doc comments on all public APIs
 - Named parameters for constructors with more than 2 parameters
+
+## CMMD Provider Conventions
+
+- **Auth headers** — Every authenticated request must include `Authorization: Bearer <jwt>`, `X-Auth-Type: jwt`, and `X-Organization-ID: <id>`. (2026-03-26)
+- **OAuth flow** — Apple/Google use native SDK token → `POST /api/auth/{provider}` → JWT exchange. Microsoft uses OIDC browser flow with deep link callback. Social auth endpoints are CSRF-exempt. (2026-03-26)
+- **google_sign_in v7** — Singleton `GoogleSignIn.instance`, call `initialize()` once then `authenticate()`. No unnamed constructor. (2026-03-26)
+- **Session restore** — Use `POST /api/auth/validate` (not `GET /api/me`). Returns `{valid, user}`. (2026-03-26)
+- **SSE format** — CMMD uses `event: message/done/error` with `type` field in data (text, tool_call, tool_result, action, sources, confidence). Not OpenAI-compatible. (2026-03-26)
+- **Voice STT** — On-device via `speech_to_text` package, NOT server API. TTS remains server-side via `POST /api/ai/tts`. (2026-03-26)
+- **Storage** — Messages auto-saved by chat endpoint. `saveMessage`/`saveConversation` are no-ops. Search is client-side only. (2026-03-26)
