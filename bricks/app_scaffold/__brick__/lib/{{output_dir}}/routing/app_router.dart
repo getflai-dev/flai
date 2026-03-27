@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../app_config.dart';
 import '../providers/auth_provider.dart';
 import '../flows/auth/auth_flow.dart';
+import '../flows/chat/chat_experience_config.dart';
 import '../flows/onboarding/onboarding_flow.dart';
 import '../flows/sidebar/sidebar_config.dart';
 import '../screens/home_screen.dart';
@@ -117,12 +118,33 @@ GoRouter createAppRouter({required AppScaffoldConfig config}) {
       GoRoute(
         path: AppPaths.home,
         name: AppRoutes.home,
-        builder: (context, state) => FlaiHomeScreen(
-          sidebarConfig: config.sidebarConfig ??
-              SidebarConfig(appName: config.appTitle),
-          chatExperienceConfig: config.chatExperienceConfig,
-          settingsConfig: config.settingsConfig,
-        ),
+        builder: (context, state) {
+          // Auto-enable voice when a VoiceProvider is configured.
+          final chatConfig = config.chatExperienceConfig;
+          final effectiveChatConfig =
+              config.voiceProvider != null && !chatConfig.enableVoice
+                  ? ChatExperienceConfig(
+                      assistantName: chatConfig.assistantName,
+                      assistantAvatar: chatConfig.assistantAvatar,
+                      greeting: chatConfig.greeting,
+                      greetingSubtitle: chatConfig.greetingSubtitle,
+                      composerPlaceholder: chatConfig.composerPlaceholder,
+                      composerConfig: chatConfig.composerConfig,
+                      availableModels: chatConfig.availableModels,
+                      enableVoice: true,
+                      enableGhostMode: chatConfig.enableGhostMode,
+                      enablePerMessageModelSwitch:
+                          chatConfig.enablePerMessageModelSwitch,
+                    )
+                  : chatConfig;
+
+          return FlaiHomeScreen(
+            sidebarConfig: config.sidebarConfig ??
+                SidebarConfig(appName: config.appTitle),
+            chatExperienceConfig: effectiveChatConfig,
+            settingsConfig: config.settingsConfig,
+          );
+        },
       ),
     ],
   );
