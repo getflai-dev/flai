@@ -1,0 +1,313 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+
+import '../core/models/chat_event.dart';
+import '../core/models/chat_request.dart';
+import '../core/models/conversation.dart';
+import '../core/models/message.dart';
+import '../flows/sidebar/sidebar_config.dart';
+import '../providers/ai_provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/storage_provider.dart';
+
+/// Manages home screen state: conversations, active chat, and streaming.
+///
+/// Bridges [StorageProvider], [AiProvider], and [AuthProvider] into a single
+/// [ChangeNotifier] that the wired home page listens to.
+class HomeController extends ChangeNotifier {
+  final StorageProvider storage;
+  final AiProvider? ai;
+  final AuthProvider auth;
+
+  HomeController({
+    required this.storage,
+    required this.ai,
+    required this.auth,
+    this.onError,
+  });
+
+  /// Called when an error occurs (API failures, timeouts, etc.).
+  /// Use this to show a snackbar or toast.
+  final void Function(String message)? onError;
+
+  // ── State ───────────────────────────────────────────────────────────
+
+  List<ConversationItem> _conversations = [];
+  List<ConversationItem> get conversations => _conversations;
+
+  List<ConversationItem> _starred = [];
+  List<ConversationItem> get starred => _starred;
+
+  String? _activeConversationId;
+  String? get activeConversationId => _activeConversationId;
+
+  List<Message> _messages = [];
+  List<Message> get messages => _messages;
+
+  bool _isStreaming = false;
+  bool get isStreaming => _isStreaming;
+
+  String _streamingText = '';
+  String _streamingThinking = '';
+
+  UserProfile? _cachedProfile;
+  AuthUser? _lastUser;
+
+  UserProfile? get userProfile {
+    final user = auth.currentUser;
+    if (user == null) return null;
+    if (identical(user, _lastUser) && _cachedProfile != null) {
+      return _cachedProfile;
+    }
+    _lastUser = user;
+    final name = user.displayName ?? user.email;
+    final initials = name.isNotEmpty
+        ? name.split(' ').map((w) => w.isNotEmpty ? w[0] : '').take(2).join().toUpperCase()
+        : '?';
+    _cachedProfile = UserProfile(
+      name: name,
+      email: user.email,
+      avatarUrl: user.photoUrl,
+      initials: initials,
+      workspaceLabel: user.metadata?['defaultOrganizationId']?.toString(),
+    );
+    return _cachedProfile;
+  }
+
+  // ── Init / Dispose ─────────────────────────────────────────────────
+
+  Future<void> loadConversations() async {
+    try {
+      final results = await Future.wait([
+        storage.loadConversations(),
+        storage.loadStarredConversations(),
+      ]);
+      _conversations = results[0].map(_toItem).toList();
+      _starred = results[1].map((c) => _toItem(c, isStarred: true)).toList();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Failed to load conversations: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    ai?.cancel();
+    super.dispose();
+  }
+
+  // ── Conversation Actions ────────────────────────────────────────────
+
+  Future<void> selectConversation(ConversationItem item) async {
+    _activeConversationId = item.id;
+    _messages = await storage.loadMessages(item.id);
+    notifyListeners();
+  }
+
+  void newChat() {
+    _activeConversationId = null;
+    _messages = [];
+    _streamingText = '';
+    _streamingThinking = '';
+    notifyListeners();
+  }
+
+  Future<void> starConversation(ConversationItem item) async {
+    if (item.isStarred) {
+      await storage.unstarConversation(item.id);
+    } else {
+      await storage.starConversation(item.id);
+    }
+    await loadConversations();
+  }
+
+  Future<void> renameConversation(ConversationItem item, String newTitle) async {
+    await storage.renameConversation(item.id, newTitle);
+    await loadConversations();
+  }
+
+  Future<void> deleteConversation(ConversationItem item) async {
+    await storage.deleteConversation(item.id);
+    if (_activeConversationId == item.id) {
+      newChat();
+    }
+    await loadConversations();
+  }
+
+  // ── Send Message ────────────────────────────────────────────────────
+
+  Future<void> sendMessage(String text) async {
+    if (text.trim().isEmpty || ai == null || _isStreaming) return;
+
+    final isNewConversation = _activeConversationId == null;
+    final localConvId = 'local-${DateTime.now().millisecondsSinceEpoch}';
+
+    // For new conversations, set a local ID immediately so the UI switches
+    // from the empty state to the chat content view.
+    if (isNewConversation) {
+      _activeConversationId = localConvId;
+      await storage.saveConversation(Conversation(
+        id: localConvId,
+        title: text.length > 40 ? '${text.substring(0, 40)}...' : text,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ));
+    }
+
+    // Add user message.
+    final userMsg = Message(
+      id: '${DateTime.now().millisecondsSinceEpoch}-user',
+      role: MessageRole.user,
+      content: text,
+      timestamp: DateTime.now(),
+    );
+    _messages = [..._messages, userMsg];
+    await storage.saveMessage(_activeConversationId!, userMsg);
+
+    // Add streaming placeholder.
+    _isStreaming = true;
+    _streamingText = '';
+    _streamingThinking = '';
+
+    final assistantId = '${DateTime.now().millisecondsSinceEpoch}-assistant';
+    _messages = [
+      ..._messages,
+      Message(
+        id: assistantId,
+        role: MessageRole.assistant,
+        content: '',
+        timestamp: DateTime.now(),
+        status: MessageStatus.streaming,
+      ),
+    ];
+    notifyListeners();
+
+    try {
+      final metadata = <String, dynamic>{};
+      if (!isNewConversation) {
+        metadata['conversationId'] = _activeConversationId;
+      }
+
+      final request = ChatRequest(
+        messages: _messages.where((m) => m.status != MessageStatus.streaming).toList(),
+        metadata: metadata,
+      );
+
+      await for (final event in ai!.streamChat(request)) {
+        switch (event) {
+          case TextDelta(:final text):
+            _streamingText += text;
+            _updateStreamingMessage(assistantId);
+          case ThinkingStart():
+            // Thinking phase started.
+            break;
+          case ThinkingDelta(:final text):
+            _streamingThinking += text;
+            _updateStreamingMessage(assistantId);
+          case ThinkingEnd():
+            break;
+          case TextDone() || ChatDone():
+            // Skip if already finalized by a ChatError.
+            if (_messages.isNotEmpty &&
+                _messages.last.id == assistantId &&
+                _messages.last.status == MessageStatus.streaming) {
+              if (_streamingText.isEmpty) {
+                _finalizeWithError(assistantId, 'No response received');
+              } else {
+                _finalizeMessage(assistantId);
+              }
+            }
+          case ChatError(:final error):
+            _finalizeWithError(assistantId, error.toString());
+          default:
+            break;
+        }
+      }
+    } catch (e) {
+      _finalizeWithError(assistantId, e.toString());
+    }
+
+    _isStreaming = false;
+
+    // For new conversations, reload to pick up the server-assigned ID.
+    if (isNewConversation) {
+      await loadConversations();
+      if (_conversations.isNotEmpty) {
+        _activeConversationId = _conversations.first.id;
+      }
+    }
+
+    notifyListeners();
+  }
+
+  // ── Private Helpers ─────────────────────────────────────────────────
+
+  void _updateStreamingMessage(String id) {
+    // The streaming message is always last — O(1) instead of indexWhere scan.
+    if (_messages.isEmpty) return;
+    final last = _messages.last;
+    if (last.id != id) return;
+
+    _messages = [
+      ..._messages.sublist(0, _messages.length - 1),
+      last.copyWith(
+        content: _streamingText,
+        thinkingContent: _streamingThinking.isNotEmpty ? _streamingThinking : null,
+      ),
+    ];
+    notifyListeners();
+  }
+
+  void _finalizeMessage(String id) {
+    if (_messages.isEmpty) return;
+    final last = _messages.last;
+    if (last.id != id) return;
+
+    final msg = last.copyWith(
+      content: _streamingText,
+      thinkingContent: _streamingThinking.isNotEmpty ? _streamingThinking : null,
+      status: MessageStatus.complete,
+    );
+    _messages = [
+      ..._messages.sublist(0, _messages.length - 1),
+      msg,
+    ];
+
+    final convId = _activeConversationId;
+    if (convId != null) {
+      storage.saveMessage(convId, msg);
+    }
+    notifyListeners();
+  }
+
+  void _finalizeWithError(String id, String error) {
+    if (_messages.isEmpty) return;
+    final last = _messages.last;
+    if (last.id != id) return;
+
+    final errorText = _streamingText.isNotEmpty
+        ? _streamingText
+        : error;
+
+    _messages = [
+      ..._messages.sublist(0, _messages.length - 1),
+      last.copyWith(
+        content: errorText,
+        status: MessageStatus.error,
+      ),
+    ];
+    onError?.call(error);
+    notifyListeners();
+  }
+
+  ConversationItem _toItem(Conversation c, {bool isStarred = false}) {
+    return ConversationItem(
+      id: c.id,
+      title: c.displayTitle,
+      preview: c.lastMessage?.content ?? '',
+      timestamp: c.updatedAt,
+      isStarred: isStarred,
+    );
+  }
+}

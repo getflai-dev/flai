@@ -66,5 +66,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app uses the microphone for voice messages.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app uses the camera to capture photos for chat.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app accesses your photo library to attach images.</string>
 </dict>
 </plist>

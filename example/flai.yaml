@@ -1,0 +1,12 @@
+output_dir: lib/flai
+theme: dark
+installed:
+  - app_scaffold
+  - auth_flow
+  - chat_experience
+  - flai_init
+  - message_bubble
+  - onboarding_flow
+  - sidebar_nav
+  - streaming_text
+  - typing_indicator

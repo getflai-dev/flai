@@ -43,14 +43,16 @@ class _FlaiTypingIndicatorState extends State<FlaiTypingIndicator>
     super.initState();
 
     _controllers = List.generate(_dotCount, (_) {
-      return AnimationController(duration: _animationDuration, vsync: this);
+      return AnimationController(
+        duration: _animationDuration,
+        vsync: this,
+      );
     });
 
     _animations = _controllers.map((controller) {
-      return Tween<double>(
-        begin: 0,
-        end: -widget.bounceHeight,
-      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
+      return Tween<double>(begin: 0, end: -widget.bounceHeight).animate(
+        CurvedAnimation(parent: controller, curve: Curves.easeInOut),
+      );
     }).toList();
 
     // Start each dot with a staggered delay.

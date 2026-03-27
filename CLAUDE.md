@@ -10,14 +10,17 @@ A shadcn/ui-style component library for Flutter focused on AI chat interfaces. C
 bricks/                          Mason brick templates (one per component)
   flai_init/                     Core foundation (theme, models, provider interfaces)
   auth_flow/                     Login, register, forgot password, verification, reset
-  chat_screen/                   Full chat screen widget
+  onboarding_flow/               Splash, naming, multi-select pills, reveal animation
+  chat_experience/               Composer v2, voice, model selector, ghost mode, empty state
+  sidebar_nav/                   Drawer, conversation list, search, settings sheet
+  app_scaffold/                  Production-ready shell wiring all 4 flows with GoRouter
+  cmmd_providers/                CMMD API backend implementation (hidden, via `flai connect cmmd`)
   message_bubble/                Message bubble with markdown, thinking, citations
-  input_bar/                     Text input with send button
-  streaming_text/                Token-by-token text rendering
+  streaming_text/                Token-by-token text rendering with cursor
   typing_indicator/              Animated loading dots
+  thinking_indicator/            AI reasoning panel
   tool_call_card/                Function call display
   code_block/                    Code display with copy
-  thinking_indicator/            AI reasoning panel
   citation_card/                 Source attribution
   image_preview/                 Image thumbnail with zoom
   conversation_list/             Conversation history list
@@ -26,10 +29,10 @@ bricks/                          Mason brick templates (one per component)
   openai_provider/               OpenAI API integration
   anthropic_provider/            Anthropic API integration
 packages/
-  flai_cli/                      Dart CLI tool (flai init, flai add)
+  flai_cli/                      Dart CLI tool (flai init, flai add, flai connect)
   flai_mcp/                      MCP server for AI assistants
   flai_skill/                    Claude Code skill
-example/                         Showcase Flutter app (dogfoods all components)
+example/                         Dogfood app (flai init → flai add app_scaffold → flai connect cmmd)
 docs-site/                       Documentation website
 docs/                            Additional documentation
 ```
@@ -42,6 +45,24 @@ docs/                            Additional documentation
 - Templates use `{{output_dir}}` variable for target path in consumer projects
 - `flai init` generates the core foundation; `flai add <component>` adds individual components
 
+### Brick Hierarchy
+
+Two kinds of bricks:
+
+1. **Component bricks** — single-widget (message_bubble, typing_indicator, streaming_text, etc.)
+2. **Flow bricks** — multi-screen features (auth_flow, onboarding_flow, chat_experience, sidebar_nav, app_scaffold)
+
+`app_scaffold` depends on all 4 flow bricks and provides the full app shell. Component bricks are installed separately for the chat content area. The minimal viable chat app requires:
+
+```bash
+flai init                          # Core foundation
+flai add app_scaffold              # Full app shell (pulls auth, onboarding, chat, sidebar)
+flai add message_bubble            # Chat message rendering
+flai add streaming_text            # Streaming text with cursor
+flai add typing_indicator          # Loading animation
+flai connect cmmd                  # (optional) CMMD backend providers
+```
+
 ### Theme System
 - InheritedWidget-based `FlaiTheme` (not MaterialTheme extension)
 - All widgets access styling via `FlaiTheme.of(context)`
@@ -52,14 +73,26 @@ docs/                            Additional documentation
 
 ### State Management
 - Vanilla Flutter: ChangeNotifier + Streams, no external packages
-- `ChatScreenController` extends `ChangeNotifier` for chat state
-- `AuthController` extends `ChangeNotifier` for auth flow state machine
+- `HomeController` extends `ChangeNotifier` — bridges providers to the home screen (conversations, messages, streaming)
+- `AuthController` extends `ChangeNotifier` — auth flow state machine
+- `OnboardingController` extends `ChangeNotifier` — onboarding step state machine
 - `AiProvider` abstract interface returns `Stream<ChatEvent>` for streaming
+
+### App Scaffold Wiring
+The `app_scaffold` brick ships fully wired. Developers only provide backend providers:
+
+- **`FlaiApp`** — root widget, accepts `AppScaffoldConfig` with providers + flow configs
+- **`_WiredHomePage`** — stateful wrapper that creates `HomeController` from `FlaiProviders` and passes data to `FlaiHomeScreen`
+- **`HomeController`** — loads conversations, handles send/stream, manages active chat state
+- **`FlaiChatContent`** — message list + composer, uses `MessageBubble` + `FlaiTypingIndicator`
+- **`FlaiHomeScreen`** — sidebar drawer + top nav + chat area (empty state or active chat)
+
+The scaffold transitions from empty state to active chat automatically when the user sends a message (sets a local conversation ID immediately, replaced by server ID after streaming completes).
 
 ### Streaming
 - `ChatEvent` is a sealed Dart class with subtypes: TextDelta, TextDone, ThinkingStart, ThinkingDelta, ThinkingEnd, ToolCallStart, ToolCallDelta, ToolCallEnd, UsageUpdate, ChatDone, ChatError
 - Providers parse SSE byte streams from raw HTTP responses
-- Both OpenAI and Anthropic providers use `package:http` directly (no SDK wrappers)
+- HTTP send has 30s timeout; SSE stream has 60s per-event timeout (no infinite hangs)
 
 ### Provider Interfaces
 4 pluggable abstract interfaces — developer implements against their backend:
@@ -74,22 +107,19 @@ docs/                            Additional documentation
 ### Flow Bricks
 Flow bricks generate complete multi-screen features into `lib/flai/flows/`:
 - `auth_flow` — 6 screens (login landing, email entry, password entry, forgot password, verification code, reset password) + AuthController state machine + AuthFlowConfig
+- `onboarding_flow` — splash, naming, multi-select pills, custom steps, reveal animation + OnboardingController
+- `chat_experience` — composer v2, voice recorder, model selector sheet, ghost mode banner, attachment menu, empty chat state
+- `sidebar_nav` — sidebar drawer, settings drawer (6 sub-pages), top nav bar, workspace switcher, chat list items
+- `app_scaffold` — FlaiApp root widget, GoRouter with auth redirects, HomeController, FlaiChatContent, FlaiProviders InheritedWidget
 
 ## Development
 
 ### Monorepo Management
 ```bash
-# Bootstrap (install deps across all packages)
-melos bootstrap
-
-# Run analysis across all packages
-melos run analyze
-
-# Run formatting check
-melos run format
-
-# Run tests
-melos run test
+melos bootstrap                    # Install deps across all packages
+melos run analyze                  # Run analysis across all packages
+melos run format                   # Run formatting check
+melos run test                     # Run tests
 ```
 
 ### CLI Development
@@ -97,13 +127,17 @@ melos run test
 cd packages/flai_cli
 dart analyze
 dart run bin/flai.dart init
-dart run bin/flai.dart add chat_screen
+dart run bin/flai.dart add app_scaffold
+dart run bin/flai.dart connect cmmd
 ```
 
 ### Example App
+The example app dogfoods the full CLI pipeline:
 ```bash
 cd example
-flutter run --dart-define=OPENAI_API_KEY=sk-...
+flutter pub get
+flutter analyze                    # Analyze ONLY the example app (not brick templates)
+flutter run
 ```
 
 ### Brick Development
@@ -111,16 +145,18 @@ flutter run --dart-define=OPENAI_API_KEY=sk-...
 - Each has `brick.yaml` (metadata, vars) and `__brick__/` (template files)
 - Template paths use `{{output_dir}}` which defaults to `flai` in consumer projects
 - Test bricks by running: `mason make <brick_name> --output-dir test_output`
+- **Brick ↔ example sync:** The example app's `lib/flai/` is the generated output. When updating brick source, also regenerate or manually update the example. They must stay in sync.
 
 ## Key Conventions
 
 1. **Theme access:** All widgets use `FlaiTheme.of(context)` -- never hardcode colors, sizes, or fonts
-2. **No external deps in core:** The `flai_init` brick has zero dependencies beyond Flutter. Component bricks add deps only when installed (e.g., `package:http` for providers)
+2. **No external deps in core:** The `flai_init` brick has zero dependencies beyond Flutter. Component bricks add deps only when installed (e.g., `flutter_markdown` for message_bubble, `package:http` for providers)
 3. **Widget pattern:** Complex components follow Widget + Controller + State. Simple components are StatelessWidget or single StatefulWidget
-4. **Naming:** Widget classes prefixed with `Flai` (e.g., `FlaiChatScreen`, `FlaiInputBar`, `FlaiTypingIndicator`). Data classes are unprefixed (e.g., `Message`, `ChatEvent`)
+4. **Naming:** Widget classes prefixed with `Flai` (e.g., `FlaiChatScreen`, `FlaiInputBar`, `FlaiTypingIndicator`). Data classes are unprefixed (e.g., `Message`, `ChatEvent`). Exception: `MessageBubble` (no prefix, matches the data model it renders)
 5. **Imports:** Components import from relative paths within the generated structure, not package imports
 6. **Sealed events:** Use Dart sealed classes and pattern matching for type-safe event handling
 7. **Cancellation:** Providers support mid-stream cancellation by closing the HTTP client
+8. **Use our own components:** The app scaffold's `FlaiChatContent` MUST use the real component bricks (MessageBubble, FlaiTypingIndicator, FlaiStreamingText) — never hand-roll message rendering with plain Text/Container widgets
 
 ## Code Style
 
@@ -131,12 +167,10 @@ flutter run --dart-define=OPENAI_API_KEY=sk-...
 - Use `///` doc comments on all public APIs
 - Named parameters for constructors with more than 2 parameters
 
-## CMMD Provider Conventions
+## Gotchas
 
-- **Auth headers** — Every authenticated request must include `Authorization: Bearer <jwt>`, `X-Auth-Type: jwt`, and `X-Organization-ID: <id>`. (2026-03-26)
-- **OAuth flow** — Apple/Google use native SDK token → `POST /api/auth/{provider}` → JWT exchange. Microsoft uses OIDC browser flow with deep link callback. Social auth endpoints are CSRF-exempt. (2026-03-26)
-- **google_sign_in v7** — Singleton `GoogleSignIn.instance`, call `initialize()` once then `authenticate()`. No unnamed constructor. (2026-03-26)
-- **Session restore** — Use `POST /api/auth/validate` (not `GET /api/me`). Returns `{valid, user}`. (2026-03-26)
-- **SSE format** — CMMD uses `event: message/done/error` with `type` field in data (text, tool_call, tool_result, action, sources, confidence). Not OpenAI-compatible. (2026-03-26)
-- **Voice STT** — On-device via `speech_to_text` package, NOT server API. TTS remains server-side via `POST /api/ai/tts`. (2026-03-26)
-- **Storage** — Messages auto-saved by chat endpoint. `saveMessage`/`saveConversation` are no-ops. Search is client-side only. (2026-03-26)
+- **Brick template paths** — `{{output_dir}}` in paths breaks shell globbing. Use `find` with quotes: `find "bricks/app_scaffold/__brick__" -name "*.dart"`
+- **`flutter analyze` scope** — Run from `example/` to analyze only the app. Running from monorepo root includes brick templates which can't compile standalone and produce hundreds of false errors.
+- **Example app base URL** — `main.dart` uses `CmmdConfig()` (production cmmd.ai). Change to `CmmdConfig.dev()` for localhost:3000 or `CmmdConfig.staging()` for staging.cmmd.ai.
+- **Simulator "Lost connection"** — Usually caused by a new `flutter run` killing the old process, not a crash. Boot simulator first: `xcrun simctl boot <UDID> && open -a Simulator`
+- **CMMD SSE format** — Uses standard SSE with `event:` field (NOT bare `data:` lines with a `type` field). Text arrives as `event: delta`, not `event: message`. See `.claude.local.md` for full protocol spec.

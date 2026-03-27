@@ -9,6 +9,9 @@ import '../flows/auth/auth_flow.dart';
 import '../flows/chat/chat_experience_config.dart';
 import '../flows/onboarding/onboarding_flow.dart';
 import '../flows/sidebar/sidebar_config.dart';
+import '../providers.dart';
+import '../screens/chat_content.dart';
+import '../screens/home_controller.dart';
 import '../screens/home_screen.dart';
 
 /// Route name constants for the app scaffold.
@@ -118,33 +121,7 @@ GoRouter createAppRouter({required AppScaffoldConfig config}) {
       GoRoute(
         path: AppPaths.home,
         name: AppRoutes.home,
-        builder: (context, state) {
-          // Auto-enable voice when a VoiceProvider is configured.
-          final chatConfig = config.chatExperienceConfig;
-          final effectiveChatConfig =
-              config.voiceProvider != null && !chatConfig.enableVoice
-                  ? ChatExperienceConfig(
-                      assistantName: chatConfig.assistantName,
-                      assistantAvatar: chatConfig.assistantAvatar,
-                      greeting: chatConfig.greeting,
-                      greetingSubtitle: chatConfig.greetingSubtitle,
-                      composerPlaceholder: chatConfig.composerPlaceholder,
-                      composerConfig: chatConfig.composerConfig,
-                      availableModels: chatConfig.availableModels,
-                      enableVoice: true,
-                      enableGhostMode: chatConfig.enableGhostMode,
-                      enablePerMessageModelSwitch:
-                          chatConfig.enablePerMessageModelSwitch,
-                    )
-                  : chatConfig;
-
-          return FlaiHomeScreen(
-            sidebarConfig: config.sidebarConfig ??
-                SidebarConfig(appName: config.appTitle),
-            chatExperienceConfig: effectiveChatConfig,
-            settingsConfig: config.settingsConfig,
-          );
-        },
+        builder: (context, state) => _WiredHomePage(config: config),
       ),
     ],
   );
@@ -276,6 +253,98 @@ class _OnboardingFlowPageState extends State<_OnboardingFlowPage> {
             FlaiRevealScreen(controller: _controller, step: step),
         };
       },
+    );
+  }
+}
+
+// ── Wired Home Page ─────────────────────────────────────────────────────
+
+/// Stateful wrapper that creates a [HomeController] and connects providers
+/// to the [FlaiHomeScreen] UI. All frontend wiring is automatic — the
+/// developer only needs to provide backend [AuthProvider], [AiProvider],
+/// [StorageProvider], and optionally [VoiceProvider].
+class _WiredHomePage extends StatefulWidget {
+  const _WiredHomePage({required this.config});
+  final AppScaffoldConfig config;
+
+  @override
+  State<_WiredHomePage> createState() => _WiredHomePageState();
+}
+
+class _WiredHomePageState extends State<_WiredHomePage> {
+  HomeController? _controller;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_controller != null) return;
+    final providers = FlaiProviders.of(context);
+    _controller = HomeController(
+      storage: providers.storageProvider,
+      ai: providers.aiProvider,
+      auth: widget.config.authProvider,
+    );
+    _controller!.addListener(_onChanged);
+    _controller!.loadConversations();
+  }
+
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _controller?.removeListener(_onChanged);
+    super.dispose();
+  }
+
+  ChatExperienceConfig get _effectiveChatConfig {
+    final chatConfig = widget.config.chatExperienceConfig;
+    if (widget.config.voiceProvider != null && !chatConfig.enableVoice) {
+      return ChatExperienceConfig(
+        assistantName: chatConfig.assistantName,
+        assistantAvatar: chatConfig.assistantAvatar,
+        greeting: chatConfig.greeting,
+        greetingSubtitle: chatConfig.greetingSubtitle,
+        composerPlaceholder: chatConfig.composerPlaceholder,
+        composerConfig: chatConfig.composerConfig,
+        availableModels: chatConfig.availableModels,
+        enableVoice: true,
+        enableGhostMode: chatConfig.enableGhostMode,
+        enablePerMessageModelSwitch: chatConfig.enablePerMessageModelSwitch,
+      );
+    }
+    return chatConfig;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ctrl = _controller;
+    if (ctrl == null) return const SizedBox.shrink();
+
+    final chatConfig = _effectiveChatConfig;
+    final hasActiveChat = ctrl.activeConversationId != null;
+
+    return FlaiHomeScreen(
+      sidebarConfig: widget.config.sidebarConfig ??
+          SidebarConfig(appName: widget.config.appTitle),
+      chatExperienceConfig: chatConfig,
+      settingsConfig: widget.config.settingsConfig,
+      userProfile: ctrl.userProfile,
+      conversations: ctrl.conversations,
+      starredConversations: ctrl.starred,
+      activeConversationId: ctrl.activeConversationId,
+      onNewChat: () => ctrl.newChat(),
+      onSendMessage: (text) => ctrl.sendMessage(text),
+      onConversationTap: (item) => ctrl.selectConversation(item),
+      chatContent: hasActiveChat
+          ? FlaiChatContent(
+              messages: ctrl.messages,
+              config: chatConfig,
+              onSend: (text) => ctrl.sendMessage(text),
+              isStreaming: ctrl.isStreaming,
+            )
+          : null,
     );
   }
 }

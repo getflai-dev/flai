@@ -1,3 +1,12 @@
+# Claude Code local config (private, not shared)
+.claude.local.md
+
+# Personal/business files
+*.xlsx
+.~lock.*
+flai-social-card.html
+x-thread-*.md
+
 # Dart/Flutter
 .dart_tool/
 .packages
