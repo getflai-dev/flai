@@ -530,16 +530,19 @@ class CmmdAuthProvider implements AuthProvider {
   @override
   Future<bool> tryRestoreSession(
     String accessToken,
-    String refreshToken,
+    String? refreshToken,
   ) async {
     _accessToken = accessToken;
     _refreshToken = refreshToken;
 
     try {
-      final response = await http.post(
-        Uri.parse('${config.baseUrl}/api/auth/validate'),
-        headers: _authHeaders(accessToken),
-      );
+      await _ensureCsrfToken();
+      final response = await http
+          .post(
+            Uri.parse('${config.baseUrl}/api/auth/validate'),
+            headers: _baseHeaders,
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -551,7 +554,7 @@ class CmmdAuthProvider implements AuthProvider {
         }
       }
     } catch (_) {
-      // Token may be expired — clear and require re-auth.
+      // Token may be expired or network unavailable — clear and require re-auth.
     }
 
     _accessToken = null;

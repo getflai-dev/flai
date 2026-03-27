@@ -1,0 +1,61 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Session Persistence E2E Test — Cold Restart
+#
+# Verifies that a logged-in session survives app kill + relaunch.
+# SecureAuthStorage persists the JWT, and tryRestoreSession() validates
+# it on next cold start, skipping the login screen entirely.
+#
+# NOTE: iOS Keychain persists across clearState/uninstall. The test uses
+# conditional login (only runs if the login screen appears) so it works
+# regardless of pre-existing Keychain state.
+#
+# Run:
+#   maestro test .maestro/session_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Fresh start (clear app data — Keychain may still persist on iOS) ──
+- clearState: com.example.flaiExample
+- launchApp:
+    appId: com.example.flaiExample
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# ── Login if needed — skip if session was restored from Keychain ──────
+- runFlow:
+    when:
+      visible: "Log in"
+    file: session_login.yaml
+
+# ── Verify home screen after login (or session restore) ──────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 20000
+- takeScreenshot: session_01_logged_in
+
+# ── Allow time for token persistence to secure storage ────────────────
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# ── Kill the app ──────────────────────────────────────────────────────
+- stopApp: com.example.flaiExample
+
+# ── Relaunch WITHOUT clearing state (secure storage preserved) ────────
+- launchApp:
+    appId: com.example.flaiExample
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# ── Assert session restored — home screen loads directly ──────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 20000
+- takeScreenshot: session_02_restored
+
+# ── Confirm login screen was skipped ──────────────────────────────────
+- assertNotVisible: "Log in"
+- takeScreenshot: session_03_no_login

@@ -109,7 +109,7 @@ class MockAuthProvider implements AuthProvider {
   @override
   Future<bool> tryRestoreSession(
     String accessToken,
-    String refreshToken,
+    String? refreshToken,
   ) async =>
       false;
 

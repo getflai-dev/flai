@@ -49,10 +49,10 @@ class SecureAuthStorage {
   }
 
   /// Read stored tokens. Returns `null` if no session is persisted.
-  Future<({String accessToken, String refreshToken})?> readTokens() async {
+  Future<({String accessToken, String? refreshToken})?> readTokens() async {
     final access = await _storage.read(key: _keyAccessToken);
+    if (access == null) return null;
     final refresh = await _storage.read(key: _keyRefreshToken);
-    if (access == null || refresh == null) return null;
     return (accessToken: access, refreshToken: refresh);
   }
 
