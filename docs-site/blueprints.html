@@ -70,12 +70,6 @@
                   Continue with Google
                 </div>
 
-                <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
-                  <div style="flex:1;height:1px;background:#27272a;"></div>
-                  <span style="font-size:8px;color:#52525B;">or</span>
-                  <div style="flex:1;height:1px;background:#27272a;"></div>
-                </div>
-
                 <div class="bp-btn-primary">Sign Up</div>
                 <div class="bp-btn-outline">Log In</div>
               </div>
@@ -164,7 +158,12 @@
               </div>
               <div class="bp-chat-body" style="justify-content:flex-end;">
                 <div class="bp-bubble bp-bubble-user">Write a function to parse JSON</div>
-                <div class="bp-bubble bp-bubble-ai">Here's a type-safe JSON parser using pattern matching:<span class="bp-cursor"></span></div>
+                <div style="display:flex;align-items:flex-start;gap:6px;align-self:flex-start;max-width:82%;">
+                  <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#8B5CF6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  </div>
+                  <div class="bp-bubble bp-bubble-ai" style="align-self:auto;max-width:none;">Here's a type-safe JSON parser using pattern matching:<span class="bp-cursor"></span></div>
+                </div>
               </div>
               <div style="padding:6px 8px;">
                 <div style="display:flex;align-items:center;gap:6px;background:#18181B;border:1px solid #27272A;border-radius:20px;padding:8px 12px;">
@@ -331,7 +330,12 @@
               </div>
               <div class="bp-chat-body">
                 <div class="bp-bubble bp-bubble-user">Can you explain how async/await works in Dart?</div>
-                <div class="bp-bubble bp-bubble-ai">In Dart, async/await is built on top of Futures. When you mark a function as <strong>async</strong>, it returns a Future. The <strong>await</strong> keyword pauses execution until the Future completes.<span class="bp-cursor"></span></div>
+                <div style="display:flex;align-items:flex-start;gap:6px;align-self:flex-start;max-width:82%;">
+                  <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#8B5CF6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  </div>
+                  <div class="bp-bubble bp-bubble-ai" style="align-self:auto;max-width:none;">In Dart, async/await is built on top of Futures. When you mark a function as <strong>async</strong>, it returns a Future. The <strong>await</strong> keyword pauses execution until the Future completes.<span class="bp-cursor"></span></div>
+                </div>
                 <div class="bp-bubble bp-bubble-user">Show me an example?</div>
               </div>
               <div class="bp-chat-input">
@@ -475,17 +479,27 @@
               </div>
               <div class="bp-chat-body">
                 <div class="bp-bubble bp-bubble-user">Show me a JSON parser in Dart?</div>
-                <div class="bp-bubble bp-bubble-ai" style="padding-bottom:0;">
-                  Here's a type-safe parser:
-                  <div style="background:#18181B;border-radius:6px;overflow:hidden;margin-top:4px;">
-                    <div style="padding:4px 6px;font-family:monospace;font-size:7px;color:#C4B5FD;line-height:1.4;">
-                      <div><span style="color:#818CF8;">final</span> res = <span style="color:#818CF8;">await</span> http.get(url);</div>
-                      <div><span style="color:#818CF8;">return</span> Model.fromJson(res.body);</div>
+                <div style="display:flex;align-items:flex-start;gap:5px;align-self:flex-start;max-width:82%;">
+                  <div style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#8B5CF6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  </div>
+                  <div class="bp-bubble bp-bubble-ai" style="padding-bottom:0;align-self:auto;max-width:none;">
+                    Here's a type-safe parser:
+                    <div style="background:#18181B;border-radius:6px;overflow:hidden;margin-top:4px;">
+                      <div style="padding:4px 6px;font-family:monospace;font-size:7px;color:#C4B5FD;line-height:1.4;">
+                        <div><span style="color:#818CF8;">final</span> res = <span style="color:#818CF8;">await</span> http.get(url);</div>
+                        <div><span style="color:#818CF8;">return</span> Model.fromJson(res.body);</div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div class="bp-bubble bp-bubble-user">Can you explain the await?</div>
-                <div class="bp-bubble bp-bubble-ai">The <strong>await</strong> keyword pauses until the Future resolves, then unwraps the value.<span class="bp-cursor"></span></div>
+                <div style="display:flex;align-items:flex-start;gap:5px;align-self:flex-start;max-width:82%;">
+                  <div style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#8B5CF6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  </div>
+                  <div class="bp-bubble bp-bubble-ai" style="align-self:auto;max-width:none;">The <strong>await</strong> keyword pauses until the Future resolves, then unwraps the value.<span class="bp-cursor"></span></div>
+                </div>
               </div>
               <div class="bp-chat-input">
                 <span class="bp-chat-plus">+</span>
