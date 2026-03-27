@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'flai/app_scaffold.dart';
+import 'flai/flows/sidebar/settings_config.dart';
 import 'flai/providers/cmmd_providers.dart';
 
 void main() {
@@ -32,6 +33,19 @@ void main() {
         accessTokenProvider: tokenFn,
         organizationIdProvider: orgFn,
         csrfHeadersProvider: csrfFn,
+      ),
+      settingsConfig: SettingsConfig(
+        sections: [
+          SettingsSection(
+            title: 'Account',
+            rows: [
+              NavigationRow(
+                icon: Icons.logout,
+                label: 'Sign Out',
+              ),
+            ],
+          ),
+        ],
       ),
     ),
   ));

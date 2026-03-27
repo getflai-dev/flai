@@ -88,3 +88,25 @@ appId: com.example.flaiExample
     timeout: 10000
 - assertNotVisible: "How can I help you today?"
 - takeScreenshot: sidebar_04_loaded
+
+# ── Delete conversation via long-press context menu ─────────────────
+- tapOn:
+    point: "10%,10%"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "RECENTS"
+    timeout: 10000
+# Long-press the first conversation to open context menu
+- longPressOn:
+    point: "40%,20%"
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible: "Delete"
+    timeout: 5000
+- takeScreenshot: sidebar_05_context_menu
+- tapOn: "Delete"
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: sidebar_06_after_delete

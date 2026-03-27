@@ -48,14 +48,11 @@ class CmmdStorageProvider with CmmdClientBase implements StorageProvider {
 
   @override
   Future<List<Conversation>> loadConversations() async {
-    final response = await cmmdGet('/api/ai/conversations');
-    final json = jsonDecode(response.body);
-
-    final list = json is List
-        ? json
-        : (json as Map<String, dynamic>)['data'] as List? ??
-            (json)['conversations'] as List? ??
-            [];
+    // Use /conversations/list — the paginated org-scoped endpoint.
+    // Returns { data: [...], total, limit, offset }.
+    final response = await cmmdGet('/api/ai/conversations/list');
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    final list = json['data'] as List? ?? [];
 
     final conversations = list
         .map((e) => _parseConversation(e as Map<String, dynamic>))

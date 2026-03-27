@@ -28,6 +28,7 @@ void showSettingsDrawer({
   showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
+    useRootNavigator: true,
     backgroundColor: Colors.transparent,
     builder: (_) => _SettingsDrawerSheet(
       config: config,

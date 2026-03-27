@@ -8,6 +8,7 @@ import '../providers/auth_provider.dart';
 import '../flows/auth/auth_flow.dart';
 import '../flows/chat/chat_experience_config.dart';
 import '../flows/onboarding/onboarding_flow.dart';
+import '../flows/sidebar/settings_config.dart';
 import '../flows/sidebar/sidebar_config.dart';
 import '../providers.dart';
 import '../screens/chat_content.dart';
@@ -309,6 +310,33 @@ class _WiredHomePageState extends State<_WiredHomePage> {
     super.dispose();
   }
 
+  SettingsConfig get _effectiveSettingsConfig {
+    final base = widget.config.settingsConfig;
+    return SettingsConfig(
+      drawerHeightRatio: base.drawerHeightRatio,
+      showWorkspaceSwitcher: base.showWorkspaceSwitcher,
+      sections: base.sections.map((section) {
+        return SettingsSection(
+          title: section.title,
+          rows: section.rows.map((row) {
+            if (row is NavigationRow && row.label == 'Sign Out') {
+              return NavigationRow(
+                icon: row.icon,
+                label: row.label,
+                onTap: () async {
+                  await widget.config.authProvider.signOut();
+                },
+              );
+            }
+            return row;
+          }).toList(),
+        );
+      }).toList(),
+      infoItems: base.infoItems,
+      appVersion: base.appVersion,
+    );
+  }
+
   ChatExperienceConfig get _effectiveChatConfig {
     final chatConfig = widget.config.chatExperienceConfig;
     if (widget.config.voiceProvider != null && !chatConfig.enableVoice) {
@@ -340,7 +368,7 @@ class _WiredHomePageState extends State<_WiredHomePage> {
       sidebarConfig: widget.config.sidebarConfig ??
           SidebarConfig(appName: widget.config.appTitle),
       chatExperienceConfig: chatConfig,
-      settingsConfig: widget.config.settingsConfig,
+      settingsConfig: _effectiveSettingsConfig,
       userProfile: ctrl.userProfile,
       conversations: ctrl.conversations,
       starredConversations: ctrl.starred,
