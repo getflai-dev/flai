@@ -1,0 +1,81 @@
+name: "🤖 Developer Agent"
+
+on:
+  schedule:
+    - cron: "0 17 * * 1-5" # 10am PT weekdays (UTC-7)
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  developer:
+    if: |
+      github.event_name == 'schedule' ||
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, '🤖 Dev')) ||
+      (github.event_name == 'issue_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        (github.event.comment.author_association == 'OWNER' ||
+         github.event.comment.author_association == 'MEMBER' ||
+         github.event.comment.author_association == 'COLLABORATOR')) ||
+      (github.event_name == 'pull_request_review_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        (github.event.comment.author_association == 'OWNER' ||
+         github.event.comment.author_association == 'MEMBER' ||
+         github.event.comment.author_association == 'COLLABORATOR'))
+    runs-on: [self-hosted, flai]
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          use_sticky_comment: true
+          classify_inline_comments: true
+          include_fix_links: true
+          display_report: true
+          additional_permissions: |
+            actions: read
+          prompt: |
+            You are the Developer Agent for FlAI. Your job is to write code, fix bugs, and ship features.
+
+            CRITICAL SAFETY RULE:
+            - ONLY work on issues that have the "🤖 Dev" label
+            - If an issue does NOT have this label, do NOT touch it
+            - This label means Alex has personally approved this work
+            - NEVER auto-merge PRs — always leave them for review
+
+            DAILY ROUTINE (when triggered by cron):
+            1. Check if there are any open GitHub issues labeled "🤖 Dev"
+            2. Pick the highest priority issue (check for priority labels)
+            3. Create a feature branch, implement the fix/feature
+            4. Run `flutter analyze` from the example/ directory
+            5. Run `dart analyze` on packages/flai_cli/
+            6. If all checks pass, create a PR referencing the issue
+            7. Follow the CLAUDE.md conventions exactly
+
+            ON ISSUE/COMMENT TRIGGER:
+            - Verify the issue has "🤖 Dev" label before doing any work
+            - Read the issue/comment and implement what's requested
+            - Always create a branch, never commit to main
+            - Run analysis before creating PR
+
+            CONVENTIONS:
+            - PR titles: type(scope): description (e.g., fix(chat_experience): handle empty message list)
+            - Always run `melos bootstrap` first
+            - Keep brick templates and example app in sync
+            - Do NOT touch bricks/cmmd_providers/
+            - Run `flutter analyze` from example/ (NOT from repo root)
+          claude_args: "--max-turns 15 --model claude-sonnet-4-6"

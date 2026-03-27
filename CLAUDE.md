@@ -167,6 +167,19 @@ flutter run
 - Use `///` doc comments on all public APIs
 - Named parameters for constructors with more than 2 parameters
 
+## GitHub Actions (Claude Code Action)
+
+When Claude runs via `@claude` mentions on issues/PRs:
+- Always create a feature branch from `main` — never commit directly to `main`
+- Run `melos bootstrap` first, then `melos run analyze` and `melos run format` before opening PRs
+- Run `flutter analyze` from `example/` to validate the example app compiles
+- Keep brick templates and the example app in sync — if you change a brick, update the corresponding files in `example/lib/flai/`
+- PR titles: `type(scope): description` (e.g., `fix(chat_experience): handle empty message list`)
+- Link related issues with "Fixes #123" in PR body
+- Do not modify CI/CD config, secrets, or deployment files unless explicitly asked
+- Do not add new dependencies without explicit approval
+- Do not touch `bricks/cmmd_providers/` — that brick is private to the CMMD backend
+
 ## Gotchas
 
 - **Brick template paths** — `{{output_dir}}` in paths breaks shell globbing. Use `find` with quotes: `find "bricks/app_scaffold/__brick__" -name "*.dart"`

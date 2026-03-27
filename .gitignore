@@ -1,6 +1,11 @@
 # Claude Code local config (private, not shared)
 .claude.local.md
 
+# Test credentials (NEVER commit real credentials)
+.maestro/.env
+**/.maestro/.env
+!**/.maestro/.env.example
+
 # Personal/business files
 *.xlsx
 .~lock.*

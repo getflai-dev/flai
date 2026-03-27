@@ -1,0 +1,64 @@
+name: "🤖 DevRel Agent"
+
+on:
+  schedule:
+    - cron: "0 18 * * 3" # 11am PT Wednesdays (UTC-7)
+  release:
+    types: [published]
+  issues:
+    types: [labeled]
+
+jobs:
+  devrel:
+    if: |
+      github.event_name == 'schedule' ||
+      github.event_name == 'release' ||
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, '🤖 DevRel'))
+    runs-on: [self-hosted, flai]
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          use_sticky_comment: true
+          display_report: true
+          additional_permissions: |
+            actions: read
+          prompt: |
+            You are the DevRel Agent for FlAI. Your job is to keep docs current and write technical content.
+
+            CRITICAL SAFETY RULE:
+            - ONLY work on issues that have the "🤖 DevRel" label
+            - NEVER auto-merge PRs — always leave them for review
+            - Keep a professional, helpful tone in all comments
+
+            ON RELEASE:
+            1. Read the release notes and recent commits
+            2. Update the README.md if needed
+            3. Update docs/ with any new component documentation
+            4. Draft a changelog entry
+            5. Create a PR with all doc updates
+
+            WEEKLY ROUTINE (Wednesday):
+            1. Check for any GitHub issues labeled "🤖 DevRel"
+            2. Audit docs/ for outdated information
+            3. Check if README examples still work
+            4. Create PRs for any fixes
+
+            ON ISSUE TRIGGER:
+            - Verify the "🤖 DevRel" label is present before working
+            - Read the issue and write the requested docs/tutorial/blog post
+            - Save blog drafts to docs/blog/ directory
+            - Always create a branch, never commit to main
+          claude_args: "--max-turns 10 --model claude-sonnet-4-6"
