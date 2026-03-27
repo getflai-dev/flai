@@ -90,6 +90,12 @@ flai add openai_provider</code></pre>
           <tr><td class="prop-name">token_usage</td><td><code>flai add token_usage</code></td><td>Token usage display</td></tr>
           <tr><td class="prop-name">openai_provider</td><td><code>flai add openai_provider</code></td><td>OpenAI API provider</td></tr>
           <tr><td class="prop-name">anthropic_provider</td><td><code>flai add anthropic_provider</code></td><td>Anthropic API provider</td></tr>
+          <tr><td colspan="3" style="font-weight:600; padding-top:12px;">Flows</td></tr>
+          <tr><td class="prop-name">auth_flow</td><td><code>flai add auth_flow</code></td><td>Login, register, forgot password, verification, reset (6 screens)</td></tr>
+          <tr><td class="prop-name">onboarding_flow</td><td><code>flai add onboarding_flow</code></td><td>Splash, naming, multi-select pills, reveal animation</td></tr>
+          <tr><td class="prop-name">chat_experience</td><td><code>flai add chat_experience</code></td><td>Composer with voice, model selector, attachments, ghost mode</td></tr>
+          <tr><td class="prop-name">sidebar_nav</td><td><code>flai add sidebar_nav</code></td><td>Drawer, conversation list with grouping, settings sheet</td></tr>
+          <tr><td class="prop-name">app_scaffold</td><td><code>flai add app_scaffold</code></td><td>Complete app shell (installs all above + generates main.dart)</td></tr>
         </tbody>
       </table>
 
@@ -127,14 +133,21 @@ flai add openai_provider</code></pre>
       <p>After running <code>flai init</code>, a <code>flai.yaml</code> file is created in your project root:</p>
 
 <pre><code class="language-yaml"># flai.yaml
-output_dir: flai          # Where FlAI files live under lib/
-components:               # Installed components (auto-managed)
-  - chat_screen
-  - message_bubble
-  - input_bar
-  - typing_indicator</code></pre>
+output_dir: lib/flai       # Where FlAI files live
+theme: dark                # Theme preset (dark, light, ios, premium)
+app_name: My App           # Application display name
+assistant_name: Assistant  # AI assistant display name
+installed:                 # Installed components (auto-managed)
+  - flai_init
+  - auth_flow
+  - app_scaffold</code></pre>
 
-      <p>The CLI reads this file to know where to place new components and which components are already installed.</p>
+      <p>The CLI reads this file to place components, generate <code>main.dart</code> with your branding, and track installed bricks.</p>
+
+      <h3 id="connect-backend">Connect a Backend</h3>
+      <p>After installing <code>app_scaffold</code>, connect to a production backend:</p>
+<pre><code class="language-bash">flai connect cmmd     # Rewrites main.dart with CMMD providers</code></pre>
+      <p>This generates provider implementations and rewrites <code>main.dart</code> to use real authentication, AI streaming, conversation persistence, and voice — zero manual wiring.</p>
 
       <div class="callout callout-tip">
         <span class="callout-icon">&#9889;</span>
