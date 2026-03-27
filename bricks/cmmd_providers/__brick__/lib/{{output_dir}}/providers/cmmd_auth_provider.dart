@@ -49,6 +49,10 @@ class CmmdAuthProvider implements AuthProvider {
   String? _lastEmail;
   final StreamController<AuthUser?> _authStateController =
       StreamController<AuthUser?>.broadcast();
+  final StreamController<({String? accessToken, String? refreshToken})>
+      _tokenChangeController =
+      StreamController<({String? accessToken, String? refreshToken})>
+          .broadcast();
 
   /// The current JWT refresh token, if authenticated.
   String? get refreshToken => _refreshToken;
@@ -65,6 +69,10 @@ class CmmdAuthProvider implements AuthProvider {
 
   /// The current JWT access token, or `null` if not authenticated.
   String? get accessToken => _accessToken;
+
+  @override
+  Stream<({String? accessToken, String? refreshToken})> get tokenChanges =>
+      _tokenChangeController.stream;
 
   // ---------------------------------------------------------------------------
   // Email auth
@@ -320,6 +328,36 @@ class CmmdAuthProvider implements AuthProvider {
     _authStateController.add(user);
   }
 
+  @override
+  Future<bool> tryRestoreSession(
+    String accessToken,
+    String refreshToken,
+  ) async {
+    _accessToken = accessToken;
+    _refreshToken = refreshToken;
+
+    try {
+      final response = await http.get(
+        Uri.parse('${config.baseUrl}/api/me'),
+        headers: _baseHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        final user = _parseUser(json);
+        _setUser(user);
+        _lastEmail = user.email;
+        return true;
+      }
+    } catch (_) {
+      // Token may be expired — clear and require re-auth.
+    }
+
+    _accessToken = null;
+    _refreshToken = null;
+    return false;
+  }
+
   // ---------------------------------------------------------------------------
   // Private helpers
   // ---------------------------------------------------------------------------
@@ -371,6 +409,7 @@ class CmmdAuthProvider implements AuthProvider {
     _accessToken = access;
     _refreshToken = refresh;
     onTokenUpdate?.call(access, refresh);
+    _tokenChangeController.add((accessToken: access, refreshToken: refresh));
   }
 
   void _setUser(AuthUser? user) {

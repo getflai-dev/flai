@@ -98,4 +98,20 @@ abstract class AuthProvider {
   Future<void> signOut();
   Stream<AuthUser?> authStateChanges();
   AuthUser? get currentUser;
+
+  /// Override to support restoring a previously persisted session.
+  ///
+  /// Called at app startup with tokens read from secure storage.
+  /// Returns `true` if restoration succeeded and the user is now authenticated.
+  Future<bool> tryRestoreSession(
+    String accessToken,
+    String refreshToken,
+  ) async =>
+      false;
+
+  /// Override to emit token pairs whenever they change, enabling persistence.
+  ///
+  /// Emit `null` values on sign-out so the storage layer can clear tokens.
+  Stream<({String? accessToken, String? refreshToken})> get tokenChanges =>
+      const Stream.empty();
 }

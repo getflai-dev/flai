@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'core/secure_auth_storage.dart';
 import 'core/theme/flai_theme.dart';
 import 'providers/storage_provider.dart';
 import 'app_config.dart';
@@ -12,6 +15,10 @@ import 'routing/app_router.dart';
 /// Accepts an [AppScaffoldConfig] and wires together the theme, provider tree,
 /// and router. Creates the [GoRouter] once in [initState] so navigation state
 /// is preserved across rebuilds.
+///
+/// On first launch, attempts to restore a persisted auth session from secure
+/// storage so the user stays logged in between app restarts. While restoring,
+/// a loading indicator is shown.
 ///
 /// ```dart
 /// runApp(
@@ -40,6 +47,11 @@ class FlaiApp extends StatefulWidget {
 class _FlaiAppState extends State<FlaiApp> {
   late final StorageProvider _storageProvider;
   late final GoRouter _router;
+  late final SecureAuthStorage _authStorage;
+
+  bool _isRestoringSession = true;
+  StreamSubscription<({String? accessToken, String? refreshToken})>?
+      _tokenSub;
 
   @override
   void initState() {
@@ -47,12 +59,57 @@ class _FlaiAppState extends State<FlaiApp> {
     _storageProvider =
         widget.config.storageProvider ?? InMemoryStorageProvider();
     _router = createAppRouter(config: widget.config);
+    _authStorage = SecureAuthStorage();
+
+    _listenToTokenChanges();
+    _tryRestoreSession();
   }
 
   @override
   void dispose() {
+    _tokenSub?.cancel();
     _router.dispose();
     super.dispose();
+  }
+
+  /// Subscribe to the auth provider's token stream to persist changes.
+  void _listenToTokenChanges() {
+    _tokenSub = widget.config.authProvider.tokenChanges.listen((tokens) async {
+      if (tokens.accessToken != null && tokens.refreshToken != null) {
+        await _authStorage.saveTokens(
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        );
+        final user = widget.config.authProvider.currentUser;
+        if (user != null) {
+          await _authStorage.saveUser(user);
+        }
+      } else {
+        // Null tokens indicate sign-out — clear persisted session.
+        await _authStorage.clear();
+      }
+    });
+  }
+
+  /// Attempt to restore a previously persisted session from secure storage.
+  Future<void> _tryRestoreSession() async {
+    try {
+      final tokens = await _authStorage.readTokens();
+      if (tokens != null) {
+        await widget.config.authProvider.tryRestoreSession(
+          tokens.accessToken,
+          tokens.refreshToken,
+        );
+      }
+    } catch (_) {
+      // Restoration failed — user will see the login screen.
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRestoringSession = false;
+        });
+      }
+    }
   }
 
   /// Infer brightness from the background luminance to set correct status
@@ -68,6 +125,18 @@ class _FlaiAppState extends State<FlaiApp> {
   @override
   Widget build(BuildContext context) {
     final theme = _resolvedTheme;
+
+    if (_isRestoringSession) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          backgroundColor: theme.colors.background,
+          body: const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
 
     return FlaiTheme(
       data: theme,
