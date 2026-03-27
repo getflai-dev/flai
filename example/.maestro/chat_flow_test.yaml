@@ -1,0 +1,165 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Chat Flow E2E Test — 10 Message Conversation
+#
+# This test sends 10 messages and verifies REAL AI responses.
+# It FAILS on any CMMD canned error, fallback, or API exception.
+#
+# Run:
+#   maestro test .maestro/chat_flow_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# ── Fresh start ───────────────────────────────────────────────────────
+- clearState: com.example.flaiExample
+- launchApp:
+    appId: com.example.flaiExample
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# ── Login ─────────────────────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Log in"
+    timeout: 15000
+- tapOn: "Log in"
+- extendedWaitUntil:
+    visible: "Continue"
+    timeout: 5000
+- tapOn: "Email"
+- inputText: ${FLAI_TEST_EMAIL}
+- tapOn: "Continue"
+- extendedWaitUntil:
+    visible: "Enter your password"
+    timeout: 8000
+- tapOn:
+    point: "50%,42%"
+- inputText: ${FLAI_TEST_PASSWORD}
+- tapOn: "Continue"
+
+# ── Home screen ───────────────────────────────────────────────────────
+- extendedWaitUntil:
+    visible: "Ask Assistant anything..."
+    timeout: 20000
+- takeScreenshot: 00_home
+
+# ══════════════════════════════════════════════════════════════════════
+# MESSAGE 1: Simple greeting
+# ══════════════════════════════════════════════════════════════════════
+- tapOn: "Ask Assistant anything..."
+- inputText: "Hello! What is your name?"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: 01_greeting
+
+# ══════════════════════════════════════════════════════════════════════
+# MESSAGE 2: Follow-up (tests chatId chaining)
+# ══════════════════════════════════════════════════════════════════════
+- tapOn: "Ask Assistant anything..."
+- inputText: "What did I just say to you?"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: 02_followup
+
+# ══════════════════════════════════════════════════════════════════════
+# MESSAGE 3: Knowledge question
+# ══════════════════════════════════════════════════════════════════════
+- tapOn: "Ask Assistant anything..."
+- inputText: "What is the capital of France?"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: 03_knowledge
+
+# ══════════════════════════════════════════════════════════════════════
+# MESSAGE 4: Creative request
+# ══════════════════════════════════════════════════════════════════════
+- tapOn: "Ask Assistant anything..."
+- inputText: "Write me a haiku about coding"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: 04_creative
+
+# ══════════════════════════════════════════════════════════════════════
+# MESSAGE 5: Context recall (tests conversation memory)
+# ══════════════════════════════════════════════════════════════════════
+- tapOn: "Ask Assistant anything..."
+- inputText: "What was the haiku you just wrote?"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: 05_recall
+
+# ══════════════════════════════════════════════════════════════════════
+# MESSAGE 6: Math/reasoning
+# ══════════════════════════════════════════════════════════════════════
+- tapOn: "Ask Assistant anything..."
+- inputText: "What is 42 times 17?"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: 06_math
+
+# ══════════════════════════════════════════════════════════════════════
+# MESSAGE 7: Opinion/longer response
+# ══════════════════════════════════════════════════════════════════════
+- tapOn: "Ask Assistant anything..."
+- inputText: "Give me 3 tips for better sleep"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: 07_tips
+
+# ══════════════════════════════════════════════════════════════════════
+# MESSAGE 8: Technical question
+# ══════════════════════════════════════════════════════════════════════
+- tapOn: "Ask Assistant anything..."
+- inputText: "Explain what an API is in one sentence"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: 08_technical
+
+# ══════════════════════════════════════════════════════════════════════
+# MESSAGE 9: Conversation summary (tests full context window)
+# ══════════════════════════════════════════════════════════════════════
+- tapOn: "Ask Assistant anything..."
+- inputText: "How many messages have I sent you so far?"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: 09_summary
+
+# ══════════════════════════════════════════════════════════════════════
+# MESSAGE 10: Closing
+# ══════════════════════════════════════════════════════════════════════
+- tapOn: "Ask Assistant anything..."
+- inputText: "Thanks for chatting! Say goodbye."
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: 10_goodbye

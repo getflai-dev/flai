@@ -1,0 +1,45 @@
+appId: com.example.flaiExample
+---
+
+# Login Flow — Authenticates via email/password
+#
+# Configure credentials via environment variables:
+#   maestro test .maestro/chat_flow_test.yaml \
+#     -e FLAI_TEST_EMAIL=you@example.com \
+#     -e FLAI_TEST_PASSWORD=yourpassword
+
+# Tap email option on login landing
+- tapOn:
+    text: ".*email.*"
+
+# Wait for email entry screen
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Enter email
+- tapOn: "Email"
+- inputText: ${FLAI_TEST_EMAIL}
+- hideKeyboard
+
+# Tap continue
+- tapOn: "Continue"
+
+# Wait for password screen
+- extendedWaitUntil:
+    visible: "Enter your password"
+    timeout: 5000
+
+# Enter password — tap the password field
+- tapOn:
+    text: ".*"
+    index: 1
+- inputText: ${FLAI_TEST_PASSWORD}
+- hideKeyboard
+
+# Tap continue/login
+- tapOn: "Continue"
+
+# Wait for auth to complete and redirect to home
+- extendedWaitUntil:
+    visible: "FlAI Chat"
+    timeout: 15000
