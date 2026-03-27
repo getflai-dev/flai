@@ -224,11 +224,8 @@ class _FlaiSidebarDrawerState extends State<FlaiSidebarDrawer> {
                         onTap: () => widget.config.onConversationTap?.call(item),
                         onStar: () =>
                             widget.config.onConversationStar?.call(item),
-                        onRename: (title) =>
-                            widget.config.onConversationRename?.call(
-                          item,
-                          title,
-                        ),
+                        onRename: () =>
+                            widget.config.onConversationRename?.call(item),
                         onShare: () =>
                             widget.config.onConversationShare?.call(item),
                         onDelete: () =>
@@ -250,11 +247,8 @@ class _FlaiSidebarDrawerState extends State<FlaiSidebarDrawer> {
                         onTap: () => widget.config.onConversationTap?.call(item),
                         onStar: () =>
                             widget.config.onConversationStar?.call(item),
-                        onRename: (title) =>
-                            widget.config.onConversationRename?.call(
-                          item,
-                          title,
-                        ),
+                        onRename: () =>
+                            widget.config.onConversationRename?.call(item),
                         onShare: () =>
                             widget.config.onConversationShare?.call(item),
                         onDelete: () =>

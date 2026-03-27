@@ -8,6 +8,7 @@ import '../providers/auth_provider.dart';
 import '../flows/auth/auth_flow.dart';
 import '../flows/chat/chat_experience_config.dart';
 import '../flows/onboarding/onboarding_flow.dart';
+import '../flows/sidebar/settings_config.dart';
 import '../flows/sidebar/sidebar_config.dart';
 import '../providers.dart';
 import '../screens/chat_content.dart';
@@ -298,10 +299,62 @@ class _WiredHomePageState extends State<_WiredHomePage> {
     _controller!.loadConversations();
   }
 
-  bool _suppressRebuild = false;
-
   void _onChanged() {
-    if (mounted && !_suppressRebuild) setState(() {});
+    if (mounted) setState(() {});
+  }
+
+  Future<String?> _showRenameSheet(BuildContext ctx, String currentTitle) {
+    final controller = TextEditingController(text: currentTitle);
+    return showModalBottomSheet<String>(
+      context: ctx,
+      isScrollControlled: true,
+      builder: (sheetCtx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
+          left: 24,
+          right: 24,
+          top: 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Rename conversation',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              decoration: const InputDecoration(
+                hintText: 'Conversation name',
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (value) =>
+                  Navigator.of(sheetCtx).pop(value.trim()),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(sheetCtx).pop(),
+                  child: const Text('Cancel'),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: () =>
+                      Navigator.of(sheetCtx).pop(controller.text.trim()),
+                  child: const Text('Rename'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    ).whenComplete(() => controller.dispose());
   }
 
   @override
@@ -324,8 +377,11 @@ class _WiredHomePageState extends State<_WiredHomePage> {
               return NavigationRow(
                 icon: row.icon,
                 label: row.label,
-                onTap: () async {
-                  await widget.config.authProvider.signOut();
+                onTap: () {
+                  // Close settings + drawer immediately for visual feedback,
+                  // then sign out in background. GoRouter redirect handles
+                  // navigation to login screen.
+                  widget.config.authProvider.signOut();
                 },
               );
             }
@@ -379,15 +435,16 @@ class _WiredHomePageState extends State<_WiredHomePage> {
         onNewChat: baseSidebar.onNewChat,
         onConversationTap: baseSidebar.onConversationTap,
         onConversationStar: baseSidebar.onConversationStar ?? (item) => ctrl.starConversation(item),
-        onConversationRename: baseSidebar.onConversationRename ?? (item, title) async {
-          // Suppress rebuilds during rename to prevent _dependents.isEmpty
-          // assertion (Flutter framework bug in drawer InheritedElement lifecycle).
-          _suppressRebuild = true;
-          await ctrl.renameConversation(item, title);
-          _suppressRebuild = false;
-          // Delay rebuild until dialog element tree is fully disposed.
-          await Future<void>.delayed(const Duration(seconds: 1));
-          if (mounted) setState(() {});
+        onConversationRename: baseSidebar.onConversationRename ?? (item) async {
+          // The drawer is already closing (ChatListItem calls closeDrawer).
+          // Wait for the close animation, then show rename as a bottom
+          // sheet (not a dialog — showDialog triggers _dependents.isEmpty).
+          await Future<void>.delayed(const Duration(milliseconds: 400));
+          if (!mounted) return;
+          final newTitle = await _showRenameSheet(context, item.title);
+          if (newTitle != null && newTitle.isNotEmpty) {
+            await ctrl.renameConversation(item, newTitle);
+          }
         },
         onConversationShare: baseSidebar.onConversationShare,
         onConversationDelete: baseSidebar.onConversationDelete ?? (item) => ctrl.deleteConversation(item),

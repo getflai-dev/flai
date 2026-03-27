@@ -24,7 +24,12 @@ class HomeController extends ChangeNotifier {
     required this.storage,
     required this.ai,
     required this.auth,
+    this.onError,
   });
+
+  /// Called when an error occurs (API failures, timeouts, etc.).
+  /// Use this to show a snackbar or toast.
+  final void Function(String message)? onError;
 
   // ── State ───────────────────────────────────────────────────────────
 
@@ -40,42 +45,69 @@ class HomeController extends ChangeNotifier {
   List<Message> _messages = [];
   List<Message> get messages => _messages;
 
+  bool _isLoadingConversations = false;
+  bool get isLoadingConversations => _isLoadingConversations;
+
   bool _isStreaming = false;
   bool get isStreaming => _isStreaming;
 
   String _streamingText = '';
   String _streamingThinking = '';
+  final Map<String, ToolCall> _pendingToolCalls = {};
+  List<Citation> _pendingCitations = [];
+
+  /// Server-assigned chat ID, captured from the AI provider after streaming.
+  String? _serverChatId;
+
+  UserProfile? _cachedProfile;
+  AuthUser? _lastUser;
 
   UserProfile? get userProfile {
     final user = auth.currentUser;
     if (user == null) return null;
+    if (identical(user, _lastUser) && _cachedProfile != null) {
+      return _cachedProfile;
+    }
+    _lastUser = user;
     final name = user.displayName ?? user.email;
     final initials = name.isNotEmpty
         ? name.split(' ').map((w) => w.isNotEmpty ? w[0] : '').take(2).join().toUpperCase()
         : '?';
-    return UserProfile(
+    _cachedProfile = UserProfile(
       name: name,
       email: user.email,
       avatarUrl: user.photoUrl,
       initials: initials,
       workspaceLabel: user.metadata?['defaultOrganizationId']?.toString(),
     );
+    return _cachedProfile;
   }
 
-  // ── Init ────────────────────────────────────────────────────────────
+  // ── Init / Dispose ─────────────────────────────────────────────────
 
   Future<void> loadConversations() async {
+    _isLoadingConversations = true;
+    notifyListeners();
     try {
-      final convos = await storage.loadConversations();
-      _conversations = convos.map(_toItem).toList();
-
-      final starredConvos = await storage.loadStarredConversations();
-      _starred = starredConvos.map((c) => _toItem(c, isStarred: true)).toList();
-
-      notifyListeners();
+      final results = await Future.wait([
+        storage.loadConversations(),
+        storage.loadStarredConversations(),
+      ]);
+      _conversations = results[0].map(_toItem).toList();
+      _starred = results[1].map((c) => _toItem(c, isStarred: true)).toList();
     } catch (e) {
+      onError?.call('Failed to load conversations');
       debugPrint('Failed to load conversations: $e');
+    } finally {
+      _isLoadingConversations = false;
+      notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    ai?.cancel();
+    super.dispose();
   }
 
   // ── Conversation Actions ────────────────────────────────────────────
@@ -95,43 +127,61 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> starConversation(ConversationItem item) async {
-    if (item.isStarred) {
-      await storage.unstarConversation(item.id);
-    } else {
-      await storage.starConversation(item.id);
+    try {
+      if (item.isStarred) {
+        await storage.unstarConversation(item.id);
+      } else {
+        await storage.starConversation(item.id);
+      }
+      await loadConversations();
+    } catch (e) {
+      onError?.call('Failed to update star');
+      debugPrint('Failed to star conversation: $e');
     }
-    await loadConversations();
   }
 
   Future<void> renameConversation(ConversationItem item, String newTitle) async {
-    await storage.renameConversation(item.id, newTitle);
-    await loadConversations();
+    try {
+      await storage.renameConversation(item.id, newTitle);
+      await loadConversations();
+    } catch (e) {
+      onError?.call('Failed to rename conversation');
+      debugPrint('Failed to rename conversation: $e');
+    }
   }
 
   Future<void> deleteConversation(ConversationItem item) async {
-    await storage.deleteConversation(item.id);
-    if (_activeConversationId == item.id) {
-      newChat();
+    try {
+      await storage.deleteConversation(item.id);
+      if (_activeConversationId == item.id) {
+        newChat();
+      }
+      await loadConversations();
+    } catch (e) {
+      onError?.call('Failed to delete conversation');
+      debugPrint('Failed to delete conversation: $e');
+      await loadConversations(); // reload to restore UI state
     }
-    await loadConversations();
   }
 
   // ── Send Message ────────────────────────────────────────────────────
 
   Future<void> sendMessage(String text) async {
-    if (text.trim().isEmpty || ai == null) return;
+    if (text.trim().isEmpty || ai == null || _isStreaming) return;
 
-    // Create or reuse conversation.
-    final conversationId = _activeConversationId ?? DateTime.now().millisecondsSinceEpoch.toString();
-    if (_activeConversationId == null) {
-      _activeConversationId = conversationId;
-      final conv = Conversation(
-        id: conversationId,
+    final isNewConversation = _activeConversationId == null;
+    final localConvId = 'local-${DateTime.now().millisecondsSinceEpoch}';
+
+    // For new conversations, set a local ID immediately so the UI switches
+    // from the empty state to the chat content view.
+    if (isNewConversation) {
+      _activeConversationId = localConvId;
+      await storage.saveConversation(Conversation(
+        id: localConvId,
         title: text.length > 40 ? '${text.substring(0, 40)}...' : text,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
-      );
-      await storage.saveConversation(conv);
+      ));
     }
 
     // Add user message.
@@ -142,13 +192,14 @@ class HomeController extends ChangeNotifier {
       timestamp: DateTime.now(),
     );
     _messages = [..._messages, userMsg];
-    await storage.saveMessage(conversationId, userMsg);
-    notifyListeners();
+    await storage.saveMessage(_activeConversationId!, userMsg);
 
-    // Stream AI response.
+    // Add streaming placeholder.
     _isStreaming = true;
     _streamingText = '';
     _streamingThinking = '';
+    _pendingToolCalls.clear();
+    _pendingCitations = [];
 
     final assistantId = '${DateTime.now().millisecondsSinceEpoch}-assistant';
     _messages = [
@@ -164,9 +215,18 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final metadata = <String, dynamic>{};
+      // For follow-up messages, use the server-assigned chatId from the
+      // AI provider (set from the first SSE event's conversationId field).
+      // Don't send our local ID — the server won't recognize it.
+      final serverChatId = _serverChatId;
+      if (!isNewConversation && serverChatId != null) {
+        metadata['conversationId'] = serverChatId;
+      }
+
       final request = ChatRequest(
         messages: _messages.where((m) => m.status != MessageStatus.streaming).toList(),
-        metadata: {'conversationId': conversationId},
+        metadata: metadata,
       );
 
       await for (final event in ai!.streamChat(request)) {
@@ -174,13 +234,50 @@ class HomeController extends ChangeNotifier {
           case TextDelta(:final text):
             _streamingText += text;
             _updateStreamingMessage(assistantId);
+          case ThinkingStart():
+            // Thinking phase started.
+            break;
           case ThinkingDelta(:final text):
             _streamingThinking += text;
             _updateStreamingMessage(assistantId);
+          case ThinkingEnd():
+            break;
           case TextDone() || ChatDone():
-            _finalizeMessage(assistantId, conversationId);
+            // Skip if already finalized by a ChatError.
+            if (_messages.isNotEmpty &&
+                _messages.last.id == assistantId &&
+                _messages.last.status == MessageStatus.streaming) {
+              if (_streamingText.isEmpty) {
+                _finalizeWithError(assistantId, 'No response received');
+              } else {
+                _finalizeMessage(assistantId);
+              }
+            }
           case ChatError(:final error):
             _finalizeWithError(assistantId, error.toString());
+          case ToolCallStart(:final id, :final name):
+            _pendingToolCalls[id] = ToolCall(
+              id: id,
+              name: name,
+              arguments: '',
+            );
+            _updateStreamingMessage(assistantId);
+          case ToolCallDelta(:final id, :final argumentsDelta):
+            final existing = _pendingToolCalls[id];
+            if (existing != null) {
+              _pendingToolCalls[id] = existing.copyWith(
+                arguments: existing.arguments + argumentsDelta,
+              );
+            }
+          case ToolCallEnd(:final id):
+            final existing = _pendingToolCalls[id];
+            if (existing != null) {
+              _pendingToolCalls[id] = existing.copyWith(isComplete: true);
+              _updateStreamingMessage(assistantId);
+            }
+          case CitationsReceived(:final citations):
+            _pendingCitations.addAll(citations);
+            _updateStreamingMessage(assistantId);
           default:
             break;
         }
@@ -190,57 +287,108 @@ class HomeController extends ChangeNotifier {
     }
 
     _isStreaming = false;
+
+    // Capture server-assigned chatId from the AI provider if available.
+    // CmmdAiProvider exposes lastChatId; other providers may not.
+    try {
+      final chatId = (ai as dynamic).lastChatId as String?;
+      if (chatId != null) {
+        _serverChatId = chatId;
+        _activeConversationId = chatId;
+      }
+    } catch (_) {
+      // AI provider doesn't expose lastChatId — use storage fallback.
+    }
+
+    // For new conversations without a server chatId, reload from storage.
+    if (isNewConversation && _serverChatId == null) {
+      await loadConversations();
+      if (_conversations.isNotEmpty) {
+        _activeConversationId = _conversations.first.id;
+      }
+    }
+
     await loadConversations();
+
+    // If the API returned no conversations (server may need time to index),
+    // retry once after a short delay.
+    if (_conversations.isEmpty && _serverChatId != null) {
+      await Future<void>.delayed(const Duration(seconds: 2));
+      await loadConversations();
+    }
+
     notifyListeners();
   }
 
   // ── Private Helpers ─────────────────────────────────────────────────
 
   void _updateStreamingMessage(String id) {
-    final idx = _messages.indexWhere((m) => m.id == id);
-    if (idx < 0) return;
+    // The streaming message is always last — O(1) instead of indexWhere scan.
+    if (_messages.isEmpty) return;
+    final last = _messages.last;
+    if (last.id != id) return;
 
     _messages = [
-      ..._messages.sublist(0, idx),
-      _messages[idx].copyWith(
+      ..._messages.sublist(0, _messages.length - 1),
+      last.copyWith(
         content: _streamingText,
         thinkingContent: _streamingThinking.isNotEmpty ? _streamingThinking : null,
+        toolCalls: _pendingToolCalls.isNotEmpty
+            ? _pendingToolCalls.values.toList()
+            : null,
+        citations: _pendingCitations.isNotEmpty
+            ? _pendingCitations.toList()
+            : null,
       ),
-      ..._messages.sublist(idx + 1),
     ];
     notifyListeners();
   }
 
-  void _finalizeMessage(String id, String conversationId) {
-    final idx = _messages.indexWhere((m) => m.id == id);
-    if (idx < 0) return;
+  void _finalizeMessage(String id) {
+    if (_messages.isEmpty) return;
+    final last = _messages.last;
+    if (last.id != id) return;
 
-    final msg = _messages[idx].copyWith(
+    final msg = last.copyWith(
       content: _streamingText,
       thinkingContent: _streamingThinking.isNotEmpty ? _streamingThinking : null,
+      toolCalls: _pendingToolCalls.isNotEmpty
+          ? _pendingToolCalls.values.toList()
+          : null,
+      citations: _pendingCitations.isNotEmpty
+          ? _pendingCitations.toList()
+          : null,
       status: MessageStatus.complete,
     );
     _messages = [
-      ..._messages.sublist(0, idx),
+      ..._messages.sublist(0, _messages.length - 1),
       msg,
-      ..._messages.sublist(idx + 1),
     ];
-    storage.saveMessage(conversationId, msg);
+
+    final convId = _activeConversationId;
+    if (convId != null) {
+      storage.saveMessage(convId, msg);
+    }
     notifyListeners();
   }
 
   void _finalizeWithError(String id, String error) {
-    final idx = _messages.indexWhere((m) => m.id == id);
-    if (idx < 0) return;
+    if (_messages.isEmpty) return;
+    final last = _messages.last;
+    if (last.id != id) return;
+
+    final errorText = _streamingText.isNotEmpty
+        ? _streamingText
+        : error;
 
     _messages = [
-      ..._messages.sublist(0, idx),
-      _messages[idx].copyWith(
-        content: _streamingText.isNotEmpty ? _streamingText : 'Error: $error',
+      ..._messages.sublist(0, _messages.length - 1),
+      last.copyWith(
+        content: errorText,
         status: MessageStatus.error,
       ),
-      ..._messages.sublist(idx + 1),
     ];
+    onError?.call(error);
     notifyListeners();
   }
 
