@@ -1,4 +1,6 @@
 import 'providers/auth_provider.dart';
+import 'providers/brain_provider.dart';
+import 'providers/connections_provider.dart';
 import 'providers/storage_provider.dart';
 import 'providers/ai_provider.dart';
 import 'providers/voice_provider.dart';
@@ -44,6 +46,16 @@ class AppScaffoldConfig {
   /// [ChatExperienceConfig.enableVoice].
   final VoiceProvider? voiceProvider;
 
+  /// The Brain provider that backs the Documents and Memory tabs.
+  ///
+  /// If null, the Brain nav item is hidden from the sidebar.
+  final BrainProvider? brainProvider;
+
+  /// The Connections provider that powers the Settings → Connections page.
+  ///
+  /// If null, the Connections page renders an empty state.
+  final ConnectionsProvider? connectionsProvider;
+
   /// Theme data applied to the entire app.
   ///
   /// If null, `FlaiApp` defaults to [FlaiThemeData.dark()].
@@ -87,6 +99,8 @@ class AppScaffoldConfig {
     this.storageProvider,
     this.aiProvider,
     this.voiceProvider,
+    this.brainProvider,
+    this.connectionsProvider,
     this.theme,
     this.authFlowConfig = const AuthFlowConfig(),
     this.onboardingConfig,

@@ -1,0 +1,40 @@
+appId: com.example.flaiExample
+---
+
+# FlAI Smoke Test — login + 2 messages + screenshot
+#
+# Quick regression check after a theme/UX change. Reads credentials from
+# FLAI_TEST_EMAIL / FLAI_TEST_PASSWORD env vars (loaded from .maestro/.env).
+
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+
+- extendedWaitUntil:
+    visible: "Ask Nova anything..."
+    timeout: 20000
+- takeScreenshot: smoke_00_home
+
+- tapOn: "Ask Nova anything..."
+- inputText: "Hi Nova! Please reply with one short sentence."
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: smoke_01_first_message
+
+- tapOn: "Ask Nova anything..."
+- inputText: "What's 2+2?"
+- pressKey: enter
+- waitForAnimationToEnd:
+    timeout: 90000
+- runFlow:
+    file: assert_real_response.yaml
+- takeScreenshot: smoke_02_second_message

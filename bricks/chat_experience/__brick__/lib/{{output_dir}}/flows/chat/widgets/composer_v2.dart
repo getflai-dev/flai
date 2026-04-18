@@ -8,6 +8,7 @@ import '../../../core/theme/flai_theme.dart';
 import '../chat_experience_config.dart';
 import 'attachment_menu.dart';
 import 'attachment_picker.dart';
+import 'mode_picker_sheet.dart';
 import 'model_selector_sheet.dart';
 
 /// A composer widget with model selection, attachment menu, and voice input.
@@ -30,6 +31,23 @@ class FlaiComposerV2 extends StatefulWidget {
 
   /// Called when the user picks a new model.
   final ValueChanged<ModelOption>? onModelChanged;
+
+  /// The currently selected chat-mode id (e.g. `autopilot`). When the
+  /// composer's [ChatExperienceConfig.availableModes] is non-empty, the
+  /// composer renders a "mode pill" instead of the model chip and reports
+  /// changes via [onModeChanged].
+  final String? currentModeId;
+
+  /// Called when the user picks a new chat mode.
+  final ValueChanged<ChatMode>? onModeChanged;
+
+  /// The currently selected search-mode id (e.g. `smart`). Persisted by
+  /// the host (per-chat) and surfaced inside the "+" sheet's `Search
+  /// Mode` segmented control.
+  final String? currentSearchModeId;
+
+  /// Called when the user picks a new search mode in the "+" sheet.
+  final ValueChanged<SearchModeOption>? onSearchModeChanged;
 
   /// Called when the user taps the mic to start voice recording.
   final VoidCallback? onVoiceStart;
@@ -56,6 +74,10 @@ class FlaiComposerV2 extends StatefulWidget {
     required this.onSend,
     this.currentModelId,
     this.onModelChanged,
+    this.currentModeId,
+    this.onModeChanged,
+    this.currentSearchModeId,
+    this.onSearchModeChanged,
     this.onVoiceStart,
     this.onVoiceStop,
     this.isRecording = false,
@@ -113,6 +135,9 @@ class _FlaiComposerV2State extends State<FlaiComposerV2> {
     await showAttachmentMenu(
       context: context,
       config: widget.config.composerConfig,
+      searchModes: widget.config.availableSearchModes,
+      currentSearchModeId: widget.currentSearchModeId,
+      onSearchModeChanged: widget.onSearchModeChanged,
       onAttachmentPicked: (picked) {
         setState(() => _pendingAttachments.add(picked));
       },
@@ -130,6 +155,17 @@ class _FlaiComposerV2State extends State<FlaiComposerV2> {
     }
   }
 
+  Future<void> _openModePicker() async {
+    final mode = await showModePicker(
+      context: context,
+      modes: widget.config.availableModes,
+      currentModeId: widget.currentModeId,
+    );
+    if (mode != null) {
+      widget.onModeChanged?.call(mode);
+    }
+  }
+
   String? get _currentModelName {
     if (widget.currentModelId == null) return null;
     try {
@@ -138,6 +174,16 @@ class _FlaiComposerV2State extends State<FlaiComposerV2> {
           .name;
     } catch (_) {
       return null;
+    }
+  }
+
+  ChatMode? get _currentMode {
+    final modes = widget.config.availableModes;
+    if (modes.isEmpty) return null;
+    try {
+      return modes.firstWhere((m) => m.id == widget.currentModeId);
+    } catch (_) {
+      return modes.first;
     }
   }
 
@@ -211,8 +257,9 @@ class _FlaiComposerV2State extends State<FlaiComposerV2> {
     );
   }
 
-  /// Action row when idle: [+] [model chip] [spacer] [mic or send]
+  /// Action row when idle: [+] [mode pill OR model chip] [spacer] [mic or send]
   Widget _buildIdleRow(FlaiThemeData theme) {
+    final mode = _currentMode;
     return Row(
       children: [
         _ComposerIconButton(
@@ -220,7 +267,10 @@ class _FlaiComposerV2State extends State<FlaiComposerV2> {
           filled: false,
           onTap: _openAttachmentMenu,
         ),
-        if (widget.config.availableModels.isNotEmpty) ...[
+        if (mode != null) ...[
+          SizedBox(width: theme.spacing.xs),
+          _ModePill(mode: mode, onTap: _openModePicker),
+        ] else if (widget.config.availableModels.isNotEmpty) ...[
           SizedBox(width: theme.spacing.xs),
           _ModelChip(
             name: _currentModelName ?? widget.config.availableModels.first.name,
@@ -260,6 +310,60 @@ class _FlaiComposerV2State extends State<FlaiComposerV2> {
           onTap: _hasText ? _handleSend : null,
         ),
       ],
+    );
+  }
+}
+
+// ── Mode Pill ───────────────────────────────────────────────────────────────
+
+/// CMMD-style mode pill: an accent-tinted icon, the mode name, and a chevron.
+///
+/// Renders as `[✦] Autopilot ▾` and matches the web composer's mode picker.
+class _ModePill extends StatelessWidget {
+  final ChatMode mode;
+  final VoidCallback? onTap;
+
+  const _ModePill({required this.mode, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = FlaiTheme.of(context);
+    final accent = mode.accent ?? theme.colors.primary;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: theme.spacing.sm,
+          vertical: 6,
+        ),
+        decoration: BoxDecoration(
+          color: theme.colors.background,
+          borderRadius: BorderRadius.circular(theme.radius.full),
+          border: Border.all(color: theme.colors.border),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(mode.icon, size: 14, color: accent),
+            SizedBox(width: theme.spacing.xs),
+            Text(
+              mode.name,
+              style: theme.typography.sm.copyWith(
+                color: theme.colors.foreground,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 2),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 14,
+              color: theme.colors.mutedForeground,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

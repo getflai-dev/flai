@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 
 import 'providers/auth_provider.dart';
+import 'providers/brain_provider.dart';
+import 'providers/connections_provider.dart';
 import 'providers/storage_provider.dart';
 import 'providers/ai_provider.dart';
 import 'providers/voice_provider.dart';
@@ -38,6 +40,16 @@ class FlaiProviders extends InheritedWidget {
   /// May be null if voice features are not enabled.
   final VoiceProvider? voiceProvider;
 
+  /// The Brain provider for documents and long-term memories.
+  ///
+  /// May be null if the Brain feature is not enabled.
+  final BrainProvider? brainProvider;
+
+  /// The Connections provider for third-party OAuth integrations.
+  ///
+  /// May be null if connections are not surfaced.
+  final ConnectionsProvider? connectionsProvider;
+
   /// Creates a [FlaiProviders] widget.
   const FlaiProviders({
     super.key,
@@ -45,6 +57,8 @@ class FlaiProviders extends InheritedWidget {
     required this.storageProvider,
     this.aiProvider,
     this.voiceProvider,
+    this.brainProvider,
+    this.connectionsProvider,
     required super.child,
   });
 
@@ -63,5 +77,7 @@ class FlaiProviders extends InheritedWidget {
       authProvider != oldWidget.authProvider ||
       storageProvider != oldWidget.storageProvider ||
       aiProvider != oldWidget.aiProvider ||
-      voiceProvider != oldWidget.voiceProvider;
+      voiceProvider != oldWidget.voiceProvider ||
+      brainProvider != oldWidget.brainProvider ||
+      connectionsProvider != oldWidget.connectionsProvider;
 }

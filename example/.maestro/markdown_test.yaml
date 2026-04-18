@@ -25,11 +25,11 @@ appId: com.example.flaiExample
 
 # ── Wait for home screen ─────────────────────────────────────────────
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 25000
 
 # ── Ask for markdown-formatted content ───────────────────────────────
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "Give me a numbered list of 3 colors"
 - pressKey: enter
 - waitForAnimationToEnd:

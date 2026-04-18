@@ -22,12 +22,12 @@ appId: com.example.flaiExample
 
 # ── Wait for home screen (either from login or session restore) ───────
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 25000
 - takeScreenshot: sidebar_00_home
 
 # ── Send a message so there's a conversation ──────────────────────────
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "Sidebar test message"
 - pressKey: enter
 - waitForAnimationToEnd:
@@ -61,7 +61,7 @@ appId: com.example.flaiExample
     timeout: 5000
 # Verify we're back to empty state (composer visible, no active chat)
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 10000
 - takeScreenshot: sidebar_03_new_chat
 
@@ -85,7 +85,7 @@ appId: com.example.flaiExample
     timeout: 5000
 # Verify we're in a chat view (composer visible, not empty state greeting)
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 10000
 - takeScreenshot: sidebar_04_loaded
 

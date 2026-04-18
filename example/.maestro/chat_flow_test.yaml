@@ -25,14 +25,14 @@ appId: com.example.flaiExample
 
 # ── Home screen ───────────────────────────────────────────────────────
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 20000
 - takeScreenshot: 00_home
 
 # ══════════════════════════════════════════════════════════════════════
 # MESSAGE 1: Simple greeting
 # ══════════════════════════════════════════════════════════════════════
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "Hello! What is your name?"
 - pressKey: enter
 - waitForAnimationToEnd:
@@ -44,7 +44,7 @@ appId: com.example.flaiExample
 # ══════════════════════════════════════════════════════════════════════
 # MESSAGE 2: Follow-up (tests chatId chaining)
 # ══════════════════════════════════════════════════════════════════════
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "What did I just say to you?"
 - pressKey: enter
 - waitForAnimationToEnd:
@@ -56,7 +56,7 @@ appId: com.example.flaiExample
 # ══════════════════════════════════════════════════════════════════════
 # MESSAGE 3: Knowledge question
 # ══════════════════════════════════════════════════════════════════════
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "What is the capital of France?"
 - pressKey: enter
 - waitForAnimationToEnd:
@@ -68,7 +68,7 @@ appId: com.example.flaiExample
 # ══════════════════════════════════════════════════════════════════════
 # MESSAGE 4: Creative request
 # ══════════════════════════════════════════════════════════════════════
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "Write me a haiku about coding"
 - pressKey: enter
 - waitForAnimationToEnd:
@@ -80,7 +80,7 @@ appId: com.example.flaiExample
 # ══════════════════════════════════════════════════════════════════════
 # MESSAGE 5: Context recall (tests conversation memory)
 # ══════════════════════════════════════════════════════════════════════
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "What was the haiku you just wrote?"
 - pressKey: enter
 - waitForAnimationToEnd:
@@ -92,7 +92,7 @@ appId: com.example.flaiExample
 # ══════════════════════════════════════════════════════════════════════
 # MESSAGE 6: Math/reasoning
 # ══════════════════════════════════════════════════════════════════════
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "What is 42 times 17?"
 - pressKey: enter
 - waitForAnimationToEnd:
@@ -104,7 +104,7 @@ appId: com.example.flaiExample
 # ══════════════════════════════════════════════════════════════════════
 # MESSAGE 7: Opinion/longer response
 # ══════════════════════════════════════════════════════════════════════
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "Give me 3 tips for better sleep"
 - pressKey: enter
 - waitForAnimationToEnd:
@@ -116,7 +116,7 @@ appId: com.example.flaiExample
 # ══════════════════════════════════════════════════════════════════════
 # MESSAGE 8: Technical question
 # ══════════════════════════════════════════════════════════════════════
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "Explain what an API is in one sentence"
 - pressKey: enter
 - waitForAnimationToEnd:
@@ -128,7 +128,7 @@ appId: com.example.flaiExample
 # ══════════════════════════════════════════════════════════════════════
 # MESSAGE 9: Conversation summary (tests full context window)
 # ══════════════════════════════════════════════════════════════════════
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "How many messages have I sent you so far?"
 - pressKey: enter
 - waitForAnimationToEnd:
@@ -140,7 +140,7 @@ appId: com.example.flaiExample
 # ══════════════════════════════════════════════════════════════════════
 # MESSAGE 10: Closing
 # ══════════════════════════════════════════════════════════════════════
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "Thanks for chatting! Say goodbye."
 - pressKey: enter
 - waitForAnimationToEnd:

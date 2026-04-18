@@ -38,15 +38,26 @@ sealed class SettingsRow {
 }
 
 /// A tappable row that triggers navigation to another screen or flow.
+///
+/// Supply either:
+/// - [onTap] — fires a callback (e.g. for sign-out, custom flows), or
+/// - [destinationBuilder] — pushes the built widget as a [MaterialPageRoute]
+///   onto the navigator. Use this for sub-pages like Profile or Connections
+///   so the row owns its destination without needing a [BuildContext] at
+///   config time.
 class NavigationRow extends SettingsRow {
   /// Called when the user taps this row.
   final VoidCallback? onTap;
+
+  /// Builds the destination page to push onto the navigator.
+  final WidgetBuilder? destinationBuilder;
 
   /// Creates a [NavigationRow].
   const NavigationRow({
     super.icon,
     required super.label,
     this.onTap,
+    this.destinationBuilder,
   });
 }
 

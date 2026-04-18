@@ -34,12 +34,30 @@ sealed class SettingsRow {
 }
 
 /// A tappable row that triggers navigation to another screen or flow.
+///
+/// Supply either:
+/// - [onTap] — fires a callback (e.g. for sign-out, custom flows), or
+/// - [destinationBuilder] — pushes the built widget as a [MaterialPageRoute]
+///   onto the root navigator. Use this for sub-pages like Profile, Account,
+///   or Connections so the row owns its destination without main.dart needing
+///   a [BuildContext].
+///
+/// If both are provided, [onTap] runs first; if it does not pop/push, the
+/// destination is then pushed.
 class NavigationRow extends SettingsRow {
   /// Called when the user taps this row.
   final VoidCallback? onTap;
 
+  /// Builds the destination page to push onto the navigator.
+  final WidgetBuilder? destinationBuilder;
+
   /// Creates a [NavigationRow].
-  const NavigationRow({super.icon, required super.label, this.onTap});
+  const NavigationRow({
+    super.icon,
+    required super.label,
+    this.onTap,
+    this.destinationBuilder,
+  });
 }
 
 /// A row with a dropdown selector for choosing from a list of string options.

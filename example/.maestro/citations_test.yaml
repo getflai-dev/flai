@@ -25,11 +25,11 @@ appId: com.example.flaiExample
 
 # ── Wait for home screen ─────────────────────────────────────────────
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 25000
 
 # ── Send query that triggers web search + citations ──────────────────
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "Search the web for the latest Flutter release notes"
 - pressKey: enter
 - waitForAnimationToEnd:

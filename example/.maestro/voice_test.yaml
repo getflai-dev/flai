@@ -26,9 +26,9 @@ appId: com.example.flaiExample
 
 # ── Home screen ───────────────────────────────────────────────────────
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 25000
 
 # ── Verify composer area with mic button ─────────────────────────────
-- assertVisible: "Ask Assistant anything..."
+- assertVisible: "Ask Nova anything..."
 - takeScreenshot: voice_01_composer_with_mic

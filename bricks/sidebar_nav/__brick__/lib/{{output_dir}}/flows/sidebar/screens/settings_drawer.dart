@@ -6,299 +6,231 @@ import '../sidebar_config.dart';
 import '../widgets/settings_row_widget.dart';
 import '../widgets/workspace_switcher.dart';
 
-/// Opens the settings bottom sheet for the given [config] and [userProfile].
+/// Pushes the full-screen settings page.
 ///
-/// The sheet supports navigating into sub-pages via [NavigationRow] taps.
-/// Developers configure sub-pages by setting [NavigationRow.onTap] to a
-/// callback that calls the provided [pushPage] function:
+/// Replaces the previous bottom-sheet implementation to match the CMMD web
+/// architecture: settings is a route with a back button, and sub-pages are
+/// pushed onto the standard [Navigator] stack via [NavigationRow.onTap].
 ///
 /// ```dart
 /// NavigationRow(
 ///   label: 'Profile',
-///   onTap: () => pushPage(const FlaiProfilePage(onBack: popPage)),
+///   onTap: () => Navigator.of(context).push(
+///     MaterialPageRoute(builder: (_) => const FlaiProfilePage()),
+///   ),
 /// )
 /// ```
-///
-/// The sheet closes when the user drags it down or taps outside.
 void showSettingsDrawer({
   required BuildContext context,
   required SettingsConfig config,
   UserProfile? userProfile,
 }) {
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useRootNavigator: true,
-    backgroundColor: Colors.transparent,
-    builder: (_) => _SettingsDrawerSheet(
-      config: config,
-      userProfile: userProfile,
+  Navigator.of(context, rootNavigator: true).push(
+    MaterialPageRoute<void>(
+      builder: (_) => FlaiSettingsScreen(
+        config: config,
+        userProfile: userProfile,
+      ),
+      fullscreenDialog: true,
     ),
   );
 }
 
-class _SettingsDrawerSheet extends StatefulWidget {
+/// Full-screen settings page.
+///
+/// Renders the user header, optional workspace switcher, and the configured
+/// [SettingsSection] list. Each [NavigationRow] is responsible for its own
+/// `onTap` (typically pushes another [MaterialPageRoute]).
+class FlaiSettingsScreen extends StatelessWidget {
   final SettingsConfig config;
   final UserProfile? userProfile;
 
-  const _SettingsDrawerSheet({
+  const FlaiSettingsScreen({
+    super.key,
     required this.config,
-    required this.userProfile,
+    this.userProfile,
   });
-
-  @override
-  State<_SettingsDrawerSheet> createState() => _SettingsDrawerSheetState();
-}
-
-class _SettingsDrawerSheetState extends State<_SettingsDrawerSheet> {
-  /// Stack of sub-pages pushed on top of the root settings view.
-  final List<Widget> _pageStack = [];
-
-  void _pushPage(Widget page) => setState(() => _pageStack.add(page));
-
-  void _popPage() {
-    if (_pageStack.isNotEmpty) {
-      setState(() => _pageStack.removeLast());
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = FlaiTheme.of(context);
-    final ratio = widget.config.drawerHeightRatio.clamp(0.4, 1.0);
 
-    return DraggableScrollableSheet(
-      initialChildSize: ratio,
-      minChildSize: 0.4,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (_, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: theme.colors.background,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+    return Scaffold(
+      backgroundColor: theme.colors.background,
+      appBar: AppBar(
+        backgroundColor: theme.colors.background,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_rounded,
+            color: theme.colors.foreground,
           ),
-          clipBehavior: Clip.antiAlias,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            transitionBuilder: (child, animation) => SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1, 0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(
+          'Settings',
+          style: theme.typography.lg.copyWith(
+            fontWeight: FontWeight.w600,
+            color: theme.colors.foreground,
+          ),
+        ),
+      ),
+      body: ListView(
+        padding: EdgeInsets.only(bottom: theme.spacing.xl),
+        children: [
+          if (userProfile != null) _UserHeader(profile: userProfile!),
+          if (config.showWorkspaceSwitcher)
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: theme.spacing.md,
+                vertical: theme.spacing.xs,
+              ),
+              child: WorkspaceSwitcher(
+                workspaceLabel: userProfile?.workspaceLabel,
+              ),
             ),
-            child: _pageStack.isEmpty
-                ? _RootSettingsPage(
-                    key: const ValueKey('root'),
-                    config: widget.config,
-                    userProfile: widget.userProfile,
-                    scrollController: scrollController,
-                    pushPage: _pushPage,
-                    popPage: _popPage,
-                    theme: theme,
-                  )
-                : KeyedSubtree(
-                    key: ValueKey(_pageStack.length),
-                    child: _pageStack.last,
-                  ),
-          ),
-        );
-      },
+          Divider(color: theme.colors.border, height: 1),
+          for (final section in config.sections) ...[
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                theme.spacing.md,
+                theme.spacing.md,
+                theme.spacing.md,
+                theme.spacing.xs,
+              ),
+              child: Text(
+                section.title.toUpperCase(),
+                style: theme.typography.sm.copyWith(
+                  color: theme.colors.mutedForeground,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ),
+            for (final row in section.rows)
+              SettingsRowWidget(
+                row: row,
+                onNavigate: row is NavigationRow
+                    ? () {
+                        if (row.onTap != null) row.onTap!();
+                      }
+                    : null,
+              ),
+            Divider(color: theme.colors.border, height: 1),
+          ],
+          if (config.infoItems.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.all(theme.spacing.md),
+              child: Wrap(
+                spacing: theme.spacing.md,
+                runSpacing: theme.spacing.xs,
+                children: config.infoItems
+                    .map(
+                      (item) => GestureDetector(
+                        onTap: item.onTap,
+                        child: Text(
+                          item.label,
+                          style: theme.typography.sm.copyWith(
+                            color: theme.colors.mutedForeground,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          if (config.appVersion != null)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: theme.spacing.md),
+              child: Text(
+                'v${config.appVersion}',
+                style: theme.typography.sm.copyWith(
+                  color: theme.colors.mutedForeground,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
 
-class _RootSettingsPage extends StatelessWidget {
-  final SettingsConfig config;
-  final UserProfile? userProfile;
-  final ScrollController scrollController;
-  final void Function(Widget) pushPage;
-  final VoidCallback popPage;
-  final dynamic theme;
+class _UserHeader extends StatelessWidget {
+  final UserProfile profile;
 
-  const _RootSettingsPage({
-    super.key,
-    required this.config,
-    required this.userProfile,
-    required this.scrollController,
-    required this.pushPage,
-    required this.popPage,
-    required this.theme,
-  });
+  const _UserHeader({required this.profile});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Drag handle
-        Center(
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: theme.spacing.sm),
-            width: 36,
-            height: 4,
+    final theme = FlaiTheme.of(context);
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: theme.spacing.md,
+        vertical: theme.spacing.md,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: theme.colors.mutedForeground.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(2),
+              color: theme.colors.primary,
+              shape: BoxShape.circle,
             ),
-          ),
-        ),
-
-        // User header
-        if (userProfile != null)
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: theme.spacing.md,
-              vertical: theme.spacing.sm,
-            ),
-            child: Row(
-              children: [
-                // Avatar
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: theme.colors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: userProfile!.avatarUrl != null
-                      ? ClipOval(
-                          child: Image.network(
-                            userProfile!.avatarUrl!,
-                            width: 40,
-                            height: 40,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : Text(
-                          userProfile!.initials,
-                          style: theme.typography.base.copyWith(
-                            color: theme.colors.primaryForeground,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                ),
-                SizedBox(width: theme.spacing.sm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        userProfile!.name,
-                        style: theme.typography.base.copyWith(
-                          color: theme.colors.foreground,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        userProfile!.email,
-                        style: theme.typography.sm.copyWith(
-                          color: theme.colors.mutedForeground,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-        // Workspace switcher
-        if (config.showWorkspaceSwitcher)
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: theme.spacing.md,
-              vertical: theme.spacing.xs,
-            ),
-            child: WorkspaceSwitcher(
-              workspaceLabel: userProfile?.workspaceLabel,
-            ),
-          ),
-
-        Divider(color: theme.colors.border, height: 1),
-
-        // Sections
-        Expanded(
-          child: ListView(
-            controller: scrollController,
-            padding: EdgeInsets.only(bottom: theme.spacing.xl),
-            children: [
-              for (final section in config.sections) ...[
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    theme.spacing.md,
-                    theme.spacing.md,
-                    theme.spacing.md,
-                    theme.spacing.xs,
-                  ),
-                  child: Text(
-                    section.title.toUpperCase(),
-                    style: theme.typography.sm.copyWith(
-                      color: theme.colors.mutedForeground,
+            alignment: Alignment.center,
+            child: profile.avatarUrl != null
+                ? ClipOval(
+                    child: Image.network(
+                      profile.avatarUrl!,
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Text(
+                    profile.initials,
+                    style: theme.typography.base.copyWith(
+                      color: theme.colors.primaryForeground,
                       fontWeight: FontWeight.w600,
-                      letterSpacing: 0.8,
                     ),
                   ),
-                ),
-                for (final row in section.rows)
-                  SettingsRowWidget(
-                    row: row,
-                    onNavigate: row is NavigationRow
-                        ? () {
-                            if (row.onTap != null) {
-                              row.onTap!();
-                            }
-                          }
-                        : null,
-                  ),
-                Divider(color: theme.colors.border, height: 1),
-              ],
-
-              // Info items (e.g. Privacy Policy, Terms of Service)
-              if (config.infoItems.isNotEmpty) ...[
-                Padding(
-                  padding: EdgeInsets.all(theme.spacing.md),
-                  child: Wrap(
-                    spacing: theme.spacing.md,
-                    runSpacing: theme.spacing.xs,
-                    children: config.infoItems
-                        .map(
-                          (item) => GestureDetector(
-                            onTap: item.onTap,
-                            child: Text(
-                              item.label,
-                              style: theme.typography.sm.copyWith(
-                                color: theme.colors.mutedForeground,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                        )
-                        .toList(),
+          ),
+          SizedBox(width: theme.spacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  profile.name,
+                  style: theme.typography.lg.copyWith(
+                    color: theme.colors.foreground,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ],
-
-              // App version
-              if (config.appVersion != null)
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: theme.spacing.md),
-                  child: Text(
-                    'v${config.appVersion}',
+                Text(
+                  profile.email,
+                  style: theme.typography.sm.copyWith(
+                    color: theme.colors.mutedForeground,
+                  ),
+                ),
+                if (profile.workspaceLabel != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    profile.workspaceLabel!,
                     style: theme.typography.sm.copyWith(
                       color: theme.colors.mutedForeground,
+                      fontStyle: FontStyle.italic,
                     ),
                   ),
-                ),
-            ],
+                ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

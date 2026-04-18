@@ -24,11 +24,11 @@ appId: com.example.flaiExample
 
 # ── Wait for home screen ─────────────────────────────────────────────
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 25000
 
 # ── Send a message so we have a conversation ─────────────────────────
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "Share test message"
 - pressKey: enter
 - waitForAnimationToEnd:

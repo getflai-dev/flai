@@ -67,7 +67,7 @@ class FlaiAttachmentPicker {
 
   /// Open the file picker and return the selected file.
   static Future<PickedAttachment?> openFiles() async {
-    final result = await FilePicker.platform.pickFiles();
+    final result = await FilePicker.pickFiles();
     if (result == null || result.files.isEmpty) return null;
     final file = result.files.first;
     if (file.path == null) return null;

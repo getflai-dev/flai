@@ -59,6 +59,16 @@ class FlaiHomeScreen extends StatefulWidget {
   /// Called when the user opens the settings sheet.
   final VoidCallback? onOpenSettings;
 
+  /// Called when the user changes the chat mode (Quick Answer, Autopilot, etc.)
+  /// from the composer's mode pill. The selected mode id is also retained
+  /// internally so the pill stays in sync without consumer wiring.
+  final ValueChanged<ChatMode>? onModeChanged;
+
+  /// The initial chat-mode id to highlight in the composer's mode pill.
+  /// When null, the first entry in
+  /// [ChatExperienceConfig.availableModes] is used.
+  final String? initialModeId;
+
   /// Creates a [FlaiHomeScreen].
   const FlaiHomeScreen({
     super.key,
@@ -74,6 +84,8 @@ class FlaiHomeScreen extends StatefulWidget {
     this.onNewChat,
     this.onConversationTap,
     this.onOpenSettings,
+    this.onModeChanged,
+    this.initialModeId,
   });
 
   @override
@@ -83,6 +95,18 @@ class FlaiHomeScreen extends StatefulWidget {
 class _FlaiHomeScreenState extends State<FlaiHomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   FlaiVoiceController? _voiceController;
+  String? _currentModeId;
+  String? _currentSearchModeId;
+
+  @override
+  void initState() {
+    super.initState();
+    final modes = widget.chatExperienceConfig.availableModes;
+    _currentModeId =
+        widget.initialModeId ?? (modes.isNotEmpty ? modes.first.id : null);
+    final searchModes = widget.chatExperienceConfig.availableSearchModes;
+    _currentSearchModeId = searchModes.isNotEmpty ? searchModes.first.id : null;
+  }
 
   @override
   void didChangeDependencies() {
@@ -161,7 +185,10 @@ class _FlaiHomeScreenState extends State<FlaiHomeScreen> {
         child: Column(
           children: [
             FlaiTopNavBar(
-              appName: effectiveConfig.appName,
+              appName: effectiveConfig.appLogo != null
+                  ? ''
+                  : effectiveConfig.appName,
+              logo: effectiveConfig.appLogo,
               onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
               actions: effectiveConfig.topNavActions,
             ),
@@ -173,7 +200,13 @@ class _FlaiHomeScreenState extends State<FlaiHomeScreen> {
             // Show composer when on the empty "new chat" state.
             // When chatContent is provided, the consumer's widget
             // is expected to include its own composer.
-            if (!hasActiveChat)
+            if (!hasActiveChat) ...[
+              if (widget.chatExperienceConfig.suggestionPrompts.isNotEmpty)
+                _SuggestionChipsRow(
+                  prompts: widget.chatExperienceConfig.suggestionPrompts,
+                  onTap: (prompt) =>
+                      (widget.onSendMessage ?? (_) {})(prompt.prompt),
+                ),
               SafeArea(
                 top: false,
                 child: Padding(
@@ -186,6 +219,14 @@ class _FlaiHomeScreenState extends State<FlaiHomeScreen> {
                   child: FlaiComposerV2(
                     config: widget.chatExperienceConfig,
                     onSend: widget.onSendMessage ?? (_) {},
+                    currentModeId: _currentModeId,
+                    onModeChanged: (mode) {
+                      setState(() => _currentModeId = mode.id);
+                      widget.onModeChanged?.call(mode);
+                    },
+                    currentSearchModeId: _currentSearchModeId,
+                    onSearchModeChanged: (m) =>
+                        setState(() => _currentSearchModeId = m.id),
                     isRecording: vc?.isRecording ?? false,
                     isTranscribing: vc?.isTranscribing ?? false,
                     voiceTranscript: vc?.lastTranscript,
@@ -194,8 +235,70 @@ class _FlaiHomeScreenState extends State<FlaiHomeScreen> {
                   ),
                 ),
               ),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Horizontally-scrolling row of suggestion chips rendered above the
+/// composer when the chat is empty. Tapping a chip immediately sends
+/// its prompt as a new message.
+class _SuggestionChipsRow extends StatelessWidget {
+  final List<SuggestionPrompt> prompts;
+  final ValueChanged<SuggestionPrompt> onTap;
+
+  const _SuggestionChipsRow({required this.prompts, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = FlaiTheme.of(context);
+    return SizedBox(
+      height: 38,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(
+          horizontal: theme.spacing.md,
+          vertical: theme.spacing.xs,
+        ),
+        itemCount: prompts.length,
+        separatorBuilder: (_, _) => SizedBox(width: theme.spacing.xs),
+        itemBuilder: (_, index) {
+          final p = prompts[index];
+          return InkWell(
+            borderRadius: BorderRadius.circular(theme.radius.full),
+            onTap: () => onTap(p),
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: theme.spacing.sm,
+                vertical: theme.spacing.xs,
+              ),
+              decoration: BoxDecoration(
+                color: theme.colors.muted,
+                borderRadius: BorderRadius.circular(theme.radius.full),
+                border: Border.all(color: theme.colors.border),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (p.icon != null) ...[
+                    Icon(p.icon, size: 14, color: theme.colors.foreground),
+                    SizedBox(width: theme.spacing.xs),
+                  ],
+                  Text(
+                    p.displayLabel,
+                    style: theme.typography.sm.copyWith(
+                      color: theme.colors.foreground,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

@@ -144,6 +144,8 @@ class _FlaiAppState extends State<FlaiApp> {
         storageProvider: _storageProvider,
         aiProvider: widget.config.aiProvider,
         voiceProvider: widget.config.voiceProvider,
+        brainProvider: widget.config.brainProvider,
+        connectionsProvider: widget.config.connectionsProvider,
         child: MaterialApp.router(
           routerConfig: _router,
           title: widget.config.appTitle,

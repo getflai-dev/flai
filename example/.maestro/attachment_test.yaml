@@ -28,7 +28,7 @@ appId: com.example.flaiExample
 
 # ── Wait for home screen ─────────────────────────────────────────────
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 25000
 - takeScreenshot: attach_00_home
 

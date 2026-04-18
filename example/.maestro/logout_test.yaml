@@ -31,7 +31,7 @@ appId: com.example.flaiExample
 
 # ── Verify home screen ───────────────────────────────────────────────
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 20000
 - takeScreenshot: logout_00_home
 
@@ -74,5 +74,5 @@ appId: com.example.flaiExample
     visible: "Log in"
     timeout: 15000
 - assertVisible: "Log in"
-- assertNotVisible: "Ask Assistant anything..."
+- assertNotVisible: "Ask Nova anything..."
 - takeScreenshot: logout_04_login_screen

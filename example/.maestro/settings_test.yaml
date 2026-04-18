@@ -1,0 +1,53 @@
+appId: com.example.flaiExample
+---
+
+# Smoke test for the new full-screen settings flow:
+# 1. Open sidebar -> tap profile -> verify "Settings" page renders
+# 2. Tap "General" -> verify "Display name" field exists
+# 3. Back -> tap "Connections" -> verify Connected/Available section renders
+
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+- extendedWaitUntil:
+    visible: "CMMD"
+    timeout: 15000
+
+# Open sidebar
+- tapOn:
+    point: "8%,11%"
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Open settings via gear / profile bar at the bottom of the drawer
+- tapOn:
+    id: "settings"
+    optional: true
+- tapOn:
+    point: "12%,93%"
+    optional: true
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 8000
+- takeScreenshot: settings_root
+
+# Drill into General
+- tapOn: "General"
+- extendedWaitUntil:
+    visible: "Display name"
+    timeout: 8000
+- takeScreenshot: settings_general
+- tapOn:
+    point: "8%,8%"
+- extendedWaitUntil:
+    visible: "Connections"
+    timeout: 8000
+- tapOn: "Connections"
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: settings_connections

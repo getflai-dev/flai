@@ -155,10 +155,14 @@ class _FlaiSidebarDrawerState extends State<FlaiSidebarDrawer> {
               ),
               child: Row(
                 children: [
-                  // App logo or default gradient circle
                   if (widget.config.appLogo != null)
-                    widget.config.appLogo!
-                  else
+                    Expanded(
+                      child: DefaultTextStyle.merge(
+                        style: TextStyle(color: theme.colors.foreground),
+                        child: widget.config.appLogo!,
+                      ),
+                    )
+                  else ...[
                     Container(
                       width: 32,
                       height: 32,
@@ -174,17 +178,18 @@ class _FlaiSidebarDrawerState extends State<FlaiSidebarDrawer> {
                         ),
                       ),
                     ),
-                  SizedBox(width: theme.spacing.sm),
-                  Expanded(
-                    child: Text(
-                      widget.config.appName,
-                      style: theme.typography.lg.copyWith(
-                        color: theme.colors.foreground,
-                        fontWeight: FontWeight.bold,
+                    SizedBox(width: theme.spacing.sm),
+                    Expanded(
+                      child: Text(
+                        widget.config.appName,
+                        style: theme.typography.lg.copyWith(
+                          color: theme.colors.foreground,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
+                  ],
                   // New chat button
                   IconButton(
                     onPressed: widget.config.onNewChat,

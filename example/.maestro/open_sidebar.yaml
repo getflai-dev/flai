@@ -1,0 +1,23 @@
+appId: com.example.flaiExample
+---
+
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+- extendedWaitUntil:
+    visible: "CMMD"
+    timeout: 15000
+- takeScreenshot: nav_with_logo
+- tapOn:
+    id: "menu_rounded"
+    optional: true
+- tapOn:
+    point: "8%,11%"
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: sidebar_open

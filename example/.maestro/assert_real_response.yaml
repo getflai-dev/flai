@@ -37,4 +37,4 @@ appId: com.example.flaiExample
 - assertNotVisible: "request is already in progress"
 
 # ── POSITIVE: Composer is ready (not stuck streaming) ────────────────
-- assertVisible: "Ask Assistant anything..."
+- assertVisible: "Ask Nova anything..."

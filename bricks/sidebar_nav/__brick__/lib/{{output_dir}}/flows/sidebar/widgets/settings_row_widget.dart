@@ -26,7 +26,12 @@ class SettingsRowWidget extends StatelessWidget {
     final theme = FlaiTheme.of(context);
 
     return switch (row) {
-      NavigationRow(:final icon, :final label, :final onTap) =>
+      NavigationRow(
+        :final icon,
+        :final label,
+        :final onTap,
+        :final destinationBuilder,
+      ) =>
         ListTile(
           contentPadding: EdgeInsets.symmetric(horizontal: theme.spacing.md),
           leading: icon != null
@@ -43,7 +48,19 @@ class SettingsRowWidget extends StatelessWidget {
             color: theme.colors.mutedForeground,
             size: 20,
           ),
-          onTap: onTap ?? onNavigate,
+          onTap: () {
+            if (onTap != null) {
+              onTap();
+              return;
+            }
+            if (destinationBuilder != null) {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute<void>(builder: destinationBuilder));
+              return;
+            }
+            onNavigate?.call();
+          },
         ),
       DropdownRow(:final icon, :final label, :final value, :final options, :final onChanged) =>
         Padding(

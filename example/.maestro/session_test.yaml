@@ -32,7 +32,7 @@ appId: com.example.flaiExample
 
 # ── Verify home screen after login (or session restore) ──────────────
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 20000
 - takeScreenshot: session_01_logged_in
 
@@ -52,7 +52,7 @@ appId: com.example.flaiExample
 
 # ── Assert session restored — home screen loads directly ──────────────
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 20000
 - takeScreenshot: session_02_restored
 

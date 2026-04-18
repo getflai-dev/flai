@@ -25,11 +25,11 @@ appId: com.example.flaiExample
 
 # ── Wait for home screen ─────────────────────────────────────────────
 - extendedWaitUntil:
-    visible: "Ask Assistant anything..."
+    visible: "Ask Nova anything..."
     timeout: 25000
 
 # ── Send query that triggers tool use ────────────────────────────────
-- tapOn: "Ask Assistant anything..."
+- tapOn: "Ask Nova anything..."
 - inputText: "Search my brain for any documents about meetings"
 - pressKey: enter
 - waitForAnimationToEnd:
