@@ -89,25 +89,76 @@ class HomeController extends ChangeNotifier {
     return _cachedProfile;
   }
 
-  /// Picks a human-friendly workspace label from auth metadata, falling back
-  /// to "Personal" so the sidebar chip always renders something readable
-  /// (instead of an opaque organization UUID).
+  /// Picks a human-friendly workspace label by matching the active org id
+  /// against the `organizations` list returned at login.
   String _resolveWorkspaceLabel(AuthUser user) {
-    final m = user.metadata;
-    if (m != null) {
-      for (final key in const [
-        'organizationName',
-        'workspaceName',
-        'tenantName',
-        'companyName',
-      ]) {
-        final v = m[key];
-        if (v is String && v.trim().isNotEmpty) return v.trim();
-      }
-    }
+    final active = activeOrganization;
+    if (active != null) return active.name;
     final firstName = user.displayName?.split(' ').first;
     if (firstName != null && firstName.isNotEmpty) return firstName;
     return 'Personal';
+  }
+
+  /// All organizations the user has access to, parsed from auth metadata.
+  ///
+  /// Returns an empty list when the auth provider didn't surface them
+  /// (e.g. a non-CMMD provider or an old session).
+  List<WorkspaceOrg> get availableOrganizations {
+    final m = auth.currentUser?.metadata;
+    final raw = m?['organizations'];
+    if (raw is! List) return const [];
+    return raw
+        .whereType<Map>()
+        .map(
+          (j) => WorkspaceOrg(
+            id: j['id']?.toString() ?? '',
+            name: (j['name'] ?? j['slug'] ?? '').toString(),
+            role: j['userRole']?.toString(),
+            isDefault: j['isDefault'] == true,
+          ),
+        )
+        .where((o) => o.id.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  /// The org the app is currently scoped to. Prefers the explicit override
+  /// set via [switchOrganization], falling back to `defaultOrganizationId`.
+  WorkspaceOrg? get activeOrganization {
+    final orgs = availableOrganizations;
+    if (orgs.isEmpty) return null;
+    final m = auth.currentUser?.metadata;
+    final activeId =
+        _activeOrgIdOverride ?? m?['defaultOrganizationId']?.toString();
+    if (activeId == null) return orgs.first;
+    return orgs.firstWhere(
+      (o) => o.id == activeId,
+      orElse: () => orgs.first,
+    );
+  }
+
+  String? _activeOrgIdOverride;
+
+  /// Switch the active workspace and reload conversations against it.
+  ///
+  /// Uses [AuthProvider]'s setter when available (the CMMD provider exposes
+  /// one) so all downstream providers immediately scope to the new org.
+  Future<void> switchOrganization(String organizationId) async {
+    if (activeOrganization?.id == organizationId) return;
+    _activeOrgIdOverride = organizationId;
+    _cachedProfile = null;
+    _lastUser = null;
+    final dyn = auth as dynamic;
+    try {
+      dyn.setOrganizationId(organizationId);
+    } catch (_) {
+      // AuthProvider impl doesn't expose org switching — best-effort only.
+    }
+    _conversations = const [];
+    _starred = const [];
+    _activeConversationId = null;
+    _messages = const [];
+    notifyListeners();
+    await loadConversations();
   }
 
   // ── Init / Dispose ─────────────────────────────────────────────────
@@ -446,3 +497,4 @@ class HomeController extends ChangeNotifier {
     );
   }
 }
+

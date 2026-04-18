@@ -470,6 +470,9 @@ class _WiredHomePageState extends State<_WiredHomePage> {
       onNewChat: () => ctrl.newChat(),
       onSendMessage: (text) => ctrl.sendMessage(text),
       onConversationTap: (item) => ctrl.selectConversation(item),
+      availableWorkspaces: ctrl.availableOrganizations,
+      activeWorkspaceId: ctrl.activeOrganization?.id,
+      onWorkspaceSelected: (id) => ctrl.switchOrganization(id),
       chatContent: hasActiveChat
           ? FlaiChatContent(
               messages: ctrl.messages,

@@ -65,8 +65,21 @@ class CmmdAuthProvider implements AuthProvider {
   /// The current JWT refresh token, if authenticated.
   String? get refreshToken => _refreshToken;
 
-  /// The organization ID from the last successful login.
+  /// The organization ID from the last successful login (or the active one
+  /// chosen by the user via [setOrganizationId]).
   String? get organizationId => _organizationId ?? config.organizationId;
+
+  /// Switch the active organization. The new id is sent as `X-Organization-ID`
+  /// on every subsequent CMMD request, so all downstream providers
+  /// (chat, brain, storage, voice) immediately see the new workspace.
+  ///
+  /// Re-emits [currentUser] on [authStateChanges] so listeners (sidebar,
+  /// home controller) rebuild against the new workspace.
+  void setOrganizationId(String id) {
+    if (_organizationId == id) return;
+    _organizationId = id;
+    if (_currentUser != null) _authStateController.add(_currentUser);
+  }
 
   /// CSRF headers to include in authenticated requests.
   ///
@@ -539,9 +552,24 @@ class CmmdAuthProvider implements AuthProvider {
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         if (json['valid'] == true) {
+          // /api/auth/validate doesn't include organizations — fetch them
+          // separately so the workspace switcher works after a cold start.
+          final orgs = await _fetchOrganizations();
+          if (orgs != null) {
+            json['organizations'] = orgs;
+            json['defaultOrganizationId'] ??= orgs
+                .cast<Map<String, dynamic>>()
+                .firstWhere(
+                  (o) => o['isDefault'] == true,
+                  orElse: () => orgs.first as Map<String, dynamic>,
+                )['id'];
+          }
           final user = _parseUser(json);
           _setUser(user);
           _lastEmail = user.email;
+          if (_organizationId == null && json['defaultOrganizationId'] != null) {
+            _organizationId = json['defaultOrganizationId'].toString();
+          }
           return true;
         }
       }
@@ -594,6 +622,30 @@ class CmmdAuthProvider implements AuthProvider {
     'X-Auth-Type': 'jwt',
     'X-Organization-ID': ?organizationId,
   };
+
+  /// Fetches the user's organizations from `/api/organizations`.
+  ///
+  /// Returns `null` if the request fails so the caller can decide how to
+  /// degrade (workspace switcher hidden, fallback label, etc.).
+  Future<List<dynamic>?> _fetchOrganizations() async {
+    try {
+      final response = await http
+          .get(
+            Uri.parse('${config.baseUrl}/api/organizations'),
+            headers: _baseHeaders,
+          )
+          .timeout(const Duration(seconds: 8));
+      if (response.statusCode != 200) return null;
+      final body = jsonDecode(response.body);
+      if (body is List) return body;
+      if (body is Map && body['organizations'] is List) {
+        return body['organizations'] as List;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
 
   Future<void> _ensureCsrfToken() async {
     if (_csrfToken != null) return;

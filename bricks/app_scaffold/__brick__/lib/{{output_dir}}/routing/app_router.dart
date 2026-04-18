@@ -66,8 +66,7 @@ abstract final class AppPaths {
 /// ```
 GoRouter createAppRouter({required AppScaffoldConfig config}) {
   return GoRouter(
-    initialLocation:
-        config.showSplash ? AppPaths.splash : AppPaths.auth,
+    initialLocation: config.showSplash ? AppPaths.splash : AppPaths.auth,
     refreshListenable: _AuthStateNotifier(config.authProvider),
     redirect: (context, state) {
       final user = config.authProvider.currentUser;
@@ -114,8 +113,7 @@ GoRouter createAppRouter({required AppScaffoldConfig config}) {
       GoRoute(
         path: AppPaths.onboarding,
         name: AppRoutes.onboarding,
-        builder: (context, state) =>
-            _OnboardingFlowPage(config: config),
+        builder: (context, state) => _OnboardingFlowPage(config: config),
       ),
 
       // Home
@@ -175,18 +173,20 @@ class _AuthFlowPageState extends State<_AuthFlowPage> {
       listenable: _controller,
       builder: (context, _) {
         return switch (_controller.currentScreen) {
-          AuthScreen.loginLanding =>
-            FlaiLoginLanding(controller: _controller),
-          AuthScreen.emailEntry =>
-            FlaiEmailEntry(controller: _controller),
-          AuthScreen.passwordEntry =>
-            FlaiPasswordEntry(controller: _controller),
-          AuthScreen.forgotPassword =>
-            FlaiForgotPassword(controller: _controller),
-          AuthScreen.verificationCode =>
-            FlaiVerificationCode(controller: _controller),
-          AuthScreen.resetPassword =>
-            FlaiResetPassword(controller: _controller),
+          AuthScreen.loginLanding => FlaiLoginLanding(controller: _controller),
+          AuthScreen.emailEntry => FlaiEmailEntry(controller: _controller),
+          AuthScreen.passwordEntry => FlaiPasswordEntry(
+            controller: _controller,
+          ),
+          AuthScreen.forgotPassword => FlaiForgotPassword(
+            controller: _controller,
+          ),
+          AuthScreen.verificationCode => FlaiVerificationCode(
+            controller: _controller,
+          ),
+          AuthScreen.resetPassword => FlaiResetPassword(
+            controller: _controller,
+          ),
         };
       },
     );
@@ -244,14 +244,16 @@ class _OnboardingFlowPageState extends State<_OnboardingFlowPage> {
         if (step == null) return const SizedBox.shrink();
 
         return switch (step) {
-          NamingStep() =>
-            FlaiNamingScreen(controller: _controller, step: step),
-          MultiSelectStep() =>
-            FlaiMultiSelectScreen(controller: _controller, step: step),
-          CustomStep() =>
-            FlaiCustomStepScreen(controller: _controller, step: step),
-          RevealStep() =>
-            FlaiRevealScreen(controller: _controller, step: step),
+          NamingStep() => FlaiNamingScreen(controller: _controller, step: step),
+          MultiSelectStep() => FlaiMultiSelectScreen(
+            controller: _controller,
+            step: step,
+          ),
+          CustomStep() => FlaiCustomStepScreen(
+            controller: _controller,
+            step: step,
+          ),
+          RevealStep() => FlaiRevealScreen(controller: _controller, step: step),
         };
       },
     );
@@ -331,8 +333,7 @@ class _WiredHomePageState extends State<_WiredHomePage> {
                 hintText: 'Conversation name',
                 border: OutlineInputBorder(),
               ),
-              onSubmitted: (value) =>
-                  Navigator.of(sheetCtx).pop(value.trim()),
+              onSubmitted: (value) => Navigator.of(sheetCtx).pop(value.trim()),
             ),
             const SizedBox(height: 16),
             Row(
@@ -421,7 +422,8 @@ class _WiredHomePageState extends State<_WiredHomePage> {
     final chatConfig = _effectiveChatConfig;
     final hasActiveChat = ctrl.activeConversationId != null;
 
-    final baseSidebar = widget.config.sidebarConfig ??
+    final baseSidebar =
+        widget.config.sidebarConfig ??
         SidebarConfig(appName: widget.config.appTitle);
 
     return FlaiHomeScreen(
@@ -434,22 +436,30 @@ class _WiredHomePageState extends State<_WiredHomePage> {
         settingsConfig: baseSidebar.settingsConfig,
         onNewChat: baseSidebar.onNewChat,
         onConversationTap: baseSidebar.onConversationTap,
-        onConversationStar: baseSidebar.onConversationStar ?? (item) => ctrl.starConversation(item),
-        onConversationRename: baseSidebar.onConversationRename ?? (item) async {
-          // Capture context before the async gap.
-          final ctx = context;
-          // The drawer is already closing (ChatListItem calls closeDrawer).
-          // Wait for the close animation, then show rename as a bottom
-          // sheet (not a dialog — showDialog triggers _dependents.isEmpty).
-          await Future<void>.delayed(const Duration(milliseconds: 400));
-          if (!ctx.mounted) return;
-          final newTitle = await _showRenameSheet(ctx, item.title);
-          if (newTitle != null && newTitle.isNotEmpty) {
-            await ctrl.renameConversation(item, newTitle);
-          }
-        },
-        onConversationShare: baseSidebar.onConversationShare ?? (item) => ctrl.shareConversation(item),
-        onConversationDelete: baseSidebar.onConversationDelete ?? (item) => ctrl.deleteConversation(item),
+        onConversationStar:
+            baseSidebar.onConversationStar ??
+            (item) => ctrl.starConversation(item),
+        onConversationRename:
+            baseSidebar.onConversationRename ??
+            (item) async {
+              // Capture context before the async gap.
+              final ctx = context;
+              // The drawer is already closing (ChatListItem calls closeDrawer).
+              // Wait for the close animation, then show rename as a bottom
+              // sheet (not a dialog — showDialog triggers _dependents.isEmpty).
+              await Future<void>.delayed(const Duration(milliseconds: 400));
+              if (!ctx.mounted) return;
+              final newTitle = await _showRenameSheet(ctx, item.title);
+              if (newTitle != null && newTitle.isNotEmpty) {
+                await ctrl.renameConversation(item, newTitle);
+              }
+            },
+        onConversationShare:
+            baseSidebar.onConversationShare ??
+            (item) => ctrl.shareConversation(item),
+        onConversationDelete:
+            baseSidebar.onConversationDelete ??
+            (item) => ctrl.deleteConversation(item),
       ),
       chatExperienceConfig: chatConfig,
       settingsConfig: _effectiveSettingsConfig,
@@ -460,6 +470,9 @@ class _WiredHomePageState extends State<_WiredHomePage> {
       onNewChat: () => ctrl.newChat(),
       onSendMessage: (text) => ctrl.sendMessage(text),
       onConversationTap: (item) => ctrl.selectConversation(item),
+      availableWorkspaces: ctrl.availableOrganizations,
+      activeWorkspaceId: ctrl.activeOrganization?.id,
+      onWorkspaceSelected: (id) => ctrl.switchOrganization(id),
       chatContent: hasActiveChat
           ? FlaiChatContent(
               messages: ctrl.messages,

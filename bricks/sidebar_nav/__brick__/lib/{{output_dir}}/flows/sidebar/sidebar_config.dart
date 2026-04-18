@@ -17,6 +17,31 @@ class NavItem {
   const NavItem({required this.icon, required this.label, this.page});
 }
 
+/// Minimal projection of a workspace / organization the signed-in user can
+/// switch into via the sidebar header chip.
+class WorkspaceOrg {
+  /// Stable identifier for the workspace (sent as `X-Organization-ID` on
+  /// CMMD requests).
+  final String id;
+
+  /// Human-readable workspace name.
+  final String name;
+
+  /// Optional role label (e.g. "owner", "member") shown beneath the name in
+  /// the picker sheet.
+  final String? role;
+
+  /// Whether this workspace is the user's default.
+  final bool isDefault;
+
+  const WorkspaceOrg({
+    required this.id,
+    required this.name,
+    this.role,
+    this.isDefault = false,
+  });
+}
+
 /// Profile information for the signed-in user.
 class UserProfile {
   /// The user's display name.

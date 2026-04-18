@@ -54,9 +54,10 @@ class CmmdAuthProvider implements AuthProvider {
   final StreamController<AuthUser?> _authStateController =
       StreamController<AuthUser?>.broadcast();
   final StreamController<({String? accessToken, String? refreshToken})>
-      _tokenChangeController =
-      StreamController<({String? accessToken, String? refreshToken})>
-          .broadcast();
+  _tokenChangeController =
+      StreamController<
+        ({String? accessToken, String? refreshToken})
+      >.broadcast();
 
   /// The current JWT access token, or `null` if not authenticated.
   String? get accessToken => _accessToken;
@@ -64,19 +65,32 @@ class CmmdAuthProvider implements AuthProvider {
   /// The current JWT refresh token, if authenticated.
   String? get refreshToken => _refreshToken;
 
-  /// The organization ID from the last successful login.
+  /// The organization ID from the last successful login (or the active one
+  /// chosen by the user via [setOrganizationId]).
   String? get organizationId => _organizationId ?? config.organizationId;
+
+  /// Switch the active organization. The new id is sent as `X-Organization-ID`
+  /// on every subsequent CMMD request, so all downstream providers
+  /// (chat, brain, storage, voice) immediately see the new workspace.
+  ///
+  /// Re-emits [currentUser] on [authStateChanges] so listeners (sidebar,
+  /// home controller) rebuild against the new workspace.
+  void setOrganizationId(String id) {
+    if (_organizationId == id) return;
+    _organizationId = id;
+    if (_currentUser != null) _authStateController.add(_currentUser);
+  }
 
   /// CSRF headers to include in authenticated requests.
   ///
   /// Other CMMD providers (AI, Storage, Voice) should merge these into
   /// their own request headers so that CSRF-protected endpoints work.
   Map<String, String> get csrfHeaders => {
-        if (_csrfToken != null) ...{
-          'X-XSRF-TOKEN': _csrfToken!,
-          'Cookie': 'XSRF-TOKEN=$_csrfToken${_sessionCookie ?? ''}',
-        },
-      };
+    if (_csrfToken != null) ...{
+      'X-XSRF-TOKEN': _csrfToken!,
+      'Cookie': 'XSRF-TOKEN=$_csrfToken${_sessionCookie ?? ''}',
+    },
+  };
 
   // ---------------------------------------------------------------------------
   // Session
@@ -102,14 +116,8 @@ class CmmdAuthProvider implements AuthProvider {
       await _ensureCsrfToken();
       final response = await http.post(
         Uri.parse('${config.baseUrl}/api/login'),
-        headers: {
-          ..._baseHeaders,
-          'x-auth-type': 'jwt',
-        },
-        body: jsonEncode({
-          'username': email,
-          'password': password,
-        }),
+        headers: {..._baseHeaders, 'x-auth-type': 'jwt'},
+        body: jsonEncode({'username': email, 'password': password}),
       );
 
       if (response.statusCode != 200) {
@@ -178,7 +186,8 @@ class CmmdAuthProvider implements AuthProvider {
 
       if (response.statusCode != 200) {
         return AuthFailure(
-          _extractError(response) ?? 'Apple sign-in failed (${response.statusCode})',
+          _extractError(response) ??
+              'Apple sign-in failed (${response.statusCode})',
           code: '${response.statusCode}',
         );
       }
@@ -237,7 +246,8 @@ class CmmdAuthProvider implements AuthProvider {
 
       if (response.statusCode != 200) {
         return AuthFailure(
-          _extractError(response) ?? 'Google sign-in failed (${response.statusCode})',
+          _extractError(response) ??
+              'Google sign-in failed (${response.statusCode})',
           code: '${response.statusCode}',
         );
       }
@@ -411,10 +421,7 @@ class CmmdAuthProvider implements AuthProvider {
       final response = await http.post(
         Uri.parse('${config.baseUrl}/api/verify-login-code'),
         headers: _baseHeaders,
-        body: jsonEncode({
-          'email': email,
-          'code': code,
-        }),
+        body: jsonEncode({'email': email, 'code': code}),
       );
 
       if (response.statusCode != 200) {
@@ -491,9 +498,7 @@ class CmmdAuthProvider implements AuthProvider {
       final encoded = Uri.encodeQueryComponent(email);
       final response = await http.get(
         Uri.parse('${config.baseUrl}/api/auth/check-user?identifier=$encoded'),
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers: {'Accept': 'application/json'},
       );
 
       if (response.statusCode == 200) {
@@ -547,9 +552,24 @@ class CmmdAuthProvider implements AuthProvider {
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         if (json['valid'] == true) {
+          // /api/auth/validate doesn't include organizations — fetch them
+          // separately so the workspace switcher works after a cold start.
+          final orgs = await _fetchOrganizations();
+          if (orgs != null) {
+            json['organizations'] = orgs;
+            json['defaultOrganizationId'] ??= orgs
+                .cast<Map<String, dynamic>>()
+                .firstWhere(
+                  (o) => o['isDefault'] == true,
+                  orElse: () => orgs.first as Map<String, dynamic>,
+                )['id'];
+          }
           final user = _parseUser(json);
           _setUser(user);
           _lastEmail = user.email;
+          if (_organizationId == null && json['defaultOrganizationId'] != null) {
+            _organizationId = json['defaultOrganizationId'].toString();
+          }
           return true;
         }
       }
@@ -582,26 +602,50 @@ class CmmdAuthProvider implements AuthProvider {
   // ---------------------------------------------------------------------------
 
   Map<String, String> get _baseHeaders => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'FlAI/1.0 (cmmd_providers)',
-        'X-Auth-Type': 'jwt',
-        if (_accessToken != null) 'Authorization': 'Bearer $_accessToken',
-        if (_csrfToken != null) ...{
-          'X-XSRF-TOKEN': _csrfToken!,
-          'Cookie': 'XSRF-TOKEN=$_csrfToken${_sessionCookie ?? ''}',
-        },
-        'X-Organization-ID': ?organizationId,
-      };
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'User-Agent': 'FlAI/1.0 (cmmd_providers)',
+    'X-Auth-Type': 'jwt',
+    if (_accessToken != null) 'Authorization': 'Bearer $_accessToken',
+    if (_csrfToken != null) ...{
+      'X-XSRF-TOKEN': _csrfToken!,
+      'Cookie': 'XSRF-TOKEN=$_csrfToken${_sessionCookie ?? ''}',
+    },
+    'X-Organization-ID': ?organizationId,
+  };
 
   Map<String, String> _authHeaders(String token) => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'FlAI/1.0 (cmmd_providers)',
-        'Authorization': 'Bearer $token',
-        'X-Auth-Type': 'jwt',
-        'X-Organization-ID': ?organizationId,
-      };
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'User-Agent': 'FlAI/1.0 (cmmd_providers)',
+    'Authorization': 'Bearer $token',
+    'X-Auth-Type': 'jwt',
+    'X-Organization-ID': ?organizationId,
+  };
+
+  /// Fetches the user's organizations from `/api/organizations`.
+  ///
+  /// Returns `null` if the request fails so the caller can decide how to
+  /// degrade (workspace switcher hidden, fallback label, etc.).
+  Future<List<dynamic>?> _fetchOrganizations() async {
+    try {
+      final response = await http
+          .get(
+            Uri.parse('${config.baseUrl}/api/organizations'),
+            headers: _baseHeaders,
+          )
+          .timeout(const Duration(seconds: 8));
+      if (response.statusCode != 200) return null;
+      final body = jsonDecode(response.body);
+      if (body is List) return body;
+      if (body is Map && body['organizations'] is List) {
+        return body['organizations'] as List;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
 
   Future<void> _ensureCsrfToken() async {
     if (_csrfToken != null) return;
@@ -611,13 +655,13 @@ class CmmdAuthProvider implements AuthProvider {
         headers: {'Accept': 'application/json'},
       );
       final setCookie = response.headers['set-cookie'] ?? '';
-      final xsrfMatch =
-          RegExp(r'XSRF-TOKEN=([^;]+)').firstMatch(setCookie);
+      final xsrfMatch = RegExp(r'XSRF-TOKEN=([^;]+)').firstMatch(setCookie);
       if (xsrfMatch != null) {
         _csrfToken = xsrfMatch.group(1);
       }
-      final sessionMatch =
-          RegExp(r'(connect\.sid=[^;]+)').firstMatch(setCookie);
+      final sessionMatch = RegExp(
+        r'(connect\.sid=[^;]+)',
+      ).firstMatch(setCookie);
       if (sessionMatch != null) {
         _sessionCookie = '; ${sessionMatch.group(1)}';
       }
@@ -640,14 +684,8 @@ class CmmdAuthProvider implements AuthProvider {
   /// Common handler for all successful auth responses.
   ///
   /// Extracts JWT tokens, user data, and organization ID.
-  AuthResult _handleAuthResponse(
-    Map<String, dynamic> json, {
-    String? email,
-  }) {
-    _setTokens(
-      json['token'] as String?,
-      json['refreshToken'] as String?,
-    );
+  AuthResult _handleAuthResponse(Map<String, dynamic> json, {String? email}) {
+    _setTokens(json['token'] as String?, json['refreshToken'] as String?);
 
     // Store organization ID for subsequent requests.
     final orgId = json['defaultOrganizationId'];
@@ -669,7 +707,8 @@ class CmmdAuthProvider implements AuthProvider {
       email: userJson['email'] as String? ?? '',
       displayName:
           userJson['firstName'] as String? ?? userJson['username'] as String?,
-      photoUrl: userJson['profileImageUrl'] as String? ??
+      photoUrl:
+          userJson['profileImageUrl'] as String? ??
           userJson['profileImage'] as String?,
       metadata: {
         if (json.containsKey('defaultOrganizationId'))
@@ -721,7 +760,9 @@ class CmmdAuthProvider implements AuthProvider {
     const charset =
         '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
-    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
-        .join();
+    return List.generate(
+      length,
+      (_) => charset[random.nextInt(charset.length)],
+    ).join();
   }
 }

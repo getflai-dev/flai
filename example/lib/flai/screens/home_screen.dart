@@ -9,6 +9,7 @@ import '../flows/sidebar/screens/sidebar_drawer.dart';
 import '../flows/sidebar/settings_config.dart';
 import '../flows/sidebar/sidebar_config.dart';
 import '../flows/sidebar/widgets/top_nav_bar.dart';
+import '../flows/sidebar/widgets/workspace_picker_sheet.dart';
 import '../providers.dart';
 
 /// The main home screen displayed after authentication and onboarding.
@@ -69,6 +70,17 @@ class FlaiHomeScreen extends StatefulWidget {
   /// [ChatExperienceConfig.availableModes] is used.
   final String? initialModeId;
 
+  /// Workspaces the signed-in user can switch into. When non-empty, tapping
+  /// the workspace chip in the sidebar opens a picker sheet.
+  final List<WorkspaceOrg> availableWorkspaces;
+
+  /// The id of the currently active workspace (matches one of
+  /// [availableWorkspaces]). Used to render the checkmark in the picker.
+  final String? activeWorkspaceId;
+
+  /// Called when the user picks a workspace from the picker sheet.
+  final ValueChanged<String>? onWorkspaceSelected;
+
   /// Creates a [FlaiHomeScreen].
   const FlaiHomeScreen({
     super.key,
@@ -86,6 +98,9 @@ class FlaiHomeScreen extends StatefulWidget {
     this.onOpenSettings,
     this.onModeChanged,
     this.initialModeId,
+    this.availableWorkspaces = const [],
+    this.activeWorkspaceId,
+    this.onWorkspaceSelected,
   });
 
   @override
@@ -136,6 +151,19 @@ class _FlaiHomeScreenState extends State<FlaiHomeScreen> {
     if (mounted) setState(() {});
   }
 
+  Future<void> _openWorkspacePicker() async {
+    final scaffold = _scaffoldKey.currentState;
+    if (scaffold?.isDrawerOpen ?? false) Navigator.of(context).pop();
+    final selected = await showWorkspacePickerSheet(
+      context: context,
+      workspaces: widget.availableWorkspaces,
+      activeId: widget.activeWorkspaceId,
+    );
+    if (selected != null && selected != widget.activeWorkspaceId) {
+      widget.onWorkspaceSelected?.call(selected);
+    }
+  }
+
   @override
   void dispose() {
     _voiceController?.removeListener(_onVoiceStateChanged);
@@ -146,12 +174,16 @@ class _FlaiHomeScreenState extends State<FlaiHomeScreen> {
   /// Builds a [SidebarConfig] that merges the consumer's config with the
   /// home screen's overridable callbacks and the settings config.
   SidebarConfig get _effectiveSidebarConfig {
+    final canPickWorkspace =
+        widget.availableWorkspaces.length > 1 &&
+        widget.onWorkspaceSelected != null;
     return SidebarConfig(
       appName: widget.sidebarConfig.appName,
       appLogo: widget.sidebarConfig.appLogo,
       workspaceLabel: widget.sidebarConfig.workspaceLabel ??
           widget.userProfile?.workspaceLabel,
-      onWorkspaceTap: widget.sidebarConfig.onWorkspaceTap,
+      onWorkspaceTap: widget.sidebarConfig.onWorkspaceTap ??
+          (canPickWorkspace ? _openWorkspacePicker : null),
       navItems: widget.sidebarConfig.navItems,
       enableSearch: widget.sidebarConfig.enableSearch,
       topNavActions: widget.sidebarConfig.topNavActions,
