@@ -1,0 +1,19 @@
+appId: com.example.flaiExample
+---
+
+- launchApp:
+    appId: com.example.flaiExample
+- waitForAnimationToEnd:
+    timeout: 20000
+- runFlow:
+    when:
+      visible: "Log in"
+    file: shared_login.yaml
+- extendedWaitUntil:
+    visible: "CMMD"
+    timeout: 15000
+- tapOn:
+    point: "8%,11%"
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: sidebar_redesigned

@@ -139,7 +139,7 @@ class _FlaiConnectionsScreenState extends State<FlaiConnectionsScreen> {
     if (provider == null) return;
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final url = await provider.startConnect(c.id);
+      final url = c.authUrl ?? await provider.startConnect(c.id);
       final ok = await launchUrl(
         Uri.parse(url),
         mode: LaunchMode.inAppBrowserView,

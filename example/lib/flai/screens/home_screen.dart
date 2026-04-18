@@ -149,6 +149,9 @@ class _FlaiHomeScreenState extends State<FlaiHomeScreen> {
     return SidebarConfig(
       appName: widget.sidebarConfig.appName,
       appLogo: widget.sidebarConfig.appLogo,
+      workspaceLabel: widget.sidebarConfig.workspaceLabel ??
+          widget.userProfile?.workspaceLabel,
+      onWorkspaceTap: widget.sidebarConfig.onWorkspaceTap,
       navItems: widget.sidebarConfig.navItems,
       enableSearch: widget.sidebarConfig.enableSearch,
       topNavActions: widget.sidebarConfig.topNavActions,

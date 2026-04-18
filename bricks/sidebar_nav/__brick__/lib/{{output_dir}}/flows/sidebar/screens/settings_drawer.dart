@@ -4,7 +4,6 @@ import '../../../core/theme/flai_theme.dart';
 import '../settings_config.dart';
 import '../sidebar_config.dart';
 import '../widgets/settings_row_widget.dart';
-import '../widgets/workspace_switcher.dart';
 
 /// Pushes the full-screen settings page.
 ///
@@ -80,16 +79,6 @@ class FlaiSettingsScreen extends StatelessWidget {
         padding: EdgeInsets.only(bottom: theme.spacing.xl),
         children: [
           if (userProfile != null) _UserHeader(profile: userProfile!),
-          if (config.showWorkspaceSwitcher)
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: theme.spacing.md,
-                vertical: theme.spacing.xs,
-              ),
-              child: WorkspaceSwitcher(
-                workspaceLabel: userProfile?.workspaceLabel,
-              ),
-            ),
           Divider(color: theme.colors.border, height: 1),
           for (final section in config.sections) ...[
             Padding(

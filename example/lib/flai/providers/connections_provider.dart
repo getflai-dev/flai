@@ -1,21 +1,23 @@
 /// Abstract interface for managing third-party service connections
-/// (Google, Slack, GitHub, Notion, etc.).
+/// (Salesforce, Google, Slack, GitHub, Notion, etc.).
 ///
 /// The settings Connections page reads from a [ConnectionsProvider] to render
 /// "Connected" and "Available" sections. Implementations are responsible for
-/// the actual OAuth flow — the UI launches an in-app browser with the URL
-/// returned by [startConnect].
-///
-/// Implementations should be pure data adapters: no UI imports, no global
-/// state. Provide them via `AppScaffoldConfig.connectionsProvider`.
+/// the actual OAuth flow — the UI launches an in-app browser with either
+/// [Connector.authUrl] (preferred — pre-built by the backend) or whatever
+/// [startConnect] returns when no inline URL is available.
 abstract class ConnectionsProvider {
   /// Loads the catalog of available connectors plus the user's current state.
   Future<List<Connector>> loadConnectors();
 
-  /// Returns an OAuth URL the UI should open in an in-app browser to begin
-  /// the connect flow for [connectorId]. The provider is expected to track
-  /// the resulting callback out-of-band.
-  Future<String> startConnect(String connectorId);
+  /// Returns an OAuth URL for [connectorId]. Implementations may call this
+  /// when [Connector.authUrl] is null, or to refresh the URL/state token.
+  /// The default implementation throws — most backends should embed
+  /// `authUrl` in the connector payload directly.
+  Future<String> startConnect(String connectorId) =>
+      throw UnimplementedError(
+        'startConnect() not implemented; supply Connector.authUrl instead.',
+      );
 
   /// Disconnects the given connector for the current user.
   Future<void> disconnect(String connectorId);
@@ -23,10 +25,10 @@ abstract class ConnectionsProvider {
 
 /// A single connector entry returned by [ConnectionsProvider.loadConnectors].
 class Connector {
-  /// Stable identifier used by the backend (e.g. `google_drive`, `slack`).
+  /// Stable identifier used by the backend (e.g. `salesforce`, `slack`).
   final String id;
 
-  /// Display name shown to the user (e.g. "Google Drive").
+  /// Display name shown to the user (e.g. "Salesforce").
   final String name;
 
   /// Short description shown beneath the name in the list.
@@ -41,6 +43,14 @@ class Connector {
   /// Optional account label shown when connected (e.g. an email address).
   final String? accountLabel;
 
+  /// Optional grouping category (e.g. "crm", "productivity", "finance").
+  /// Used by the UI to render section headings within the Available list.
+  final String? category;
+
+  /// Pre-built OAuth authorization URL — when present, the UI opens this
+  /// directly without a separate call to [ConnectionsProvider.startConnect].
+  final String? authUrl;
+
   const Connector({
     required this.id,
     required this.name,
@@ -48,6 +58,8 @@ class Connector {
     this.iconUrl,
     this.connected = false,
     this.accountLabel,
+    this.category,
+    this.authUrl,
   });
 
   Connector copyWith({bool? connected, String? accountLabel}) => Connector(
@@ -57,5 +69,7 @@ class Connector {
         iconUrl: iconUrl,
         connected: connected ?? this.connected,
         accountLabel: accountLabel ?? this.accountLabel,
+        category: category,
+        authUrl: authUrl,
       );
 }

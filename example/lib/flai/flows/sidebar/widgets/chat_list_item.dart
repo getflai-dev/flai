@@ -152,109 +152,74 @@ class ChatListItem extends StatelessWidget {
         onTap: onTap,
         onLongPress: () => _showContextMenu(context),
         behavior: HitTestBehavior.opaque,
-        child: Container(
-          color: isSelected ? theme.colors.muted : Colors.transparent,
-          padding: EdgeInsets.symmetric(
-            horizontal: theme.spacing.md,
-            vertical: theme.spacing.sm,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Avatar circle
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: theme.colors.muted,
-                  shape: BoxShape.circle,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: theme.spacing.sm),
+          child: Container(
+            decoration: BoxDecoration(
+              color: isSelected ? theme.colors.muted : Colors.transparent,
+              borderRadius: BorderRadius.circular(theme.radius.sm),
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.spacing.sm,
+              vertical: 6,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (item.isStarred) ...[
+                  Icon(
+                    Icons.star_rounded,
+                    size: 12,
+                    color: theme.colors.mutedForeground,
+                  ),
+                  SizedBox(width: theme.spacing.xs),
+                ],
+                Expanded(
+                  child: Text(
+                    item.title,
+                    style: theme.typography.sm.copyWith(
+                      color: theme.colors.foreground,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: Text(
-                  'AI',
+                SizedBox(width: theme.spacing.sm),
+                Text(
+                  _formatTimestamp(item.timestamp),
                   style: theme.typography.sm.copyWith(
                     color: theme.colors.mutedForeground,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
                   ),
                 ),
-              ),
-              SizedBox(width: theme.spacing.sm),
-              // Title and preview
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        if (item.isStarred) ...[
-                          Icon(
-                            Icons.star_rounded,
-                            size: 12,
-                            color: Colors.amber,
-                          ),
-                          SizedBox(width: theme.spacing.xs),
-                        ],
-                        Expanded(
-                          child: Text(
-                            item.title,
-                            style: theme.typography.base.copyWith(
-                              color: theme.colors.foreground,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                if (item.unreadCount > 0) ...[
+                  SizedBox(width: theme.spacing.xs),
+                  Container(
+                    constraints: const BoxConstraints(minWidth: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 1,
                     ),
-                    SizedBox(height: 2),
-                    Text(
-                      item.preview,
+                    decoration: BoxDecoration(
+                      color: theme.colors.primary,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      item.unreadCount > 99 ? '99+' : '${item.unreadCount}',
                       style: theme.typography.sm.copyWith(
-                        color: theme.colors.mutedForeground,
+                        color: theme.colors.primaryForeground,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 10,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: theme.spacing.sm),
-              // Timestamp and unread badge
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _formatTimestamp(item.timestamp),
-                    style: theme.typography.sm.copyWith(
-                      color: theme.colors.mutedForeground,
                     ),
                   ),
-                  if (item.unreadCount > 0) ...[
-                    SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colors.primary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        item.unreadCount > 99 ? '99+' : '${item.unreadCount}',
-                        style: theme.typography.sm.copyWith(
-                          color: theme.colors.primaryForeground,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

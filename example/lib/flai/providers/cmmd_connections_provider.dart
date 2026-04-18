@@ -6,16 +6,15 @@ import 'connections_provider.dart';
 
 /// CMMD API implementation of [ConnectionsProvider].
 ///
-/// The CMMD web client backs `/connections` with these endpoints:
+/// CMMD exposes a single integrations endpoint that returns the entire catalog
+/// plus per-user state and a pre-built OAuth URL for each item:
 ///
-///   * `GET    /api/connections`                 — list connectors + state
-///   * `POST   /api/connections/{id}/oauth-url`  — returns OAuth URL
-///   * `DELETE /api/connections/{id}`            — disconnect
+///   * `GET  /api/integrations`                    — list integrations
+///   * `POST /api/integrations/{id}/disconnect`    — disconnect
 ///
-/// On API errors a [CmmdApiException] is thrown so the UI can surface a
-/// friendly message via [CmmdClientBase.friendlyError]. If the production
-/// backend renames endpoints, retune them here — the [Connector] shape stays
-/// the same.
+/// The list response embeds [Connector.authUrl] so the UI can launch the OAuth
+/// flow without a follow-up round-trip. [startConnect] is intentionally
+/// unimplemented — fall back to whatever the server returned.
 class CmmdConnectionsProvider
     with CmmdClientBase
     implements ConnectionsProvider {
@@ -40,43 +39,49 @@ class CmmdConnectionsProvider
 
   @override
   Future<List<Connector>> loadConnectors() async {
-    final response = await cmmdGet('/api/connections');
+    final response = await cmmdGet('/api/integrations');
     final body = jsonDecode(response.body);
     final list = body is List
         ? body
-        : (body is Map && body['connectors'] is List
-            ? body['connectors'] as List
-            : const []);
+        : (body is Map && body['integrations'] is List
+              ? body['integrations'] as List
+              : const []);
     return list
         .map((e) => _parseConnector(e as Map<String, dynamic>))
         .toList(growable: false);
   }
 
   @override
-  Future<String> startConnect(String connectorId) async {
-    final response = await cmmdPost('/api/connections/$connectorId/oauth-url');
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
-    final url = body['url'] ?? body['oauthUrl'] ?? body['authorizationUrl'];
-    if (url is! String || url.isEmpty) {
-      throw const CmmdApiException(message: 'No OAuth URL returned by server.');
-    }
-    return url;
+  Future<String> startConnect(String connectorId) {
+    throw const CmmdApiException(
+      message:
+          'CMMD embeds the OAuth URL in /api/integrations as `authUrl`; '
+          'the UI should launch that directly without calling startConnect.',
+    );
   }
 
   @override
   Future<void> disconnect(String connectorId) async {
-    await cmmdDelete('/api/connections/$connectorId');
+    await cmmdPost('/api/integrations/$connectorId/disconnect');
   }
 
   Connector _parseConnector(Map<String, dynamic> json) {
-    final id = (json['id'] ?? json['connectorId'] ?? json['provider']).toString();
+    final id = (json['id'] ?? json['connectorId'] ?? json['provider'])
+        .toString();
     return Connector(
       id: id,
       name: (json['name'] ?? json['displayName'] ?? id).toString(),
       description: json['description']?.toString(),
-      iconUrl: json['iconUrl']?.toString() ?? json['icon']?.toString(),
+      iconUrl:
+          json['iconUrl']?.toString() ??
+          json['serviceLogo']?.toString() ??
+          json['icon']?.toString(),
       connected: json['connected'] == true || json['status'] == 'connected',
-      accountLabel: json['accountLabel']?.toString() ?? json['accountEmail']?.toString(),
+      accountLabel:
+          json['accountLabel']?.toString() ??
+          json['accountEmail']?.toString(),
+      category: json['category']?.toString(),
+      authUrl: json['authUrl']?.toString(),
     );
   }
 }

@@ -47,7 +47,7 @@ void main() {
         theme: CmmdTheme.light(),
         sidebarConfig: const SidebarConfig(
           appName: 'CMMD',
-          appLogo: CmmdLogo.full(),
+          appLogo: CmmdLogo.full(glyphSize: 18),
           enableSearch: true,
           navItems: [
             NavItem(

@@ -84,9 +84,30 @@ class HomeController extends ChangeNotifier {
       email: user.email,
       avatarUrl: user.photoUrl,
       initials: initials,
-      workspaceLabel: user.metadata?['defaultOrganizationId']?.toString(),
+      workspaceLabel: _resolveWorkspaceLabel(user),
     );
     return _cachedProfile;
+  }
+
+  /// Picks a human-friendly workspace label from auth metadata, falling back
+  /// to "Personal" so the sidebar chip always renders something readable
+  /// (instead of an opaque organization UUID).
+  String _resolveWorkspaceLabel(AuthUser user) {
+    final m = user.metadata;
+    if (m != null) {
+      for (final key in const [
+        'organizationName',
+        'workspaceName',
+        'tenantName',
+        'companyName',
+      ]) {
+        final v = m[key];
+        if (v is String && v.trim().isNotEmpty) return v.trim();
+      }
+    }
+    final firstName = user.displayName?.split(' ').first;
+    if (firstName != null && firstName.isNotEmpty) return firstName;
+    return 'Personal';
   }
 
   // ── Init / Dispose ─────────────────────────────────────────────────

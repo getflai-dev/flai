@@ -14,11 +14,7 @@ class NavItem {
   final Widget? page;
 
   /// Creates a [NavItem].
-  const NavItem({
-    required this.icon,
-    required this.label,
-    this.page,
-  });
+  const NavItem({required this.icon, required this.label, this.page});
 }
 
 /// Profile information for the signed-in user.
@@ -106,6 +102,16 @@ class SidebarConfig {
   /// An optional logo widget shown instead of the app name text.
   final Widget? appLogo;
 
+  /// Optional label for the workspace switcher chip rendered in the sidebar
+  /// header alongside the logo (e.g. "Personal", "Acme Corp"). When null,
+  /// no chip is rendered — set [onWorkspaceTap] together with this to enable
+  /// switching.
+  final String? workspaceLabel;
+
+  /// Called when the user taps the workspace switcher chip in the sidebar
+  /// header. Implementations typically present a workspace picker.
+  final VoidCallback? onWorkspaceTap;
+
   /// The navigation items shown in the sidebar drawer.
   final List<NavItem> navItems;
 
@@ -143,6 +149,8 @@ class SidebarConfig {
   const SidebarConfig({
     required this.appName,
     this.appLogo,
+    this.workspaceLabel,
+    this.onWorkspaceTap,
     this.navItems = const [],
     this.enableSearch = false,
     this.topNavActions = const [],
